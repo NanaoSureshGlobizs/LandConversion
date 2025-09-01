@@ -72,7 +72,7 @@ export default function ApplicationDetailPage() {
   } = application;
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+    <div className="flex-1 space-y-6 px-4 md:px-8">
       <div className="flex items-center gap-4">
         <Button
           variant="outline"

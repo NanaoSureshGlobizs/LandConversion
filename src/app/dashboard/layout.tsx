@@ -1,4 +1,8 @@
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 
 export default function DashboardLayout({
@@ -9,7 +13,12 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <SidebarNav />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <div className="p-4 md:p-8 pt-6">
+          <SidebarTrigger />
+        </div>
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }

@@ -51,7 +51,6 @@ export function SidebarNav() {
             <span className="text-sm text-muted-foreground">Governement of Manipur</span>
           </div>
           <div className="flex-1" />
-          <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
