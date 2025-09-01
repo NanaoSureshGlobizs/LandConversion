@@ -25,7 +25,7 @@ export default function LoginPage() {
     const checkAuthentication = async () => {
       const loggedIn = await checkAuth();
       if (loggedIn) {
-        router.replace('/dashboard');
+        router.replace('/dashboard/new-application');
       } else {
         setIsCheckingAuth(false);
       }
@@ -96,8 +96,8 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back! Redirecting...',
         });
-        // Use router.replace to navigate to the dashboard
-        router.replace('/dashboard');
+        // Use router.replace to navigate to the dashboard's default page
+        router.replace('/dashboard/new-application');
       } else {
         toast({
           title: 'Error',
