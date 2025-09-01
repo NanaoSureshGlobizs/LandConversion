@@ -124,6 +124,7 @@ export default function LoginPage() {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   disabled={isLoading}
+                  maxLength={10}
                 />
               </div>
             </CardContent>
