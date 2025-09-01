@@ -73,7 +73,6 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
-    setDebugLog('');
     try {
       const result = await verifyOtp(phoneNumber, otp);
        if (result.debugLog) {
