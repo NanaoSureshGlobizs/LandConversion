@@ -73,7 +73,6 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back!',
         });
-        // In a real app, you would store the token securely.
         router.push('/dashboard');
       } else {
         toast({

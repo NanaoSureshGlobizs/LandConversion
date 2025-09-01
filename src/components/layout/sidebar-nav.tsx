@@ -14,6 +14,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { logout } from '@/app/actions';
 
 const menuItems = [
   {
@@ -37,8 +38,8 @@ export function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
-    // In a real app, you'd clear session/token here
+  const handleLogout = async () => {
+    await logout();
     router.push('/');
   };
 

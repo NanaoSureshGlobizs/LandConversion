@@ -1,5 +1,7 @@
 'use server';
 
+import { cookies } from 'next/headers';
+
 interface SendOtpResponse {
   success: boolean;
   message?: string;
@@ -63,9 +65,22 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
        return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null };
     }
 
+    if (data.success && data.data?.accessToken) {
+      cookies().set('accessToken', data.data.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+      });
+    }
+
     return data as VerifyOtpResponse;
   } catch (error) {
     console.error('verifyOtp error:', error);
     return { success: false, message: 'An unexpected error occurred.', data: null };
   }
+}
+
+export async function logout() {
+  cookies().delete('accessToken');
 }
