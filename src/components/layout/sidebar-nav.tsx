@@ -43,7 +43,7 @@ export function SidebarNav() {
   };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <div className="flex items-center gap-2">
           <div className='flex flex-col'>
@@ -63,6 +63,7 @@ export function SidebarNav() {
                 isActive={pathname.startsWith(item.href)}
               >
                 <Link href={item.href}>
+                  <item.icon />
                   <span>{item.label}</span>
                 </Link>
               </SidebarMenuButton>
