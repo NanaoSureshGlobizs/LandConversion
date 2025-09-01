@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { districts, villages, landUseTypes } from '@/lib/mock-data';
-import { suggestLandUseIssues } from '@/ai/flows/suggest-land-use-issues';
 
 const formSchema = z.object({
   surveyNumber: z.string().min(1, 'Survey number is required.'),
@@ -22,7 +21,6 @@ const formSchema = z.object({
   district: z.string().min(1, 'District is required.'),
   currentLandUse: z.string().min(1, 'Current land use is required.'),
   proposedLandUse: z.string().min(10, 'Proposed land use description is required.'),
-  zoningRegulations: z.string().min(10, 'Zoning regulations are required for AI analysis.'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -30,8 +28,6 @@ type FormValues = z.infer<typeof formSchema>;
 export function NewApplicationForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState('');
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -41,51 +37,8 @@ export function NewApplicationForm() {
       district: '',
       currentLandUse: '',
       proposedLandUse: '',
-      zoningRegulations: 'The area is zoned for agricultural use. Commercial buildings are restricted. Minimum plot size for residential construction is 5000 sq. ft.',
     },
   });
-
-  const proposedLandUseValue = useWatch({
-    control: form.control,
-    name: 'proposedLandUse',
-  });
-  const zoningRegulationsValue = useWatch({
-    control: form.control,
-    name: 'zoningRegulations',
-  });
-
-  const handleAnalyze = async () => {
-    const isProposedLandUseValid = await form.trigger('proposedLandUse');
-    const isZoningValid = await form.trigger('zoningRegulations');
-
-    if (!isProposedLandUseValid || !isZoningValid) {
-        toast({
-            variant: "destructive",
-            title: "Missing Information",
-            description: "Please provide both proposed land use and zoning regulations for analysis.",
-        });
-        return;
-    }
-
-    setIsAnalyzing(true);
-    setAiSuggestions('');
-    try {
-      const result = await suggestLandUseIssues({
-        proposedLandUse: proposedLandUseValue,
-        existingZoningRegulations: zoningRegulationsValue,
-      });
-      setAiSuggestions(result.suggestedIssues);
-    } catch (error) {
-      console.error('AI analysis failed:', error);
-      toast({
-        variant: 'destructive',
-        title: 'AI Analysis Failed',
-        description: 'Could not get suggestions from the AI. Please try again.',
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -100,13 +53,11 @@ export function NewApplicationForm() {
       description: `Your application for survey no. ${values.surveyNumber} has been received.`,
     });
     form.reset();
-    setAiSuggestions('');
   };
 
   return (
     <Form {...form}>
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <Card className="lg:col-span-2 shadow-lg">
+      <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Application Details</CardTitle>
           <CardDescription>Provide the details for the plot of land.</CardDescription>
@@ -222,62 +173,6 @@ export function NewApplicationForm() {
             </form>
         </CardContent>
       </Card>
-      
-      <div className="space-y-8">
-        <Card className="shadow-lg bg-primary/10 border-primary/20">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                    <Sparkles className="text-accent" />
-                    AI-Powered Compliance Check
-                </CardTitle>
-                <CardDescription>
-                    Use our AI tool to identify potential issues with your proposal before you submit.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                 <FormField
-                  control={form.control}
-                  name="zoningRegulations"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Existing Zoning Regulations</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Describe the area's zoning rules..." className="min-h-[100px] bg-background" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full" type="button">
-                    {isAnalyzing ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <Sparkles className="mr-2 h-4 w-4" />
-                    )}
-                    Analyze with AI
-                </Button>
-            </CardContent>
-        </Card>
-        
-        {(isAnalyzing || aiSuggestions) && (
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="font-headline">AI Analysis Results</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {isAnalyzing ? (
-                        <div className="flex items-center justify-center p-8 text-muted-foreground">
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            <span>Analyzing...</span>
-                        </div>
-                    ) : (
-                        <p className="text-sm whitespace-pre-wrap">{aiSuggestions}</p>
-                    )}
-                </CardContent>
-            </Card>
-        )}
-      </div>
-    </div>
     </Form>
   );
 }
