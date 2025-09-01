@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Logo } from '@/components/icons/logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,10 +20,12 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-            <Logo className="size-8 text-primary" />
+          <div className="mx-auto mb-4 flex flex-col items-center justify-center gap-2">
             <span className="text-2xl font-bold font-headline text-foreground">
-              LandLink
+              Change of Land Use
+            </span>
+            <span className="text-sm text-muted-foreground">
+              Government of Manipur
             </span>
           </div>
           <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>

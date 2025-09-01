@@ -12,20 +12,11 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface ApplicationsTableProps {
   data: Application[];
 }
-
-const statusColors: Record<ApplicationStatus, string> = {
-  Approved: 'bg-green-100 text-green-800 border-green-200',
-  Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  'In Review': 'bg-blue-100 text-blue-800 border-blue-200',
-  Rejected: 'bg-red-100 text-red-800 border-red-200',
-  Submitted: 'bg-gray-100 text-gray-800 border-gray-200',
-};
 
 export function ApplicationsTable({ data }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -50,7 +41,7 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
     <div className="space-y-4">
       <div className="flex items-center">
         <Input
-          placeholder="Search by Application ID, Patta No, or Status..."
+          placeholder="Search by Application ID"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
@@ -62,9 +53,10 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
             <TableRow>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta Number</TableHead>
-              <TableHead>Area (Hectare/Acres)</TableHead>
+              <TableHead>Area (Ha)</TableHead>
               <TableHead>Date Submitted</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,28 +64,28 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
               filteredData.map((app) => (
                 <TableRow
                   key={app.id}
-                  onClick={() => handleRowClick(app.id)}
-                  className="cursor-pointer"
                 >
-                  <TableCell className="font-medium">{app.id}</TableCell>
-                  <TableCell>{app.pattaNumber}</TableCell>
-                  <TableCell>{app.area.toLocaleString()}</TableCell>
-                  <TableCell>
-                    {new Date(app.dateSubmitted).toLocaleDateString()}
+                  <TableCell className="font-medium" onClick={() => handleRowClick(app.id)}>{app.id}</TableCell>
+                  <TableCell onClick={() => handleRowClick(app.id)}>{app.pattaNumber}</TableCell>
+                  <TableCell onClick={() => handleRowClick(app.id)}>{app.area.toLocaleString()} acres</TableCell>
+                  <TableCell onClick={() => handleRowClick(app.id)}>
+                    {new Date(app.dateSubmitted).toLocaleDateString('en-CA')}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={cn('font-semibold', statusColors[app.status])}
-                    >
+                    <Button variant="outline" size="sm" className="cursor-default">
                       {app.status}
-                    </Badge>
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="link" onClick={() => handleRowClick(app.id)}>
+                      Track Application
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No results found.
                 </TableCell>
               </TableRow>

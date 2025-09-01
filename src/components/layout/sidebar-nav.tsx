@@ -14,7 +14,6 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Logo } from '@/components/icons/logo';
 
 const menuItems = [
   {
@@ -47,8 +46,10 @@ export function SidebarNav() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2">
-          <Logo className="size-8 shrink-0 text-primary" />
-          <span className="text-xl font-bold font-headline">LandLink</span>
+          <div className='flex flex-col'>
+            <span className="text-xl font-bold font-headline">Change of Land Use</span>
+            <span className="text-sm text-muted-foreground">Governement of Manipur</span>
+          </div>
           <div className="flex-1" />
           <SidebarTrigger />
         </div>
@@ -59,11 +60,9 @@ export function SidebarNav() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
-                tooltip={item.label}
+                isActive={pathname.startsWith(item.href)}
               >
                 <Link href={item.href}>
-                  <item.icon />
                   <span>{item.label}</span>
                 </Link>
               </SidebarMenuButton>

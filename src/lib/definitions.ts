@@ -3,7 +3,9 @@ export type ApplicationStatus =
   | 'Approved'
   | 'Rejected'
   | 'In Review'
-  | 'Submitted';
+  | 'Submitted'
+  | 'Inprogress'
+  | 'Completed';
 
 export interface Document {
   name: string;
