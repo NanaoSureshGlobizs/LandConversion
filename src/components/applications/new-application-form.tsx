@@ -104,6 +104,7 @@ export function NewApplicationForm() {
   };
 
   return (
+    <Form {...form}>
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <Card className="lg:col-span-2 shadow-lg">
         <CardHeader>
@@ -111,7 +112,6 @@ export function NewApplicationForm() {
           <CardDescription>Provide the details for the plot of land.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -220,7 +220,6 @@ export function NewApplicationForm() {
                 Submit Application
               </Button>
             </form>
-          </Form>
         </CardContent>
       </Card>
       
@@ -249,7 +248,7 @@ export function NewApplicationForm() {
                     </FormItem>
                   )}
                 />
-                <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full">
+                <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full" type="button">
                     {isAnalyzing ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
@@ -279,5 +278,6 @@ export function NewApplicationForm() {
         )}
       </div>
     </div>
+    </Form>
   );
 }
