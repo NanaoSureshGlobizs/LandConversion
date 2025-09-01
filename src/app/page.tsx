@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { sendOtp, verifyOtp } from './actions';
 import { Loader2 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [debugLog, setDebugLog] = useState('');
 
   const handleSendOtp = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -29,8 +31,12 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
+    setDebugLog('');
     try {
       const result = await sendOtp(phoneNumber);
+      if (result.debugLog) {
+        setDebugLog(result.debugLog);
+      }
       if (result.success) {
         toast({
           title: 'OTP Sent',
@@ -50,6 +56,7 @@ export default function LoginPage() {
         description: 'An unexpected error occurred.',
         variant: 'destructive',
       });
+       setDebugLog(prev => prev + `\n\nFE CATCH BLOCK ERROR:\n${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -66,15 +73,17 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
+    setDebugLog('');
     try {
       const result = await verifyOtp(phoneNumber, otp);
+       if (result.debugLog) {
+        setDebugLog(result.debugLog);
+      }
       if (result.success && result.data?.accessToken) {
         toast({
           title: 'Login Successful',
           description: 'Welcome back!',
         });
-        // Instead of router.push, we reload the page.
-        // The middleware will then handle the redirection to the dashboard.
         window.location.href = '/dashboard';
       } else {
         toast({
@@ -89,6 +98,7 @@ export default function LoginPage() {
         description: 'An unexpected error occurred.',
         variant: 'destructive',
       });
+       setDebugLog(prev => prev + `\n\nFE CATCH BLOCK ERROR:\n${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -166,6 +176,7 @@ export default function LoginPage() {
                 onClick={() => {
                   setStep('send');
                   setOtp('');
+                  setDebugLog('');
                 }}
                 disabled={isLoading}
               >
@@ -173,6 +184,16 @@ export default function LoginPage() {
               </Button>
             </CardFooter>
           </form>
+        )}
+        {debugLog && (
+          <CardContent>
+             <Label>Debug Log</Label>
+            <Textarea
+              readOnly
+              className="mt-2 h-48 w-full text-xs bg-muted/50"
+              value={debugLog}
+            />
+          </CardContent>
         )}
       </Card>
     </div>

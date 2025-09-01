@@ -6,6 +6,7 @@ interface SendOtpResponse {
   success: boolean;
   message?: string;
   data: null;
+  debugLog?: string;
 }
 
 interface VerifyOtpData {
@@ -20,6 +21,7 @@ interface VerifyOtpResponse {
   success: boolean;
   data: VerifyOtpData | null;
   message?: any;
+  debugLog?: string;
 }
 
 const API_BASE_URL = 'https://villageapi.globizsapp.com/api';
@@ -27,9 +29,9 @@ const API_BASE_URL = 'https://villageapi.globizsapp.com/api';
 export async function sendOtp(username: string): Promise<SendOtpResponse> {
   const url = `${API_BASE_URL}/auth/send-otp`;
   const payload = { username };
-  console.log('--- Sending OTP ---');
-  console.log('Request URL:', url);
-  console.log('Request Payload:', payload);
+  let debugLog = '--- Sending OTP ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
 
   try {
     const response = await fetch(url, {
@@ -42,27 +44,30 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
     });
 
     const data = await response.json();
-    console.log('API Response:', data);
-    console.log('-------------------');
-
+    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+    debugLog += '-------------------';
 
     if (!response.ok) {
-      return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null };
+      return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
     }
 
-    return data as SendOtpResponse;
+    const responseData = data as SendOtpResponse;
+    responseData.debugLog = debugLog;
+    return responseData;
   } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '-------------------';
     console.error('sendOtp error:', error);
-    return { success: false, message: 'An unexpected error occurred.', data: null };
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
 
 export async function verifyOtp(username: string, otp: string): Promise<VerifyOtpResponse> {
   const url = `${API_BASE_URL}/auth/verify-otp`;
   const payload = { username, otp };
-  console.log('--- Verifying OTP ---');
-  console.log('Request URL:', url);
-  console.log('Request Payload:', payload);
+  let debugLog = '--- Verifying OTP ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
 
   try {
     const response = await fetch(url, {
@@ -75,11 +80,12 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
     });
 
     const data = await response.json();
-    console.log('API Response:', data);
-    console.log('---------------------');
+    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+    debugLog += '---------------------';
+
 
     if (!response.ok) {
-       return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null };
+       return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
     }
 
     if (data.success && data.data?.accessToken) {
@@ -89,14 +95,17 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
         sameSite: 'lax',
         path: '/',
       });
-      // After successful login and cookie set, we will rely on middleware for redirection.
-      // A page reload on the client might be necessary if direct navigation doesn't work.
     }
+    
+    const responseData = data as VerifyOtpResponse;
+    responseData.debugLog = debugLog;
+    return responseData;
 
-    return data as VerifyOtpResponse;
   } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '---------------------';
     console.error('verifyOtp error:', error);
-    return { success: false, message: 'An unexpected error occurred.', data: null };
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
 
