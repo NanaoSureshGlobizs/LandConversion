@@ -5,11 +5,25 @@ export function middleware(request: NextRequest) {
   const accessToken = request.cookies.get('accessToken');
   const { pathname } = request.nextUrl;
 
-  // If trying to access a dashboard route without a token, redirect to login
-  if (pathname.startsWith('/dashboard') && !accessToken) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // Allow requests for static files and API routes to pass through
+  if (pathname.startsWith('/_next/') || pathname.startsWith('/api/') || pathname.includes('.')) {
+    return NextResponse.next();
   }
   
+  const isAuthPage = pathname === '/';
+
+  if (accessToken) {
+    // If user is logged in and tries to access login page, redirect to dashboard
+    if (isAuthPage) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+  } else {
+    // If user is not logged in and tries to access a protected route, redirect to login
+    if (!isAuthPage) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
