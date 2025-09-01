@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { sendOtp, verifyOtp } from './actions';
+import { sendOtp, verifyOtp, checkAuth } from './actions';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -18,7 +18,20 @@ export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [debugLog, setDebugLog] = useState('');
+  
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      const loggedIn = await checkAuth();
+      if (loggedIn) {
+        router.replace('/dashboard');
+      } else {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuthentication();
+  }, [router]);
 
   const handleSendOtp = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -83,7 +96,7 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back!',
         });
-        window.location.reload();
+        router.replace('/dashboard');
       } else {
         toast({
           title: 'Error',
@@ -102,6 +115,14 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
