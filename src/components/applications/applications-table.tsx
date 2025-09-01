@@ -13,6 +13,13 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ApplicationsTableProps {
   data: Application[];
@@ -33,15 +40,24 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
     );
   }, [data, searchTerm]);
 
-  const handleRowClick = (appId: string) => {
+  const handleView = (appId: string) => {
     router.push(`/dashboard/my-applications/${appId}`);
+  };
+
+  const handleEdit = (appId: string) => {
+    router.push(`/dashboard/my-applications/${appId}/edit`);
+  };
+
+  const handleDelete = (appId: string) => {
+    // In a real app, you'd show a confirmation dialog here.
+    console.log('Delete application:', appId);
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center">
         <Input
-          placeholder="Search by Application ID"
+          placeholder="Search by Application ID, Patta, or Status"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
@@ -56,30 +72,50 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
               <TableHead>Area (Ha)</TableHead>
               <TableHead>Date Submitted</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead></TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow
-                  key={app.id}
-                >
-                  <TableCell className="font-medium" onClick={() => handleRowClick(app.id)}>{app.id}</TableCell>
-                  <TableCell onClick={() => handleRowClick(app.id)}>{app.pattaNumber}</TableCell>
-                  <TableCell onClick={() => handleRowClick(app.id)}>{app.area.toLocaleString()} acres</TableCell>
-                  <TableCell onClick={() => handleRowClick(app.id)}>
+                <TableRow key={app.id}>
+                  <TableCell className="font-medium">{app.id}</TableCell>
+                  <TableCell>{app.pattaNumber}</TableCell>
+                  <TableCell>{app.area.toLocaleString()} acres</TableCell>
+                  <TableCell>
                     {new Date(app.dateSubmitted).toLocaleDateString('en-CA')}
                   </TableCell>
                   <TableCell>
-                    <Button variant="outline" size="sm" className="cursor-default">
+                    <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold">
                       {app.status}
-                    </Button>
+                    </span>
                   </TableCell>
-                  <TableCell>
-                    <Button variant="link" onClick={() => handleRowClick(app.id)}>
-                      Track Application
-                    </Button>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleView(app.id)}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(app.id)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(app.id)}
+                      >
+                        <Trash2 className="size-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
