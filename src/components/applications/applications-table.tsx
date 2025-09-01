@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Application, ApplicationStatus } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
@@ -23,10 +24,12 @@ const statusColors: Record<ApplicationStatus, string> = {
   Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   'In Review': 'bg-blue-100 text-blue-800 border-blue-200',
   Rejected: 'bg-red-100 text-red-800 border-red-200',
+  Submitted: 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
 export function ApplicationsTable({ data }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
 
   const filteredData = useMemo(() => {
     if (!searchTerm) return data;
@@ -38,6 +41,10 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
         item.status.toLowerCase().includes(lowercasedFilter)
     );
   }, [data, searchTerm]);
+
+  const handleRowClick = (appId: string) => {
+    router.push(`/dashboard/my-applications/${appId}`);
+  };
 
   return (
     <div className="space-y-4">
@@ -55,7 +62,7 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
             <TableRow>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta Number</TableHead>
-              <TableHead>Area (sq. ft)</TableHead>
+              <TableHead>Area (Hectare/Acres)</TableHead>
               <TableHead>Date Submitted</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -63,13 +70,22 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow
+                  key={app.id}
+                  onClick={() => handleRowClick(app.id)}
+                  className="cursor-pointer"
+                >
                   <TableCell className="font-medium">{app.id}</TableCell>
                   <TableCell>{app.pattaNumber}</TableCell>
                   <TableCell>{app.area.toLocaleString()}</TableCell>
-                  <TableCell>{new Date(app.dateSubmitted).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={cn('font-semibold', statusColors[app.status])}>
+                    {new Date(app.dateSubmitted).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={cn('font-semibold', statusColors[app.status])}
+                    >
                       {app.status}
                     </Badge>
                   </TableCell>

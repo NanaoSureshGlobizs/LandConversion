@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { districts, villages, landUseTypes } from '@/lib/mock-data';
+import type { Application } from '@/lib/definitions';
 
 const formSchema = z.object({
   surveyNumber: z.string().min(1, 'Survey number is required.'),
@@ -25,7 +26,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function NewApplicationForm() {
+interface NewApplicationFormProps {
+  existingApplication?: Application;
+}
+
+export function NewApplicationForm({ existingApplication }: NewApplicationFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,6 +45,19 @@ export function NewApplicationForm() {
     },
   });
 
+  useEffect(() => {
+    if (existingApplication) {
+      form.reset({
+        surveyNumber: existingApplication.surveyNumber,
+        village: existingApplication.village,
+        district: existingApplication.district,
+        currentLandUse: existingApplication.currentLandUse,
+        proposedLandUse: existingApplication.purpose,
+      });
+    }
+  }, [existingApplication, form]);
+
+
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     // Simulate API call
@@ -49,10 +67,13 @@ export function NewApplicationForm() {
     console.log('Form Submitted:', values);
 
     toast({
-      title: 'Application Submitted!',
-      description: `Your application for survey no. ${values.surveyNumber} has been received.`,
+      title: existingApplication ? 'Application Updated!' : 'Application Submitted!',
+      description: `Your application for survey no. ${values.surveyNumber} has been ${existingApplication ? 'updated' : 'received'}.`,
     });
-    form.reset();
+    
+    if (!existingApplication) {
+      form.reset();
+    }
   };
 
   return (
@@ -84,7 +105,7 @@ export function NewApplicationForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>District</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a district" />
@@ -108,7 +129,7 @@ export function NewApplicationForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Village</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a village" />
@@ -132,7 +153,7 @@ export function NewApplicationForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Current Land Use</FormLabel>
-                       <Select onValueChange={field.onChange} defaultValue={field.value}>
+                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select current use type" />
@@ -157,7 +178,7 @@ export function NewApplicationForm() {
                   name="proposedLandUse"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Proposed Land Use</FormLabel>
+                      <FormLabel>Proposed Land Use / Purpose</FormLabel>
                       <FormControl>
                         <Textarea placeholder="Describe the proposed changes, e.g., 'Construct a 3-bedroom single family home with a garden.'" className="min-h-[100px]" {...field} />
                       </FormControl>
@@ -168,7 +189,7 @@ export function NewApplicationForm() {
               
               <Button type="submit" disabled={isSubmitting} className="bg-accent text-accent-foreground hover:bg-accent/90">
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Submit Application
+                {existingApplication ? 'Save Changes' : 'Submit Application'}
               </Button>
             </form>
         </CardContent>
