@@ -91,12 +91,12 @@ export default function LoginPage() {
        if (result.debugLog) {
         setDebugLog(result.debugLog);
       }
-      if (result.success && result.data?.accessToken) {
+      if (result.success) {
         toast({
           title: 'Login Successful',
-          description: 'Welcome back!',
+          description: 'Welcome back! Redirecting...',
         });
-        router.replace('/dashboard');
+        window.location.href = '/dashboard';
       } else {
         toast({
           title: 'Error',
