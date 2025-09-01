@@ -25,17 +25,26 @@ interface VerifyOtpResponse {
 const API_BASE_URL = 'https://villageapi.globizsapp.com/api';
 
 export async function sendOtp(username: string): Promise<SendOtpResponse> {
+  const url = `${API_BASE_URL}/auth/send-otp`;
+  const payload = { username };
+  console.log('--- Sending OTP ---');
+  console.log('Request URL:', url);
+  console.log('Request Payload:', payload);
+
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/send-otp`, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ username }),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
+    console.log('API Response:', data);
+    console.log('-------------------');
+
 
     if (!response.ok) {
       return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null };
@@ -49,17 +58,25 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
 }
 
 export async function verifyOtp(username: string, otp: string): Promise<VerifyOtpResponse> {
+  const url = `${API_BASE_URL}/auth/verify-otp`;
+  const payload = { username, otp };
+  console.log('--- Verifying OTP ---');
+  console.log('Request URL:', url);
+  console.log('Request Payload:', payload);
+
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ username, otp }),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
+    console.log('API Response:', data);
+    console.log('---------------------');
 
     if (!response.ok) {
        return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null };
@@ -72,6 +89,8 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
         sameSite: 'lax',
         path: '/',
       });
+      // After successful login and cookie set, we will rely on middleware for redirection.
+      // A page reload on the client might be necessary if direct navigation doesn't work.
     }
 
     return data as VerifyOtpResponse;
@@ -83,4 +102,10 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
 
 export async function logout() {
   cookies().delete('accessToken');
+}
+
+export async function checkAuth() {
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken');
+  return !!accessToken;
 }

@@ -73,7 +73,9 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back!',
         });
-        router.push('/dashboard');
+        // Instead of router.push, we reload the page.
+        // The middleware will then handle the redirection to the dashboard.
+        window.location.href = '/dashboard';
       } else {
         toast({
           title: 'Error',
