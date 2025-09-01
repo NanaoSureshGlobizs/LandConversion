@@ -96,6 +96,7 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back! Redirecting...',
         });
+        // Force a full page reload to ensure the new cookie is sent to the server.
         window.location.href = '/dashboard';
       } else {
         toast({
