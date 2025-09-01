@@ -44,13 +44,13 @@ export function SidebarNav() {
   };
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2">
           <Logo className="size-8 shrink-0 text-primary" />
           <span className="text-xl font-bold font-headline">LandLink</span>
           <div className="flex-1" />
-          <SidebarTrigger className="md:hidden" />
+          <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
