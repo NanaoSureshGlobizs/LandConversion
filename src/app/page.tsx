@@ -84,7 +84,6 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back!',
         });
-        window.location.href = '/dashboard';
       } else {
         toast({
           title: 'Error',
