@@ -4,12 +4,21 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken');
+
+  if (!accessToken) {
+    redirect('/');
+  }
+
   return (
     <SidebarProvider>
       <SidebarNav />
