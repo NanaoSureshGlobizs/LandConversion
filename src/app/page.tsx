@@ -7,31 +7,27 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { sendOtp, verifyOtp, checkAuth } from './actions';
+import { sendOtp, verifyOtp } from './actions';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: isAuthLoading, login } = useAuth();
+  
   const [step, setStep] = useState<'send' | 'verify'>('send');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [debugLog, setDebugLog] = useState('');
   
   useEffect(() => {
-    const checkAuthentication = async () => {
-      const loggedIn = await checkAuth();
-      if (loggedIn) {
-        router.replace('/dashboard/new-application');
-      } else {
-        setIsCheckingAuth(false);
-      }
-    };
-    checkAuthentication();
-  }, [router]);
+    if (!isAuthLoading && isAuthenticated) {
+      router.replace('/dashboard/new-application');
+    }
+  }, [isAuthenticated, isAuthLoading, router]);
 
   const handleSendOtp = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -43,7 +39,7 @@ export default function LoginPage() {
       });
       return;
     }
-    setIsLoading(true);
+    setIsSubmitting(true);
     setDebugLog('');
     try {
       const result = await sendOtp(phoneNumber);
@@ -71,7 +67,7 @@ export default function LoginPage() {
       });
        setDebugLog(prev => prev + `\n\nFE CATCH BLOCK ERROR:\n${error}`);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -85,7 +81,7 @@ export default function LoginPage() {
       });
       return;
     }
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       const result = await verifyOtp(phoneNumber, otp);
        if (result.debugLog) {
@@ -96,6 +92,7 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back! Redirecting...',
         });
+        login(); // Update auth state
         router.push('/dashboard/new-application');
       } else {
         toast({
@@ -112,11 +109,11 @@ export default function LoginPage() {
       });
        setDebugLog(prev => prev + `\n\nFE CATCH BLOCK ERROR:\n${error}`);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  if (isCheckingAuth) {
+  if (isAuthLoading || isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -155,14 +152,14 @@ export default function LoginPage() {
                   required
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   maxLength={10}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Send OTP
               </Button>
             </CardFooter>
@@ -179,14 +176,14 @@ export default function LoginPage() {
                   required
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   maxLength={6}
                 />
               </div>
             </CardContent>
             <CardFooter className="flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Verify OTP & Sign In
               </Button>
               <Button
@@ -198,7 +195,7 @@ export default function LoginPage() {
                   setOtp('');
                   setDebugLog('');
                 }}
-                disabled={isLoading}
+                disabled={isSubmitting}
               >
                 Use a different phone number
               </Button>

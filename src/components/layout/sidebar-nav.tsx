@@ -14,7 +14,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { logout } from '@/app/actions';
+import { useAuth } from '@/context/AuthContext';
 
 const menuItems = [
   {
@@ -37,6 +37,7 @@ const menuItems = [
 export function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
