@@ -6,16 +6,16 @@ import {
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { checkAuth } from '../actions';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = cookies();
-  const accessToken = cookieStore.get('accessToken');
+  const isLoggedIn = await checkAuth();
 
-  if (!accessToken) {
+  if (!isLoggedIn) {
     redirect('/');
   }
 

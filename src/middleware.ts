@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// This middleware is currently not performing any logic but can be used for future enhancements.
 export function middleware(request: NextRequest) {
+  // All authentication logic is now handled in the dashboard layout.
+  // This middleware is now a pass-through.
   return NextResponse.next();
 }
 

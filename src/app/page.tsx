@@ -96,7 +96,7 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back! Redirecting...',
         });
-        router.replace('/dashboard/new-application');
+        router.push('/dashboard/new-application');
       } else {
         toast({
           title: 'Error',
