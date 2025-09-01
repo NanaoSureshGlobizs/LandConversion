@@ -96,7 +96,6 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back! Redirecting...',
         });
-        // Use router.replace to navigate to the dashboard's default page
         router.replace('/dashboard/new-application');
       } else {
         toast({
