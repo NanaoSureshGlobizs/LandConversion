@@ -84,6 +84,7 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: 'Welcome back!',
         });
+        window.location.reload();
       } else {
         toast({
           title: 'Error',
