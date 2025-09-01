@@ -4,24 +4,55 @@ import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { districts, villages, landUseTypes } from '@/lib/mock-data';
+import {
+  districts,
+  villages,
+  landUseTypes,
+  sdoCircles,
+} from '@/lib/mock-data';
 import type { Application } from '@/lib/definitions';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
-  surveyNumber: z.string().min(1, 'Survey number is required.'),
-  village: z.string().min(1, 'Village is required.'),
   district: z.string().min(1, 'District is required.'),
-  currentLandUse: z.string().min(1, 'Current land use is required.'),
-  proposedLandUse: z.string().min(10, 'Proposed land use description is required.'),
+  circle: z.string().min(1, 'Circle is required.'),
+  subDivision: z.string().min(1, 'Sub Division is required.'),
+  village: z.string().min(1, 'Village is required.'),
+  purpose: z.string().min(1, 'Purpose is required.'),
+  dateOfChange: z.date({
+    required_error: 'Date of change of land use is required.',
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -30,33 +61,35 @@ interface NewApplicationFormProps {
   existingApplication?: Application;
 }
 
-export function NewApplicationForm({ existingApplication }: NewApplicationFormProps) {
+export function NewApplicationForm({
+  existingApplication,
+}: NewApplicationFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      surveyNumber: '',
-      village: '',
       district: '',
-      currentLandUse: '',
-      proposedLandUse: '',
+      circle: '',
+      subDivision: '',
+      village: '',
+      purpose: '',
     },
   });
 
   useEffect(() => {
     if (existingApplication) {
       form.reset({
-        surveyNumber: existingApplication.surveyNumber,
-        village: existingApplication.village,
         district: existingApplication.district,
-        currentLandUse: existingApplication.currentLandUse,
-        proposedLandUse: existingApplication.purpose,
+        village: existingApplication.village,
+        purpose: existingApplication.purpose,
+        circle: existingApplication.sdoCircle,
+        subDivision: existingApplication.sdoCircle, // Mocking subDivision with sdoCircle
+        dateOfChange: new Date(existingApplication.dateSubmitted),
       });
     }
   }, [existingApplication, form]);
-
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -67,10 +100,14 @@ export function NewApplicationForm({ existingApplication }: NewApplicationFormPr
     console.log('Form Submitted:', values);
 
     toast({
-      title: existingApplication ? 'Application Updated!' : 'Application Submitted!',
-      description: `Your application for survey no. ${values.surveyNumber} has been ${existingApplication ? 'updated' : 'received'}.`,
+      title: existingApplication
+        ? 'Application Updated!'
+        : 'Application Submitted!',
+      description: `Your application has been ${
+        existingApplication ? 'updated' : 'received'
+      }.`,
     });
-    
+
     if (!existingApplication) {
       form.reset();
     }
@@ -80,118 +117,207 @@ export function NewApplicationForm({ existingApplication }: NewApplicationFormPr
     <Form {...form}>
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Application Details</CardTitle>
-          <CardDescription>Provide the details for the plot of land.</CardDescription>
+          <CardTitle className="font-headline">Current Plot Details</CardTitle>
         </CardHeader>
         <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="surveyNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Survey Number</FormLabel>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="district"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>District</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
                       <FormControl>
-                        <Input placeholder="e.g., 123/4A" {...field} />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select District" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="district"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>District</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a district" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {districts.map((district) => (
-                            <SelectItem key={district} value={district}>
-                              {district}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="village"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Village</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a village" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {villages.map((village) => (
-                            <SelectItem key={village} value={village}>
-                              {village}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="currentLandUse"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Land Use</FormLabel>
-                       <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select current use type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {landUseTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-               <FormField
-                  control={form.control}
-                  name="proposedLandUse"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Proposed Land Use / Purpose</FormLabel>
+                      <SelectContent>
+                        {districts.map((district) => (
+                          <SelectItem key={district} value={district}>
+                            {district}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="circle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Circle</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
                       <FormControl>
-                        <Textarea placeholder="Describe the proposed changes, e.g., 'Construct a 3-bedroom single family home with a garden.'" className="min-h-[100px]" {...field} />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Circle" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              
-              <Button type="submit" disabled={isSubmitting} className="bg-accent text-accent-foreground hover:bg-accent/90">
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {existingApplication ? 'Save Changes' : 'Submit Application'}
+                      <SelectContent>
+                        {sdoCircles.map((circle) => (
+                          <SelectItem key={circle} value={circle}>
+                            {circle}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="subDivision"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sub Division</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Sub Division" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {sdoCircles.map((circle) => (
+                          <SelectItem key={circle} value={circle}>
+                            {circle}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="village"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Village</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Village" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {villages.map((village) => (
+                          <SelectItem key={village} value={village}>
+                            {village}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="purpose"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Purpose for which the land is presently used
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select current purpose" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {landUseTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dateOfChange"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date of change of land use</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, 'PPP')
+                            ) : (
+                              <span>Select Date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date('1900-01-01')
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => console.log('Save Draft')}
+              >
+                Save Draft
               </Button>
-            </form>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Submit
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </Form>

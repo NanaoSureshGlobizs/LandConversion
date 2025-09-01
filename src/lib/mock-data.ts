@@ -95,6 +95,8 @@ export const mockApplications: Application[] = [
 
 export const districts = ['Coimbatore', 'Tiruppur', 'Erode', 'Salem', 'Imphal East'];
 
+export const sdoCircles = ['Porompat', 'Coimbatore North', 'Valparai'];
+
 export const villages = [
   'Kovilpatti',
   'Metupalayam',
