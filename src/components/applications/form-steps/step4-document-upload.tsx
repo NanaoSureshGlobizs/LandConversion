@@ -4,8 +4,7 @@
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ImageIcon } from "lucide-react";
-import Image from "next/image";
+import { UploadCloud } from "lucide-react";
 
 interface DocumentUploadItemProps {
   title: string;
@@ -22,15 +21,11 @@ const DocumentUploadItem = ({ title, description, isMultiple = false }: Document
         {isMultiple ? 'Multiple Upload' : 'Upload'}
       </Button>
     </div>
-    <div className="w-full md:w-64 h-32 bg-gray-200 rounded-md flex items-center justify-center">
-        <Image 
-            src="https://picsum.photos/300/200" 
-            alt="Placeholder"
-            width={300}
-            height={200}
-            className="rounded-md object-cover w-full h-full"
-            data-ai-hint="document placeholder"
-        />
+    <div className="w-full md:w-64 h-32 bg-gray-200 rounded-md flex items-center justify-center border-2 border-dashed border-gray-400">
+        <div className="text-center text-gray-500">
+            <UploadCloud className="mx-auto h-10 w-10" />
+            <p className="mt-2 text-sm">Click to upload</p>
+        </div>
     </div>
   </div>
 );
@@ -52,8 +47,8 @@ const landConversionDocs = [
   { title: 'Aadhar', description: 'Upload a copy of your Aadhar card (PDF or JPG)' },
   { title: 'Passport Photo', description: 'Upload a recent passport sized photo (JPG)' },
   { title: 'Tax Receipt', description: 'Upload the latest tax receipt (PDF or JPG)' },
-  { title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document (PDF)' },
-  { title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates (PDF)' },
+  { title: 'Sale Deed/Title Deed/Partial Deed', 'description': 'Upload the relevant deed document (PDF)' },
+  { title: 'Affidavit/Encumbrance Certificate', 'description': 'Upload the necessary certificates (PDF)' },
   { title: 'NOC', description: 'From Co-owner, Municipal Council or GP (PDF)' },
 ];
 

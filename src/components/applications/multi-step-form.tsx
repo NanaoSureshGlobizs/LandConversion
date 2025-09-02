@@ -98,30 +98,32 @@ const getInitialValues = (
     areaUnits: AreaUnit[]
   ): FormValues => {
 
+  const emptyValues: FormValues = {
+      name: '',
+      date_of_birth: new Date(),
+      aadhar_no: '',
+      address: '',
+      phone_number: '',
+      email: '',
+      district_id: '',
+      circle_id: '',
+      sub_division_id: '',
+      village_id: '',
+      patta_no: '',
+      dag_no: '',
+      location_type_id: '',
+      original_area_of_plot: '' as any,
+      area_unit_id: '',
+      area_applied_for_conversion: '' as any,
+      application_area_unit_id: '',
+      land_classification_id: '',
+      land_purpose_id: '',
+      change_of_land_use_id: '',
+      purpose_id: '',
+    };
+
   if (!application) {
-    return {
-        name: '',
-        date_of_birth: new Date(),
-        aadhar_no: '',
-        address: '',
-        phone_number: '',
-        email: '',
-        district_id: '',
-        circle_id: '',
-        sub_division_id: '',
-        village_id: '',
-        patta_no: '',
-        dag_no: '',
-        location_type_id: '',
-        original_area_of_plot: undefined as any,
-        area_unit_id: '',
-        area_applied_for_conversion: undefined as any,
-        application_area_unit_id: '',
-        land_classification_id: '',
-        land_purpose_id: '',
-        change_of_land_use_id: '',
-        purpose_id: '',
-      };
+    return emptyValues;
   }
 
   const dobDate = application.dob ? parse(application.dob, 'yyyy-MM-dd', new Date()) : new Date();
@@ -152,9 +154,9 @@ const getInitialValues = (
     patta_no: application.patta_no || '',
     dag_no: application.dag_no || '',
     location_type_id: locationType?.id.toString() || '',
-    original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : undefined as any,
+    original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : ('' as any),
     area_unit_id: application.area_unit_id?.toString() || '',
-    area_applied_for_conversion: application ? parseFloat(application.area_for_change) : undefined as any,
+    area_applied_for_conversion: application ? parseFloat(application.area_for_change) : ('' as any),
     application_area_unit_id: application.application_area_unit_id?.toString() || '',
     land_classification_id: landClassification?.id.toString() || '',
     land_purpose_id: landPurpose?.id.toString() || '',
@@ -164,9 +166,9 @@ const getInitialValues = (
 };
 
 const steps = [
-  { id: 'Step 1', name: 'Plot Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
+  { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
-  { id: 'Step 3', name: 'Applicant & Detailed Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] },
+  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] },
   { id: 'Step 4', name: 'Document Upload', fields: [] },
 ]
 
@@ -283,7 +285,7 @@ export function MultiStepForm({
           <Card className='shadow-lg'>
             <CardContent className='pt-6'>
               {currentStep === 0 && (
-                <Step1LandDetails
+                <Step1LandDetails 
                   districts={districts}
                   circles={circles}
                   subDivisions={subDivisions}
