@@ -161,12 +161,30 @@ async function fetchFromApi(endpoint: string) {
 }
 
 // Functions to be called from Server Components
-export const getDistricts = async () => fetchFromApi('/district');
-export const getCircles = async () => fetchFromApi('/circle');
-export const getSubDivisions = async () => fetchFromApi('/sub-division');
-export const getVillages = async () => fetchFromApi('/village');
-export const getLandPurposes = async () => fetchFromApi('/land-purpose');
-export const getLocationTypes = async () => fetchFromApi('/location-type');
-export const getAreaUnits = async () => fetchFromApi('/area-unit');
-export const getLandClassifications = async () => fetchFromApi('/land-classification');
-export const getChangeOfLandUseDates = async () => fetchFromApi('/change-of-land-use');
+export async function getDistricts() {
+  return fetchFromApi('/district');
+}
+export async function getCircles() {
+  return fetchFromApi('/circle');
+}
+export async function getSubDivisions() {
+  return fetchFromApi('/sub-division');
+}
+export async function getVillages() {
+  return fetchFromApi('/village');
+}
+export async function getLandPurposes() {
+  return fetchFromApi('/land-purpose');
+}
+export async function getLocationTypes() {
+  return fetchFromApi('/location-type');
+}
+export async function getAreaUnits() {
+  return fetchFromApi('/area-unit');
+}
+export async function getLandClassifications() {
+  return fetchFromApi('/land-classification');
+}
+export async function getChangeOfLandUseDates() {
+  return fetchFromApi('/change-of-land-use');
+}
