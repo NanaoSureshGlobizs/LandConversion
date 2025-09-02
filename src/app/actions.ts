@@ -223,6 +223,47 @@ export async function submitApplication(formData: any, token: string | undefined
   }
 }
 
+
+export async function uploadFile(
+  formData: FormData,
+  token: string | undefined
+) {
+  if (!token) {
+    return { success: false, message: "Authentication token not found." };
+  }
+
+  const url = `${API_BASE_URL}/upload-file`;
+  let debugLog = "--- Uploading File ---\n";
+  debugLog += `Request URL: ${url}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      body: formData,
+    });
+    
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += "----------------------\n";
+
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+    }
+    
+    return { ...result, debugLog };
+
+  } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += "----------------------\n";
+    console.error("uploadFile error:", error);
+    return { success: false, message: "An unexpected error occurred.", debugLog };
+  }
+}
+
 // Functions to be called from Server Components
 async function fetchDataWithLog(fetcher: (token: string) => Promise<any>, token: string) {
     const { data, debugLog } = await fetcher(token);

@@ -19,6 +19,8 @@ import { Step3Details } from './form-steps/step3-details';
 import { StepIndicator } from './form-steps/step-indicator';
 import { Step4DocumentUpload } from './form-steps/step4-document-upload';
 
+const fileUploadSchema = z.array(z.string()).optional();
+
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   date_of_birth: z.date({ required_error: 'Date of birth is required.' }),
@@ -44,6 +46,25 @@ const formSchema = z.object({
   land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
   change_of_land_use_id: z.string().min(1, 'Date of change of land use is required.'),
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
+
+  // Document fields
+  patta: fileUploadSchema,
+  applicant_aadhar: fileUploadSchema,
+  passport_photo: fileUploadSchema,
+  marsac_report: fileUploadSchema,
+  tax_receipt: fileUploadSchema,
+  sale_deed: fileUploadSchema,
+  affidavit: fileUploadSchema,
+  noc: fileUploadSchema,
+  others_relevant_document: fileUploadSchema,
+
+  // Family members
+  relatives: z.array(z.object({
+    relative_name: z.string(),
+    relative_date_of_birth: z.string(),
+    relationship: z.string(),
+    relative_aadhar: z.string(),
+  })).optional(),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -120,6 +141,7 @@ const getInitialValues = (
       land_purpose_id: '',
       change_of_land_use_id: '',
       purpose_id: '',
+      relatives: [],
     };
 
   if (!application) {
@@ -167,6 +189,7 @@ const getInitialValues = (
     land_purpose_id: landPurpose?.id.toString() || '', // May be undefined
     change_of_land_use_id: changeOfLandUse?.id.toString() || '', // May be undefined
     purpose_id: purpose?.id.toString() || '',
+    relatives: [], // Existing app data doesn't contain this yet
   };
 };
 
@@ -194,7 +217,7 @@ export function MultiStepForm({
   const { addLog } = useDebug();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion' | null>(null);
+  const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion'>('land_conversion');
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -240,21 +263,43 @@ export function MultiStepForm({
   const processForm = async (values: FormValues) => {
     setIsSubmitting(true);
     
-    const payload = {
-      ...values,
-      date_of_birth: format(values.date_of_birth, 'yyyy-MM-dd'),
-      district_id: parseInt(values.district_id),
-      circle_id: parseInt(values.circle_id),
-      sub_division_id: parseInt(values.sub_division_id),
-      village_id: parseInt(values.village_id),
-      location_type_id: parseInt(values.location_type_id),
-      area_unit_id: parseInt(values.area_unit_id),
-      application_area_unit_id: parseInt(values.application_area_unit_id),
-      land_classification_id: parseInt(values.land_classification_id),
-      land_purpose_id: parseInt(values.land_purpose_id),
-      change_of_land_use_id: parseInt(values.change_of_land_use_id),
-      purpose_id: parseInt(values.purpose_id),
-    };
+    // Create a copy to avoid mutating the original form values
+    const payload: { [key: string]: any } = { ...values };
+
+    // Format and convert IDs
+    payload.date_of_birth = format(values.date_of_birth, 'yyyy-MM-dd');
+    const integerFields = [
+      'district_id', 'circle_id', 'sub_division_id', 'village_id', 
+      'location_type_id', 'area_unit_id', 'application_area_unit_id', 
+      'land_classification_id', 'land_purpose_id', 'change_of_land_use_id', 
+      'purpose_id'
+    ];
+    integerFields.forEach(field => {
+        if (payload[field]) payload[field] = parseInt(payload[field]);
+    });
+
+    // The API expects single-file uploads to be a string, not an array.
+    // We will take the first element of the array for these fields.
+    const singleFileFields = ['applicant_aadhar', 'passport_photo', 'marsac_report', 'tax_receipt', 'sale_deed', 'affidavit', 'noc'];
+    singleFileFields.forEach(field => {
+        if (Array.isArray(payload[field]) && payload[field].length > 0) {
+            payload[field] = payload[field][0];
+        } else {
+            delete payload[field]; // Remove if no file was uploaded
+        }
+    });
+
+    // For multiple file fields, ensure they are arrays.
+    const multiFileFields = ['patta', 'others_relevant_document'];
+    multiFileFields.forEach(field => {
+        if (!Array.isArray(payload[field]) || payload[field].length === 0) {
+            delete payload[field]; // Remove if no files were uploaded
+        }
+    });
+
+    if(!payload.relatives || payload.relatives.length === 0) {
+        delete payload.relatives;
+    }
     
     const result = await submitApplication(payload, accessToken);
     
@@ -309,7 +354,7 @@ export function MultiStepForm({
                 />
               )}
               {currentStep === 3 && (
-                <Step4DocumentUpload documentType={documentType} />
+                <Step4DocumentUpload documentType={documentType} accessToken={accessToken} />
               )}
             </CardContent>
           </Card>

@@ -2,95 +2,149 @@
 'use client';
 
 import { useState } from "react";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useFormContext } from "react-hook-form";
+import { CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ImagePicker } from "./image-picker";
+import { ImagePicker, UploadedFile } from "./image-picker";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { FormValues } from "../multi-step-form";
+import { useToast } from "@/hooks/use-toast";
+import { uploadFile } from "@/app/actions";
+import { useDebug } from "@/context/DebugContext";
 
-const landDiversionDocs = [
-  { title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
-  { title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
-  { title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
-  { title: 'MARSAC Imagery Report', description: 'Upload the MARSAC report' },
-  { title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
-  { title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
-  { title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
-  { title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
-];
+const documentCategories = {
+    land_diversion: [
+      { id: 'patta', title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
+      { id: 'applicant_aadhar', title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
+      { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
+      { id: 'marsac_report', title: 'MARSAC Imagery Report', description: 'Upload the MARSAC report' },
+      { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
+      { id: 'sale_deed', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
+      { id: 'affidavit', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
+      { id: 'noc', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
+      { id: 'others_relevant_document', title: 'Other Relevant Documents', description: 'Upload any other supporting documents', isMultiple: true },
+    ],
+    land_conversion: [
+      { id: 'patta', title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
+      { id: 'applicant_aadhar', title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
+      { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
+      { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
+      { id: 'sale_deed', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
+      { id: 'affidavit', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
+      { id: 'noc', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
+      { id: 'others_relevant_document', title: 'Other Relevant Documents', description: 'Upload any other supporting documents', isMultiple: true },
+    ],
+};
 
-const landConversionDocs = [
-  { title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
-  { title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
-  { title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
-  { title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
-  { title: 'Sale Deed/Title Deed/Partial Deed', 'description': 'Upload the relevant deed document' },
-  { title: 'Affidavit/Encumbrance Certificate', 'description': 'Upload the necessary certificates' },
-  { title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
-];
-
-const initialFamilyMembers = [
-  { name: 'Rohan Sharma', dob: new Date('1985-05-15'), relation: 'Father' },
-  { name: 'Priya Sharma', dob: new Date('1990-08-22'), relation: 'Mother' },
-]
 
 interface Step4Props {
-  documentType: 'land_diversion' | 'land_conversion' | null;
+  documentType: 'land_diversion' | 'land_conversion';
+  accessToken: string;
 }
 
-interface FamilyMember {
-    name: string;
-    dob: Date;
-    relation: string;
-}
+export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
+  const { control, getValues, setValue } = useFormContext<FormValues>();
+  const { toast } = useToast();
+  const { addLog } = useDebug();
 
-export function Step4DocumentUpload({ documentType }: Step4Props) {
-  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>(initialFamilyMembers);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   // State for the new family member form
   const [newName, setNewName] = useState('');
   const [newDob, setNewDob] = useState<Date | undefined>();
   const [newRelation, setNewRelation] = useState('');
+  const [newAadharFile, setNewAadharFile] = useState<File | null>(null);
 
-  const documents = documentType === 'land_diversion' ? landDiversionDocs : landConversionDocs;
+  const documents = documentCategories[documentType];
+  const familyMembers = getValues('relatives') || [];
 
-  const handleAddMember = () => {
-    if (newName && newDob && newRelation) {
-      setFamilyMembers([...familyMembers, { name: newName, dob: newDob, relation: newRelation }]);
-      // Reset form and close dialog
-      setNewName('');
-      setNewDob(undefined);
-      setNewRelation('');
-      setIsDialogOpen(false);
+  const handleAddMember = async () => {
+    if (!newName || !newDob || !newRelation || !newAadharFile) {
+        toast({ title: "Missing Information", description: "Please fill out all fields and upload an Aadhar file.", variant: "destructive" });
+        return;
+    }
+    
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append(newAadharFile.name, newAadharFile);
+
+    const result = await uploadFile(formData, accessToken);
+    if(result.debugLog) addLog(result.debugLog);
+    setIsUploading(false);
+
+    if (result.success && result.data.filename) {
+        const newMember = {
+            relative_name: newName,
+            relative_date_of_birth: format(newDob, 'yyyy-MM-dd'),
+            relationship: newRelation,
+            relative_aadhar: result.data.filename
+        };
+        setValue('relatives', [...familyMembers, newMember]);
+
+        // Reset form and close dialog
+        setNewName('');
+        setNewDob(undefined);
+        setNewRelation('');
+        setNewAadharFile(null);
+        setIsDialogOpen(false);
+        toast({ title: "Family Member Added", description: "The new family member has been added to the list." });
     } else {
-        // Basic validation feedback
-        alert('Please fill out all fields.');
+        toast({ title: "Upload Failed", description: result.message || "Could not upload the Aadhar file.", variant: "destructive" });
     }
   };
+  
+  const handleAadharFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if(file) {
+          setNewAadharFile(file);
+      }
+  }
+  
+  const onUploadComplete = (categoryId: string, uploadedFile: UploadedFile) => {
+      const currentFiles = getValues(categoryId as keyof FormValues) as string[] || [];
+      setValue(categoryId as keyof FormValues, [...currentFiles, uploadedFile.serverFileName] as any);
+  }
+
+  const onRemove = (categoryId: string, fileToRemove: UploadedFile) => {
+    const currentFiles = getValues(categoryId as keyof FormValues) as string[] || [];
+    setValue(categoryId as keyof FormValues, currentFiles.filter(f => f !== fileToRemove.serverFileName) as any);
+  }
 
   return (
     <div className="space-y-8">
       <div>
         <CardHeader className="p-0">
           <CardTitle className="font-headline">Upload Documents</CardTitle>
+          <CardDescription>Upload all the necessary documents for your application.</CardDescription>
         </CardHeader>
         <CardContent className="p-0 mt-4 space-y-4">
             {documents.map((doc) => (
-                <ImagePicker key={doc.title} {...doc} />
+                <ImagePicker 
+                    key={doc.id} 
+                    id={doc.id}
+                    title={doc.title}
+                    description={doc.description}
+                    isMultiple={doc.isMultiple}
+                    accessToken={accessToken}
+                    onUploadComplete={onUploadComplete}
+                    onRemove={onRemove}
+                />
             ))}
         </CardContent>
       </div>
       <div>
         <CardHeader className="p-0 mt-8">
           <CardTitle className="font-headline">Family Members</CardTitle>
+          <CardDescription>Add family members if applicable for the application.</CardDescription>
         </CardHeader>
         <CardContent className="p-0 mt-4">
             <div className="border rounded-md">
@@ -100,26 +154,32 @@ export function Step4DocumentUpload({ documentType }: Step4Props) {
                             <TableHead>Name</TableHead>
                             <TableHead>Date of Birth</TableHead>
                             <TableHead>Relation</TableHead>
-                            <TableHead>Aadhar</TableHead>
+                            <TableHead>Aadhar Uploaded</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {familyMembers.map((member, index) => (
+                      {familyMembers.length > 0 ? (
+                        familyMembers.map((member, index) => (
                             <TableRow key={index}>
-                                <TableCell>{member.name}</TableCell>
-                                <TableCell>{format(member.dob, 'PPP')}</TableCell>
-                                <TableCell>{member.relation}</TableCell>
-                                <TableCell>
-                                    <Button variant="link" className="p-0 h-auto">Upload</Button>
-                                </TableCell>
+                                <TableCell>{member.relative_name}</TableCell>
+                                <TableCell>{format(new Date(member.relative_date_of_birth), 'PPP')}</TableCell>
+                                <TableCell>{member.relationship}</TableCell>
+                                <TableCell className="text-green-600 font-semibold">Uploaded</TableCell>
                             </TableRow>
-                        ))}
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                            No family members added.
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                 </Table>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="default" className="mt-4 bg-gray-800 hover:bg-gray-700 text-white">Add Family Member</Button>
+                <Button variant="default" className="mt-4">Add Family Member</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -168,9 +228,19 @@ export function Step4DocumentUpload({ documentType }: Step4Props) {
                     </Label>
                     <Input id="relation" value={newRelation} onChange={(e) => setNewRelation(e.target.value)} className="col-span-3" />
                   </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="aadhar" className="text-right">
+                      Aadhar PDF
+                    </Label>
+                    <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="application/pdf" className="col-span-3" />
+                  </div>
+                  {newAadharFile && <p className="text-sm text-muted-foreground col-span-4 text-center">Selected: {newAadharFile.name}</p>}
                 </div>
                 <DialogFooter>
-                  <Button type="button" onClick={handleAddMember}>Add Member</Button>
+                  <Button type="button" onClick={handleAddMember} disabled={isUploading}>
+                    {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Add Member
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
