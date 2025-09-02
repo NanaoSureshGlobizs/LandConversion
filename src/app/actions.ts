@@ -154,11 +154,15 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
 }
 
 export async function submitApplication(formData: any, token: string | undefined) {
-    if (!token) {
-    return { success: false, message: 'Authentication token not found.' };
+  if (!token) {
+    return { success: false, message: 'Authentication token not found.', debugLog: 'submitApplication Error: No auth token provided.' };
   }
 
   const url = `${API_BASE_URL}/applications`;
+  let debugLog = '--- Submitting Application ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(formData, null, 2)}\n`;
+
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -171,15 +175,19 @@ export async function submitApplication(formData: any, token: string | undefined
     });
 
     const result = await response.json();
-
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '---------------------------\n';
+    
     if (!response.ok) {
-      return { success: false, message: result.message || `HTTP error! status: ${response.status}` };
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
     }
 
-    return result;
+    return { ...result, debugLog };
   } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '---------------------------\n';
     console.error('submitApplication error:', error);
-    return { success: false, message: 'An unexpected error occurred.' };
+    return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }
 

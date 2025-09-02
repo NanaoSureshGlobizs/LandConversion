@@ -39,6 +39,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { submitApplication } from '@/app/actions';
 import { Textarea } from '../ui/textarea';
+import { useDebug } from '@/context/DebugContext';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -120,6 +121,7 @@ export function NewApplicationForm({
   accessToken,
 }: NewApplicationFormProps) {
   const { toast } = useToast();
+  const { addLog } = useDebug();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
@@ -203,6 +205,10 @@ export function NewApplicationForm({
     };
     
     const result = await submitApplication(payload, accessToken);
+    
+    if (result.debugLog) {
+        addLog(result.debugLog);
+    }
 
     setIsSubmitting(false);
 

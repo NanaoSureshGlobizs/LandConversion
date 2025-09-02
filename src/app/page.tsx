@@ -9,19 +9,19 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { sendOtp, verifyOtp } from './actions';
 import { Loader2 } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/AuthContext';
+import { useDebug } from '@/context/DebugContext';
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { isAuthenticated, isLoading: isAuthLoading, login } = useAuth();
+  const { addLog } = useDebug();
   
   const [step, setStep] = useState<'send' | 'verify'>('send');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [debugLog, setDebugLog] = useState('');
   
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
@@ -40,11 +40,10 @@ export default function LoginPage() {
       return;
     }
     setIsSubmitting(true);
-    setDebugLog('');
     try {
       const result = await sendOtp(phoneNumber);
       if (result.debugLog) {
-        setDebugLog(result.debugLog);
+        addLog(result.debugLog);
       }
       if (result.success) {
         toast({
@@ -60,12 +59,13 @@ export default function LoginPage() {
         });
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred.',
         variant: 'destructive',
       });
-       setDebugLog(prev => prev + `\n\nFE CATCH BLOCK ERROR:\n${error}`);
+       addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +85,7 @@ export default function LoginPage() {
     try {
       const result = await verifyOtp(phoneNumber, otp);
        if (result.debugLog) {
-        setDebugLog(result.debugLog);
+        addLog(result.debugLog);
       }
       if (result.success) {
         toast({
@@ -102,12 +102,13 @@ export default function LoginPage() {
         });
       }
     } catch (error) {
+       const errorMessage = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred.',
         variant: 'destructive',
       });
-       setDebugLog(prev => prev + `\n\nFE CATCH BLOCK ERROR:\n${error}`);
+       addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -193,7 +194,6 @@ export default function LoginPage() {
                 onClick={() => {
                   setStep('send');
                   setOtp('');
-                  setDebugLog('');
                 }}
                 disabled={isSubmitting}
               >
@@ -201,16 +201,6 @@ export default function LoginPage() {
               </Button>
             </CardFooter>
           </form>
-        )}
-        {debugLog && (
-          <CardContent>
-             <Label>Debug Log</Label>
-            <Textarea
-              readOnly
-              className="mt-2 h-48 w-full text-xs bg-muted/50"
-              value={debugLog}
-            />
-          </CardContent>
         )}
       </Card>
     </div>

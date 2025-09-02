@@ -12,9 +12,13 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
+import { useDebug } from '@/context/DebugContext';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 const menuItems = [
   {
@@ -38,6 +42,8 @@ export function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
+  const { isDebugMode, setIsDebugMode } = useDebug();
+
 
   const handleLogout = async () => {
     await logout();
@@ -73,6 +79,15 @@ export function SidebarNav() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
+        <div className="flex items-center space-x-2 p-2">
+          <Label htmlFor="debug-mode">Debug Mode</Label>
+          <Switch
+            id="debug-mode"
+            checked={isDebugMode}
+            onCheckedChange={setIsDebugMode}
+          />
+        </div>
+        <SidebarSeparator />
         <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
           <LogOut className="size-4" />
           <span>Logout</span>
