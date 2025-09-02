@@ -12,6 +12,7 @@ import {
 } from "@/app/actions";
 import { cookies } from "next/headers";
 import { redirect } from 'next/navigation';
+import { ServerLogHandler } from "@/components/debug/server-log-handler";
 
 export default async function NewApplicationPage() {
   const cookieStore = cookies();
@@ -22,15 +23,15 @@ export default async function NewApplicationPage() {
   }
 
   const [
-    districts, 
-    circles, 
-    subDivisions, 
-    villages, 
-    landPurposes, 
-    locationTypes, 
-    areaUnits, 
-    landClassifications, 
-    changeOfLandUseDates
+    districtsResult, 
+    circlesResult, 
+    subDivisionsResult, 
+    villagesResult, 
+    landPurposesResult, 
+    locationTypesResult, 
+    areaUnitsResult, 
+    landClassificationsResult, 
+    changeOfLandUseDatesResult
   ] = await Promise.all([
     getDistricts(accessToken),
     getCircles(accessToken),
@@ -42,24 +43,39 @@ export default async function NewApplicationPage() {
     getLandClassifications(accessToken),
     getChangeOfLandUseDates(accessToken)
   ]);
+  
+  const allLogs = [
+    districtsResult.log,
+    circlesResult.log,
+    subDivisionsResult.log,
+    villagesResult.log,
+    landPurposesResult.log,
+    locationTypesResult.log,
+    areaUnitsResult.log,
+    landClassificationsResult.log,
+    changeOfLandUseDatesResult.log,
+  ];
 
   return (
-    <div className="flex-1 space-y-4 px-4 md:px-8">
-       <div className="flex items-center justify-between space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Application for Change of Land Use</h1>
+    <>
+      <ServerLogHandler logs={allLogs} />
+      <div className="flex-1 space-y-4 px-4 md:px-8">
+        <div className="flex items-center justify-between space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Application for Change of Land Use</h1>
+        </div>
+        <NewApplicationForm
+          districts={districtsResult.data}
+          circles={circlesResult.data}
+          subDivisions={subDivisionsResult.data}
+          villages={villagesResult.data}
+          landPurposes={landPurposesResult.data}
+          locationTypes={locationTypesResult.data}
+          areaUnits={areaUnitsResult.data}
+          landClassifications={landClassificationsResult.data}
+          changeOfLandUseDates={changeOfLandUseDatesResult.data}
+          accessToken={accessToken}
+        />
       </div>
-      <NewApplicationForm
-        districts={districts}
-        circles={circles}
-        subDivisions={subDivisions}
-        villages={villages}
-        landPurposes={landPurposes}
-        locationTypes={locationTypes}
-        areaUnits={areaUnits}
-        landClassifications={landClassifications}
-        changeOfLandUseDates={changeOfLandUseDates}
-        accessToken={accessToken}
-      />
-    </div>
+    </>
   );
 }

@@ -120,12 +120,17 @@ export async function checkAuth() {
 }
 
 async function fetchFromApi(endpoint: string, token: string | undefined) {
+  const url = `${API_BASE_URL}${endpoint}`;
+  let debugLog = `--- Fetching from API ---\n`;
+  debugLog += `Request URL: ${url}\n`;
+
   if (!token) {
+    debugLog += `Authentication token not found for endpoint: ${endpoint}\n`;
+    debugLog += '---------------------------\n';
     console.error(`Authentication token not found for endpoint: ${endpoint}`);
-    return null;
+    return { data: null, debugLog };
   }
 
-  const url = `${API_BASE_URL}${endpoint}`;
   try {
     const response = await fetch(url, {
       headers: {
@@ -134,24 +139,29 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
       },
     });
 
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '---------------------------\n';
+
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${errorBody}`);
-      return null;
+      console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${await response.text()}`);
+      return { data: null, debugLog };
     }
 
-    const result = await response.json();
     if (result.success) {
-      return result.data;
+      return { data: result.data, debugLog };
     }
 
     console.error(`API error or unexpected data format from ${endpoint}:`, result.message || result);
-    return null;
+    return { data: null, debugLog };
   } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '---------------------------\n';
     console.error(`Failed to fetch from ${endpoint}:`, error);
-    return null;
+    return { data: null, debugLog };
   }
 }
+
 
 export async function submitApplication(formData: any, token: string | undefined) {
   if (!token) {
@@ -191,50 +201,57 @@ export async function submitApplication(formData: any, token: string | undefined
   }
 }
 
-
 // Functions to be called from Server Components
+async function fetchDataWithLog(fetcher: (token: string) => Promise<any>, token: string) {
+    const { data, debugLog } = await fetcher(token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
+}
+
+
 export async function getDistricts(token: string) {
-  const data = await fetchFromApi('/district', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/district', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getCircles(token: string) {
-  const data = await fetchFromApi('/circle', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/circle', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getSubDivisions(token: string) {
-  const data = await fetchFromApi('/sub-division', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/sub-division', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getVillages(token: string) {
-  const data = await fetchFromApi('/village', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/village', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getLandPurposes(token: string) {
-  const data = await fetchFromApi('/land-purpose', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/land-purpose', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getLocationTypes(token: string) {
-  const data = await fetchFromApi('/location-type', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/location-type', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getAreaUnits(token: string) {
-  const data = await fetchFromApi('/area-unit', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/area-unit', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getLandClassifications(token: string) {
-  const data = await fetchFromApi('/land-classification', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/land-classification', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getChangeOfLandUseDates(token: string) {
-  const data = await fetchFromApi('/change-of-land-use', token);
-  return Array.isArray(data) ? data : [];
+    const { data, debugLog } = await fetchFromApi('/change-of-land-use', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 export async function getApplications(token: string, page = 1, limit = 10) {
-  return fetchFromApi(`/applications/lists?page=${page}&limit=${limit}`, token);
+    const { data, debugLog } = await fetchFromApi(`/applications/lists?page=${page}&limit=${limit}`, token);
+    return { data, log: debugLog };
 }
 
 export async function getApplicationById(token: string, id: string) {
-  const data = await fetchFromApi(`/applications/view?application_id=${id}`, token);
-  // The API returns an array, so we return the first element.
-  return Array.isArray(data) && data.length > 0 ? data[0] : null;
+    const { data, debugLog } = await fetchFromApi(`/applications/view?application_id=${id}`, token);
+    // The API returns an array, so we return the first element.
+    const application = Array.isArray(data) && data.length > 0 ? data[0] : null;
+    return { data: application, log: debugLog };
 }
