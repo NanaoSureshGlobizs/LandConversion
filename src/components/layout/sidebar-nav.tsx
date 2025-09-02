@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Map } from 'lucide-react';
+import { FilePlus2, Files, LogOut } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -22,19 +22,14 @@ import { Switch } from '../ui/switch';
 
 const menuItems = [
   {
-    href: '/dashboard/new-application',
-    label: 'New Application',
-    icon: FilePlus2,
-  },
-  {
     href: '/dashboard/my-applications',
     label: 'My Applications',
     icon: Files,
   },
   {
-    href: '/dashboard/track-applications',
-    label: 'Track Applications',
-    icon: Map,
+    href: '/dashboard/new-application',
+    label: 'New Application',
+    icon: FilePlus2,
   },
 ];
 
