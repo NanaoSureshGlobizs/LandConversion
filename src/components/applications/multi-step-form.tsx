@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -163,9 +163,9 @@ const getInitialValues = (
 };
 
 const steps = [
-  { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'patta_no', 'dag_no'] },
-  { id: 'Step 2', name: 'Applicant Details', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email'] },
-  { id: 'Step 3', name: 'Conversion Details', fields: ['location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'land_purpose_id', 'change_of_land_use_id', 'purpose_id'] }
+  { id: 'Step 1', name: 'Current Plot Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'patta_no', 'dag_no', 'land_purpose_id', 'change_of_land_use_id'] },
+  { id: 'Step 2', name: 'Owner Details', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email'] },
+  { id: 'Step 3', name: 'Detailed Plot Information', fields: ['location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] }
 ]
 
 export function MultiStepForm({
@@ -185,13 +185,29 @@ export function MultiStepForm({
   const { addLog } = useDebug();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion' | null>(null);
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits),
   });
 
-  const { handleSubmit, trigger } = methods;
+  const { handleSubmit, trigger, watch } = methods;
+
+  const watchedLandUseChangeId = watch('change_of_land_use_id');
+
+  useEffect(() => {
+    if (watchedLandUseChangeId) {
+      const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === watchedLandUseChangeId);
+      if (selectedOption?.name.includes('Before')) {
+        setDocumentType('land_diversion');
+        addLog("Document type set to: land_diversion");
+      } else {
+        setDocumentType('land_conversion');
+        addLog("Document type set to: land_conversion");
+      }
+    }
+  }, [watchedLandUseChangeId, changeOfLandUseDates, addLog]);
 
   const handleNext = async () => {
     const fields = steps[currentStep].fields as (keyof FormValues)[];
@@ -268,6 +284,8 @@ export function MultiStepForm({
                   circles={circles}
                   subDivisions={subDivisions}
                   villages={villages}
+                  landPurposes={landPurposes}
+                  changeOfLandUseDates={changeOfLandUseDates}
                 />
               )}
               {currentStep === 1 && <Step2ApplicantDetails />}
@@ -277,7 +295,6 @@ export function MultiStepForm({
                     areaUnits={areaUnits}
                     landClassifications={landClassifications}
                     landPurposes={landPurposes}
-                    changeOfLandUseDates={changeOfLandUseDates}
                 />
               )}
             </CardContent>
@@ -286,29 +303,42 @@ export function MultiStepForm({
           {/* Navigation */}
           <div className="mt-8 pt-5">
             <div className="flex justify-between">
-              <Button
-                type="button"
-                onClick={handlePrev}
-                disabled={currentStep === 0 || isSubmitting}
-                variant="outline"
-              >
-                Go Back
-              </Button>
-              {currentStep < steps.length - 1 && (
-                 <Button
+              <div>
+                {currentStep < steps.length - 1 && (
+                  <Button
                     type="button"
-                    onClick={handleNext}
                     disabled={isSubmitting}
+                    variant="outline"
+                  >
+                    Save Draft
+                  </Button>
+                )}
+              </div>
+              <div className='flex gap-2'>
+                <Button
+                  type="button"
+                  onClick={handlePrev}
+                  disabled={currentStep === 0 || isSubmitting}
+                  variant="outline"
                 >
-                    Next Step
+                  Go Back
                 </Button>
-              )}
-              {currentStep === steps.length - 1 && (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {existingApplication ? 'Update Application' : 'Submit Application'}
-                </Button>
-              )}
+                {currentStep < steps.length - 1 && (
+                  <Button
+                      type="button"
+                      onClick={handleNext}
+                      disabled={isSubmitting}
+                  >
+                      Next Step
+                  </Button>
+                )}
+                {currentStep === steps.length - 1 && (
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {existingApplication ? 'Update Application' : 'Submit Application'}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </form>

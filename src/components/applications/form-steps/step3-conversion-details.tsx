@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import type { LocationType, AreaUnit, LandClassification, LandPurpose, ChangeOfLandUseDate, FormValues } from '../multi-step-form';
+import type { LocationType, AreaUnit, LandClassification, LandPurpose, FormValues } from '../multi-step-form';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 
@@ -14,16 +14,15 @@ interface Step3Props {
     areaUnits: AreaUnit[];
     landClassifications: LandClassification[];
     landPurposes: LandPurpose[];
-    changeOfLandUseDates: ChangeOfLandUseDate[];
 }
 
-export function Step3ConversionDetails({ locationTypes, areaUnits, landClassifications, landPurposes, changeOfLandUseDates }: Step3Props) {
+export function Step3ConversionDetails({ locationTypes, areaUnits, landClassifications, landPurposes }: Step3Props) {
   const { control } = useFormContext<FormValues>();
   
   return (
     <div className="space-y-8">
         <CardHeader className='p-0'>
-            <CardTitle className="font-headline">Conversion Details</CardTitle>
+            <CardTitle className="font-headline">Detailed Plot Information</CardTitle>
             <CardDescription>Specify the area and purpose for the land use change.</CardDescription>
         </CardHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -106,38 +105,6 @@ export function Step3ConversionDetails({ locationTypes, areaUnits, landClassific
                     <FormControl><SelectTrigger><SelectValue placeholder="Select classification" /></SelectTrigger></FormControl>
                     <SelectContent>
                         {landClassifications.map((lc) => (<SelectItem key={lc.id} value={lc.id.toString()}>{lc.name}</SelectItem>))}
-                    </SelectContent>
-                    </Select>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="land_purpose_id"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Purpose for which land is presently used</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select current purpose" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                        {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}
-                    </SelectContent>
-                    </Select>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="change_of_land_use_id"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Date of change of land use</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select period" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                        {changeOfLandUseDates.map((d) => (<SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>))}
                     </SelectContent>
                     </Select>
                     <FormMessage />

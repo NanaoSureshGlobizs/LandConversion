@@ -6,7 +6,7 @@ import { useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import type { Circle, District, SubDivision, Village, FormValues } from '../multi-step-form';
+import type { Circle, District, SubDivision, Village, FormValues, LandPurpose, ChangeOfLandUseDate } from '../multi-step-form';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Step1Props {
@@ -14,9 +14,11 @@ interface Step1Props {
   circles: Circle[];
   subDivisions: SubDivision[];
   villages: Village[];
+  landPurposes: LandPurpose[];
+  changeOfLandUseDates: ChangeOfLandUseDate[];
 }
 
-export function Step1LandDetails({ districts, circles, subDivisions, villages }: Step1Props) {
+export function Step1LandDetails({ districts, circles, subDivisions, villages, landPurposes, changeOfLandUseDates }: Step1Props) {
   const { control, watch, setValue, getValues } = useFormContext<FormValues>();
 
   const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
@@ -94,10 +96,10 @@ export function Step1LandDetails({ districts, circles, subDivisions, villages }:
   return (
     <div className="space-y-8">
       <CardHeader className='p-0'>
-        <CardTitle className="font-headline">Land Details</CardTitle>
+        <CardTitle className="font-headline">Current Plot Details</CardTitle>
         <CardDescription>Provide details about the plot of land.</CardDescription>
       </CardHeader>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
             control={control}
             name="district_id"
@@ -171,6 +173,38 @@ export function Step1LandDetails({ districts, circles, subDivisions, villages }:
             control={control}
             name="dag_no"
             render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
+        />
+        <FormField
+            control={control}
+            name="land_purpose_id"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel>Purpose for which land is presently used</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl><SelectTrigger><SelectValue placeholder="Select current purpose" /></SelectTrigger></FormControl>
+                <SelectContent>
+                    {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}
+                </SelectContent>
+                </Select>
+                <FormMessage />
+            </FormItem>
+            )}
+        />
+        <FormField
+            control={control}
+            name="change_of_land_use_id"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel>Date of change of land use</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl><SelectTrigger><SelectValue placeholder="Select period" /></SelectTrigger></FormControl>
+                <SelectContent>
+                    {changeOfLandUseDates.map((d) => (<SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>))}
+                </SelectContent>
+                </Select>
+                <FormMessage />
+            </FormItem>
+            )}
         />
       </div>
     </div>
