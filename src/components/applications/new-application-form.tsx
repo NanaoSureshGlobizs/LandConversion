@@ -95,7 +95,7 @@ interface ChangeOfLandUseDate extends Option {}
 
 
 interface NewApplicationFormProps {
-  existingApplication?: Application;
+  existingApplication?: Application | null;
   districts: District[];
   circles: Circle[];
   subDivisions: SubDivision[];
@@ -108,7 +108,7 @@ interface NewApplicationFormProps {
   accessToken: string;
 }
 
-const getInitialValues = (application?: Application): FormValues => {
+const getInitialValues = (application?: Application | null): FormValues => {
   const dobDate = application?.dob ? parse(application.dob, 'yyyy-MM-dd', new Date()) : new Date();
 
   return {
@@ -181,7 +181,7 @@ export function NewApplicationForm({
       setFilteredCircles([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDistrictId, circles, form.getValues('circle_id')]);
+  }, [selectedDistrictId, circles]);
 
   useEffect(() => {
     if (selectedCircleId) {
@@ -197,7 +197,7 @@ export function NewApplicationForm({
       setFilteredSubDivisions([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCircleId, subDivisions, form.getValues('sub_division_id')]);
+  }, [selectedCircleId, subDivisions]);
 
   useEffect(() => {
     if (selectedSubDivisionId) {
@@ -212,7 +212,7 @@ export function NewApplicationForm({
       setFilteredVillages([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSubDivisionId, villages, form.getValues('village_id')]);
+  }, [selectedSubDivisionId, villages]);
 
   useEffect(() => {
     // Prime the dependent dropdowns on initial load for the edit page
@@ -632,3 +632,5 @@ export function NewApplicationForm({
     </div>
   );
 }
+
+    
