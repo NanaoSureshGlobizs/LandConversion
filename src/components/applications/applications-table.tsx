@@ -14,10 +14,11 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Trash2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
+import { Badge } from '@/components/ui/badge';
 
 interface ApplicationsTableProps {
   initialData: PaginatedApplications | null;
@@ -108,16 +109,14 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
                     onClick={() => handleRowClick(app.applictaion_id)}
                     className="cursor-pointer"
                 >
-                  <TableCell className="font-medium">{app.applictaion_id}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.applictaion_id}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
                   <TableCell>
                     {app.date_submitted}
                   </TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold">
-                      {app.status_name}
-                    </span>
+                    <Badge variant="secondary">{app.status_name}</Badge>
                   </TableCell>
                 </TableRow>
               ))
@@ -153,5 +152,3 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
     </div>
   );
 }
-
-    
