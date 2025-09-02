@@ -108,6 +108,34 @@ interface NewApplicationFormProps {
   accessToken: string;
 }
 
+const getInitialValues = (application?: Application): FormValues => {
+  const dobDate = application?.dob ? parse(application.dob, 'yyyy-MM-dd', new Date()) : new Date();
+
+  return {
+    name: application?.owner_name || '',
+    date_of_birth: dobDate,
+    aadhar_no: application?.aadhar || '',
+    address: application?.owner_address || '',
+    phone_number: application?.phone_number || '',
+    email: application?.email || '',
+    district_id: application?.district_id?.toString() || '',
+    circle_id: application?.circle_id?.toString() || '',
+    sub_division_id: application?.sub_division_id?.toString() || '',
+    village_id: application?.village_id?.toString() || '',
+    patta_no: application?.patta_no || '',
+    dag_no: application?.dag_no || '',
+    location_type_id: application?.location_type_id?.toString() || '',
+    original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : 0,
+    area_unit_id: application?.area_unit_id?.toString() || '',
+    area_applied_for_conversion: application ? parseFloat(application.area_for_change) : 0,
+    application_area_unit_id: application?.application_area_unit_id?.toString() || '',
+    land_classification_id: application?.land_classification_id?.toString() || '',
+    land_purpose_id: application?.land_purpose_id?.toString() || '',
+    change_of_land_use_id: application?.change_of_land_use_id?.toString() || '',
+    purpose_id: application?.purpose_id?.toString() || '',
+  };
+};
+
 export function NewApplicationForm({
   existingApplication,
   districts,
@@ -128,87 +156,23 @@ export function NewApplicationForm({
   const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
   const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
   const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
-  const [dobInput, setDobInput] = useState('');
-
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: existingApplication ? undefined : {
-      name: '',
-      aadhar_no: '',
-      address: '',
-      phone_number: '',
-      email: '',
-      patta_no: '',
-      dag_no: '',
-      original_area_of_plot: 0,
-      area_applied_for_conversion: 0,
-      district_id: '',
-      circle_id: '',
-      sub_division_id: '',
-      village_id: '',
-      location_type_id: '',
-      area_unit_id: '',
-      application_area_unit_id: '',
-      land_classification_id: '',
-      land_purpose_id: '',
-      change_of_land_use_id: '',
-      purpose_id: '',
-    },
+    defaultValues: getInitialValues(existingApplication),
   });
-
-  useEffect(() => {
-    if (existingApplication) {
-      const dobDate = existingApplication.dob ? parse(existingApplication.dob, 'yyyy-MM-dd', new Date()) : undefined;
-
-      form.reset({
-        name: existingApplication.owner_name || '',
-        date_of_birth: dobDate,
-        aadhar_no: existingApplication.aadhar || '',
-        address: existingApplication.owner_address || '',
-        phone_number: existingApplication.phone_number || '',
-        email: existingApplication.email || '',
-        district_id: existingApplication.district_id?.toString() || '',
-        circle_id: existingApplication.circle_id?.toString() || '',
-        sub_division_id: existingApplication.sub_division_id?.toString() || '',
-        village_id: existingApplication.village_id?.toString() || '',
-        patta_no: existingApplication.patta_no || '',
-        dag_no: existingApplication.dag_no || '',
-        location_type_id: existingApplication.location_type_id?.toString() || '',
-        original_area_of_plot: parseFloat(existingApplication.original_area_of_plot) || 0,
-        area_unit_id: existingApplication.area_unit_id?.toString() || '',
-        area_applied_for_conversion: parseFloat(existingApplication.area_for_change) || 0,
-        application_area_unit_id: existingApplication.application_area_unit_id?.toString() || '',
-        land_classification_id: existingApplication.land_classification_id?.toString() || '',
-        land_purpose_id: existingApplication.land_purpose_id?.toString() || '',
-        change_of_land_use_id: existingApplication.change_of_land_use_id?.toString() || '',
-        purpose_id: existingApplication.purpose_id?.toString() || '',
-      });
-       if (dobDate) {
-        setDobInput(format(dobDate, 'dd/MM/yyyy'));
-      }
-    }
-  }, [existingApplication, form]);
-
+  
   const selectedDistrictId = form.watch('district_id');
   const selectedCircleId = form.watch('circle_id');
   const selectedSubDivisionId = form.watch('sub_division_id');
-  const dobValue = form.watch('date_of_birth');
-
-  useEffect(() => {
-    if (dobValue) {
-      setDobInput(format(dobValue, 'dd/MM/yyyy'));
-    } else {
-      setDobInput('');
-    }
-  }, [dobValue]);
   
   useEffect(() => {
-    const districtId = form.getValues('district_id');
-    if (districtId) {
-      const relevantCircles = circles.filter(c => c.district_id === parseInt(districtId));
+    if (selectedDistrictId) {
+      const relevantCircles = circles.filter(c => c.district_id === parseInt(selectedDistrictId));
       setFilteredCircles(relevantCircles);
-
-      if (!relevantCircles.find(c => c.id.toString() === form.getValues('circle_id'))) {
+      
+      const currentCircleId = form.getValues('circle_id');
+      if (currentCircleId && !relevantCircles.some(c => c.id.toString() === currentCircleId)) {
         form.setValue('circle_id', '');
         form.setValue('sub_division_id', '');
         form.setValue('village_id', '');
@@ -216,36 +180,58 @@ export function NewApplicationForm({
     } else {
       setFilteredCircles([]);
     }
-  }, [selectedDistrictId, circles, form]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDistrictId, circles, form.getValues('circle_id')]);
 
   useEffect(() => {
-    const circleId = form.getValues('circle_id');
-    if (circleId) {
-      const relevantSubDivisions = subDivisions.filter(sd => sd.circle_id === parseInt(circleId));
+    if (selectedCircleId) {
+      const relevantSubDivisions = subDivisions.filter(sd => sd.circle_id === parseInt(selectedCircleId));
       setFilteredSubDivisions(relevantSubDivisions);
 
-      if (!relevantSubDivisions.find(sd => sd.id.toString() === form.getValues('sub_division_id'))) {
+      const currentSubDivisionId = form.getValues('sub_division_id');
+      if (currentSubDivisionId && !relevantSubDivisions.some(sd => sd.id.toString() === currentSubDivisionId)) {
         form.setValue('sub_division_id', '');
         form.setValue('village_id', '');
       }
     } else {
       setFilteredSubDivisions([]);
     }
-  }, [selectedCircleId, subDivisions, form]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCircleId, subDivisions, form.getValues('sub_division_id')]);
 
   useEffect(() => {
-    const subDivisionId = form.getValues('sub_division_id');
-    if (subDivisionId) {
-      const relevantVillages = villages.filter(v => v.sub_division_id === parseInt(subDivisionId));
+    if (selectedSubDivisionId) {
+      const relevantVillages = villages.filter(v => v.sub_division_id === parseInt(selectedSubDivisionId));
       setFilteredVillages(relevantVillages);
 
-      if (!relevantVillages.find(v => v.id.toString() === form.getValues('village_id'))) {
+      const currentVillageId = form.getValues('village_id');
+      if (currentVillageId && !relevantVillages.some(v => v.id.toString() === currentVillageId)) {
         form.setValue('village_id', '');
       }
     } else {
       setFilteredVillages([]);
     }
-  }, [selectedSubDivisionId, villages, form]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSubDivisionId, villages, form.getValues('village_id')]);
+
+  useEffect(() => {
+    // Prime the dependent dropdowns on initial load for the edit page
+    if (existingApplication) {
+      const initialDistrictId = existingApplication.district_id?.toString();
+      if (initialDistrictId) {
+        setFilteredCircles(circles.filter(c => c.district_id === parseInt(initialDistrictId)));
+      }
+      const initialCircleId = existingApplication.circle_id?.toString();
+      if (initialCircleId) {
+        setFilteredSubDivisions(subDivisions.filter(sd => sd.circle_id === parseInt(initialCircleId)));
+      }
+      const initialSubDivisionId = existingApplication.sub_division_id?.toString();
+      if (initialSubDivisionId) {
+        setFilteredVillages(villages.filter(v => v.sub_division_id === parseInt(initialSubDivisionId)));
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingApplication, circles, subDivisions, villages]);
 
 
   const onSubmit = async (values: FormValues) => {
@@ -281,7 +267,7 @@ export function NewApplicationForm({
         description: result.message || `Your application has been ${existingApplication ? 'updated' : 'received'}.`,
       });
       if (!existingApplication) {
-        form.reset();
+        form.reset(getInitialValues());
       }
     } else {
        toast({
