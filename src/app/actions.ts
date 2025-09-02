@@ -1,3 +1,4 @@
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -138,13 +139,13 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
         'Authorization': `Bearer ${token}`
       },
     });
-
+    
     const result = await response.json();
     debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
     debugLog += '---------------------------\n';
 
     if (!response.ok) {
-      console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${await response.text()}`);
+      console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${JSON.stringify(result)}`);
       return { data: null, debugLog };
     }
 
