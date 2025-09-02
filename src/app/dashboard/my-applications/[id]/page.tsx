@@ -1,6 +1,4 @@
-'use client';
-
-import { useParams, notFound, useRouter } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,16 +16,17 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { mockApplications } from '@/lib/mock-data';
 import { ArrowLeft, Download, Pencil } from 'lucide-react';
-import type { Application } from '@/lib/definitions';
+import { getApplicationById } from '@/app/actions';
+import { cookies } from 'next/headers';
+import Link from 'next/link';
 
 function DetailItem({
   label,
   value,
 }: {
   label: string;
-  value: string | number | undefined;
+  value: string | number | undefined | null;
 }) {
   return (
     <div className="flex flex-col">
@@ -37,39 +36,20 @@ function DetailItem({
   );
 }
 
-export default function ApplicationDetailPage() {
-  const router = useRouter();
-  const params = useParams();
+export default async function ApplicationDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
 
-  const application = mockApplications.find((app) => app.id === id);
+  if (!accessToken) {
+    redirect('/');
+  }
+
+  const application = await getApplicationById(accessToken, id);
 
   if (!application) {
     return notFound();
   }
-
-  const {
-    ownerName,
-    dob,
-    pattaNumber,
-    email,
-    aadhar,
-    phoneNumber,
-    dagNo,
-    ownerAddress,
-    area,
-    areaForChange,
-    district,
-    sdoCircle,
-    village,
-    villageNumber,
-    landAddress,
-    locationType,
-    presentLandClassification,
-    purpose,
-    status,
-    documents,
-  } = application;
 
   return (
     <div className="flex-1 space-y-6 px-4 md:px-8">
@@ -77,17 +57,21 @@ export default function ApplicationDetailPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => router.back()}
+          asChild
         >
-          <ArrowLeft />
+          <Link href="/dashboard/my-applications">
+            <ArrowLeft />
+          </Link>
         </Button>
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Application Details
         </h1>
         <div className="flex-1" />
-        <Button onClick={() => router.push(`/dashboard/my-applications/${id}/edit`)}>
-          <Pencil className="mr-2" />
-          Edit
+        <Button asChild>
+          <Link href={`/dashboard/my-applications/${id}/edit`}>
+            <Pencil className="mr-2" />
+            Edit
+          </Link>
         </Button>
       </div>
 
@@ -97,30 +81,29 @@ export default function ApplicationDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <DetailItem label="Owner Name" value={ownerName} />
-            <DetailItem label="Email" value={email} />
-            <DetailItem label="Phone Number" value={phoneNumber} />
-            <DetailItem label="DOB" value={dob} />
-            <DetailItem label="Aadhar" value={aadhar} />
-            <DetailItem label="Owner Address" value={ownerAddress} />
+            <DetailItem label="Owner Name" value={application.owner_name} />
+            <DetailItem label="Email" value={application.email} />
+            <DetailItem label="Phone Number" value={application.phone_number} />
+            <DetailItem label="DOB" value={application.dob} />
+            <DetailItem label="Aadhar" value={application.aadhar} />
+            <DetailItem label="Owner Address" value={application.owner_address} />
             <Separator className="md:col-span-2 lg:col-span-3 my-2" />
-            <DetailItem label="Patta" value={pattaNumber} />
-            <DetailItem label="Dag No." value={dagNo} />
-            <DetailItem label="Area (Hectare/Acres)" value={area.toString()} />
-            <DetailItem label="Area for Change" value={areaForChange} />
-            <DetailItem label="District" value={district} />
-            <DetailItem label="SDO Circle" value={sdoCircle} />
-            <DetailItem label="Village" value={village} />
-            <DetailItem label="Village Number" value={villageNumber} />
-            <DetailItem label="Land Address" value={landAddress} />
+            <DetailItem label="Patta" value={application.patta_no} />
+            <DetailItem label="Dag No." value={application.dag_no} />
+            <DetailItem label="Original Area of Plot" value={application.original_area_of_plot} />
+            <DetailItem label="Area for Change" value={application.area_for_change} />
+            <DetailItem label="District" value={application.district} />
+            <DetailItem label="SDO Circle" value={application.sdo_circle} />
+            <DetailItem label="Village" value={application.village} />
+            <DetailItem label="Village Number" value={application.village_number} />
             <Separator className="md:col-span-2 lg:col-span-3 my-2" />
-            <DetailItem label="Location Type" value={locationType} />
+            <DetailItem label="Location Type" value={application.location_type} />
             <DetailItem
               label="Present Land Classification"
-              value={presentLandClassification}
+              value={application.land_classification}
             />
-            <DetailItem label="Purpose" value={purpose} />
-            <DetailItem label="Status" value={status} />
+            <DetailItem label="Purpose" value={application.purpose} />
+            <DetailItem label="Status" value={application.status} />
           </div>
         </CardContent>
       </Card>
@@ -133,31 +116,7 @@ export default function ApplicationDetailPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Document Name</TableHead>
-                <TableHead>File Name</TableHead>
-                <TableHead>Uploaded Date</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {documents.map((doc, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{doc.name}</TableCell>
-                  <TableCell>{doc.fileName}</TableCell>
-                  <TableCell>{doc.uploadedDate}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline" size="sm">
-                      <Download className="mr-2" />
-                      Download
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+           <p className="text-muted-foreground">Document functionality is not yet implemented.</p>
         </CardContent>
       </Card>
     </div>

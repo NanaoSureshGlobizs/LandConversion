@@ -1,7 +1,6 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import Cookies from 'js-cookie';
 
 interface SendOtpResponse {
   success: boolean;
@@ -224,4 +223,10 @@ export async function getChangeOfLandUseDates(token: string) {
 }
 export async function getApplications(token: string, page = 1, limit = 10) {
   return fetchFromApi(`/applications/lists?page=${page}&limit=${limit}`, token);
+}
+
+export async function getApplicationById(token: string, id: string) {
+  const data = await fetchFromApi(`/applications/view?application_id=${id}`, token);
+  // The API returns an array, so we return the first element.
+  return Array.isArray(data) && data.length > 0 ? data[0] : null;
 }

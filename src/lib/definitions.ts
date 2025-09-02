@@ -15,35 +15,30 @@ export interface Document {
   uploadedDate: string;
 }
 
+// This is now based on the API response for a single application
 export interface Application {
-  id: string;
-  pattaNumber: string;
-  area: number; // in square feet or Hectare/Acres as string? The image says Hectare/Acres, mock data is number
-  dateSubmitted: string;
-  status: ApplicationStatus;
-  village: string;
-  district: string;
-  surveyNumber: string;
-  currentLandUse: string;
-  proposedLandUse: string; // from old form
-  ownerName: string;
-
-  // From image
-  dob: string;
+  owner_name: string;
   email: string;
-  phoneNumber: string;
+  phone_number: string;
+  dob: string;
   aadhar: string;
-  ownerAddress: string;
-  dagNo: string;
-  areaForChange: string;
-  sdoCircle: string;
-  villageNumber: string;
-  landAddress: string;
-  locationType: string;
-  presentLandClassification: string;
+  owner_address: string;
+  patta_no: string;
+  dag_no: string;
+  original_area_of_plot: string;
+  area_for_change: string;
+  district: string;
+  sdo_circle: string;
+  village: string;
+  village_number: string;
+  location_type: string;
+  land_classification: string;
   purpose: string;
-  documents: Document[];
+  status: ApplicationStatus;
+  // Documents are not yet in the view API response
+  documents?: Document[]; 
 }
+
 
 export interface ApplicationListItem {
   patta_no: string;
