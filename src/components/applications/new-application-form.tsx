@@ -294,364 +294,366 @@ export function NewApplicationForm({
   };
 
   return (
-    <Form {...form}>
-       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline">Applicant Details</CardTitle>
-            <CardDescription>Enter the personal details of the applicant.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name of Patta Holder</FormLabel>
-                    <FormControl><Input placeholder="Enter full name" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <div className='pb-8'>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="font-headline">Applicant Details</CardTitle>
+              <CardDescription>Enter the personal details of the applicant.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <FormField
-                control={form.control}
-                name="date_of_birth"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Date of Birth</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              placeholder="dd/MM/yyyy"
-                              value={dobInput}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                setDobInput(value);
-                                try {
-                                  const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
-                                  if (!isNaN(parsedDate.getTime())) {
-                                    field.onChange(parsedDate);
-                                  } else {
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name of Patta Holder</FormLabel>
+                      <FormControl><Input placeholder="Enter full name" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="date_of_birth"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Date of Birth</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                placeholder="dd/MM/yyyy"
+                                value={dobInput}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  setDobInput(value);
+                                  try {
+                                    const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                                    if (!isNaN(parsedDate.getTime())) {
+                                      field.onChange(parsedDate);
+                                    } else {
+                                      field.onChange(undefined);
+                                    }
+                                  } catch {
                                     field.onChange(undefined);
                                   }
-                                } catch {
-                                  field.onChange(undefined);
-                                }
-                              }}
-                            />
-                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                          </div>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          captionLayout="dropdown-buttons"
-                          fromYear={1900}
-                          toYear={new Date().getFullYear()}
-                          selected={field.value}
-                          onSelect={(date) => {
-                            field.onChange(date);
-                            if (date) {
-                              setDobInput(format(date, 'dd/MM/yyyy'));
-                            }
-                          }}
-                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="aadhar_no"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Aadhar Number</FormLabel>
-                    <FormControl><Input placeholder="Enter 12-digit Aadhar" {...field} maxLength={12} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem className="lg:col-span-3">
-                    <FormLabel>Address</FormLabel>
-                    <FormControl><Textarea placeholder="Enter full address" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl><Input placeholder="Enter 10-digit mobile number" {...field} maxLength={10} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl><Input placeholder="Enter email address" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-          </CardContent>
-        </Card>
+                                }}
+                              />
+                              <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                            </div>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            captionLayout="dropdown-buttons"
+                            fromYear={1900}
+                            toYear={new Date().getFullYear()}
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              if (date) {
+                                setDobInput(format(date, 'dd/MM/yyyy'));
+                              }
+                            }}
+                            disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="aadhar_no"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Aadhar Number</FormLabel>
+                      <FormControl><Input placeholder="Enter 12-digit Aadhar" {...field} maxLength={12} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem className="lg:col-span-3">
+                      <FormLabel>Address</FormLabel>
+                      <FormControl><Textarea placeholder="Enter full address" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl><Input placeholder="Enter 10-digit mobile number" {...field} maxLength={10} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl><Input placeholder="Enter email address" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline">Land Details</CardTitle>
-            <CardDescription>Provide details about the plot of land.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="district_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>District</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {districts.map((district) => (<SelectItem key={district.id} value={district.id.toString()}>{district.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="circle_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Circle</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedDistrictId || filteredCircles.length === 0}>
-                      <FormControl><SelectTrigger><SelectValue placeholder={!selectedDistrictId ? "Select a district first" : "Select Circle"} /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {filteredCircles.map((circle) => (<SelectItem key={circle.id} value={circle.id.toString()}>{circle.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="sub_division_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sub Division</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCircleId || filteredSubDivisions.length === 0}>
-                      <FormControl><SelectTrigger><SelectValue placeholder={!selectedCircleId ? "Select a circle first" : "Select Sub Division"} /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {filteredSubDivisions.map((subDivision) => (<SelectItem key={subDivision.id} value={subDivision.id.toString()}>{subDivision.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="village_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Village</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedSubDivisionId || filteredVillages.length === 0}>
-                      <FormControl><SelectTrigger><SelectValue placeholder={!selectedSubDivisionId ? "Select a sub-division first" : "Select Village"} /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {filteredVillages.map((village) => (<SelectItem key={village.id} value={village.id.toString()}>{village.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="patta_no"
-                render={({ field }) => (<FormItem><FormLabel>Patta No.</FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
-              />
-              <FormField
-                control={form.control}
-                name="dag_no"
-                render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
-              />
-               <FormField
-                control={form.control}
-                name="location_type_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select Location Type" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {locationTypes.map((loc) => (<SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="font-headline">Land Details</CardTitle>
+              <CardDescription>Provide details about the plot of land.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <FormField
+                  control={form.control}
+                  name="district_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>District</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {districts.map((district) => (<SelectItem key={district.id} value={district.id.toString()}>{district.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="circle_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Circle</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={!selectedDistrictId || filteredCircles.length === 0}>
+                        <FormControl><SelectTrigger><SelectValue placeholder={!selectedDistrictId ? "Select a district first" : "Select Circle"} /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {filteredCircles.map((circle) => (<SelectItem key={circle.id} value={circle.id.toString()}>{circle.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sub_division_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sub Division</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCircleId || filteredSubDivisions.length === 0}>
+                        <FormControl><SelectTrigger><SelectValue placeholder={!selectedCircleId ? "Select a circle first" : "Select Sub Division"} /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {filteredSubDivisions.map((subDivision) => (<SelectItem key={subDivision.id} value={subDivision.id.toString()}>{subDivision.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="village_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Village</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={!selectedSubDivisionId || filteredVillages.length === 0}>
+                        <FormControl><SelectTrigger><SelectValue placeholder={!selectedSubDivisionId ? "Select a sub-division first" : "Select Village"} /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {filteredVillages.map((village) => (<SelectItem key={village.id} value={village.id.toString()}>{village.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="patta_no"
+                  render={({ field }) => (<FormItem><FormLabel>Patta No.</FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
+                />
+                <FormField
+                  control={form.control}
+                  name="dag_no"
+                  render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
+                />
+                <FormField
+                  control={form.control}
+                  name="location_type_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select Location Type" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {locationTypes.map((loc) => (<SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline">Conversion Details</CardTitle>
-            <CardDescription>Specify the area and purpose for the land use change.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <FormLabel>Original area of plot</FormLabel>
-                    <div className="grid grid-cols-3 gap-2">
-                         <FormField
-                            control={form.control}
-                            name="original_area_of_plot"
-                            render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="area_unit_id"
-                            render={({ field }) => (
-                            <FormItem>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
-                                </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                    </div>
-                </div>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="font-headline">Conversion Details</CardTitle>
+              <CardDescription>Specify the area and purpose for the land use change.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                      <FormLabel>Original area of plot</FormLabel>
+                      <div className="grid grid-cols-3 gap-2">
+                          <FormField
+                              control={form.control}
+                              name="original_area_of_plot"
+                              render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="area_unit_id"
+                              render={({ field }) => (
+                              <FormItem>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
+                                  <SelectContent>
+                                      {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
+                                  </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                              </FormItem>
+                              )}
+                          />
+                      </div>
+                  </div>
 
-                <div className="space-y-2">
-                    <FormLabel>Area applied for conversion</FormLabel>
-                    <div className="grid grid-cols-3 gap-2">
-                         <FormField
-                            control={form.control}
-                            name="area_applied_for_conversion"
-                            render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="application_area_unit_id"
-                            render={({ field }) => (
-                            <FormItem>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
-                                </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                    </div>
-                </div>
+                  <div className="space-y-2">
+                      <FormLabel>Area applied for conversion</FormLabel>
+                      <div className="grid grid-cols-3 gap-2">
+                          <FormField
+                              control={form.control}
+                              name="area_applied_for_conversion"
+                              render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="application_area_unit_id"
+                              render={({ field }) => (
+                              <FormItem>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
+                                  <SelectContent>
+                                      {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
+                                  </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                              </FormItem>
+                              )}
+                          />
+                      </div>
+                  </div>
 
-              <FormField
-                control={form.control}
-                name="land_classification_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Present Land Classification</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select classification" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {landClassifications.map((lc) => (<SelectItem key={lc.id} value={lc.id.toString()}>{lc.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="land_purpose_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Purpose for which land is presently used</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select current purpose" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="change_of_land_use_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date of change of land use</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select period" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {changeOfLandUseDates.map((d) => (<SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="purpose_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Purpose for which conversion is requested</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select requested purpose" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
+                <FormField
+                  control={form.control}
+                  name="land_classification_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Present Land Classification</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select classification" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {landClassifications.map((lc) => (<SelectItem key={lc.id} value={lc.id.toString()}>{lc.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="land_purpose_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Purpose for which land is presently used</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select current purpose" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="change_of_land_use_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of change of land use</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select period" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {changeOfLandUseDates.map((d) => (<SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="purpose_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Purpose for which conversion is requested</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select requested purpose" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="flex justify-end gap-2 mb-8">
-          <Button type="button" variant="outline" disabled={isSubmitting}>
-            Save Draft
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && (<Loader2 className="mr-2 h-4 w-4 animate-spin" />)}
-            {existingApplication ? 'Update Application' : 'Submit Application'}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" disabled={isSubmitting}>
+              Save Draft
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && (<Loader2 className="mr-2 h-4 w-4 animate-spin" />)}
+              {existingApplication ? 'Update Application' : 'Submit Application'}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }
