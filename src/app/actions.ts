@@ -140,15 +140,20 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
       },
     });
     
-    // Always read the body as text first to handle non-JSON error responses gracefully
     const responseText = await response.text();
-    
+
     if (!response.ok) {
       const errorMessage = `HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${responseText}`;
       console.error(errorMessage);
       debugLog += `API Error: ${errorMessage}\n`;
       debugLog += '---------------------------\n';
-      return { data: null, debugLog };
+      // Attempt to parse the error response as JSON anyway
+      try {
+        const errorJson = JSON.parse(responseText);
+        return { data: errorJson, debugLog };
+      } catch (e) {
+        return { data: null, debugLog };
+      }
     }
 
     try {
@@ -268,7 +273,6 @@ export async function getApplications(token: string, page = 1, limit = 10) {
 
 export async function getApplicationById(token: string, id: string) {
     const { data, debugLog } = await fetchFromApi(`/applications/view?application_id=${id}`, token);
-    // The API returns an array, so we return the first element.
-    const application = Array.isArray(data) && data.length > 0 ? data[0] : null;
-    return { data: application, log: debugLog };
+    // The API now returns a nested object.
+    return { data, log: debugLog };
 }

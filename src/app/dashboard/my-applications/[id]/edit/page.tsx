@@ -4,6 +4,8 @@ import { getApplicationById, getDistricts, getCircles, getSubDivisions, getVilla
 import { cookies } from "next/headers";
 import { notFound, redirect } from 'next/navigation';
 import { ServerLogHandler } from "@/components/debug/server-log-handler";
+import type { FullApplicationResponse, Application } from "@/lib/definitions";
+
 
 export default async function EditApplicationPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -14,11 +16,16 @@ export default async function EditApplicationPage({ params }: { params: { id: st
     redirect('/');
   }
 
-  const applicationResult = await getApplicationById(accessToken, id);
-  const application = applicationResult.data;
-
-  if (!application) {
+  const applicationResult = await getApplicationById(accessToken, id) as { data: FullApplicationResponse | null, log: string | undefined };
+  
+  if (!applicationResult.data?.owner_details) {
     notFound();
+  }
+  
+  // Add applictaion_id to the owner_details object to pass to the form
+  const application: Application = {
+      ...applicationResult.data.owner_details,
+      applictaion_id: id,
   }
 
   const [
@@ -62,7 +69,7 @@ export default async function EditApplicationPage({ params }: { params: { id: st
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Edit Application: {application.applictaion_id}
+            Edit Application: {id}
           </h1>
         </div>
         <p className="text-muted-foreground">

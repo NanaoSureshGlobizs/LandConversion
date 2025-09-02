@@ -16,11 +16,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, Pencil } from 'lucide-react';
+import { ArrowLeft, Download, Pencil, FileText } from 'lucide-react';
 import { getApplicationById } from '@/app/actions';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
+import type { FullApplicationResponse } from '@/lib/definitions';
 
 function DetailItem({
   label,
@@ -46,11 +47,27 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     redirect('/');
   }
 
-  const { data: application, log } = await getApplicationById(accessToken, id);
-
-  if (!application) {
-    return notFound();
+  const { data: applicationResponse, log } = await getApplicationById(accessToken, id) as { data: FullApplicationResponse | null, log: string | undefined };
+  
+  if (!applicationResponse || !applicationResponse.owner_details) {
+    return (
+        <>
+            <ServerLogHandler logs={[log]} />
+            <div className="flex-1 space-y-6 px-4 md:px-8">
+                 <h1 className="text-3xl font-bold tracking-tight font-headline">
+                    Application Not Found
+                </h1>
+                <p>The application with ID {id} could not be loaded.</p>
+                <pre className="mt-4 p-4 bg-muted rounded-md text-sm overflow-auto">
+                    {log}
+                </pre>
+            </div>
+        </>
+    );
   }
+
+  const { owner_details: application, documents } = applicationResponse;
+
 
   return (
     <>
@@ -91,10 +108,10 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
               <DetailItem label="Aadhar" value={application.aadhar} />
               <DetailItem label="Owner Address" value={application.owner_address} />
               <Separator className="md:col-span-2 lg:col-span-3 my-2" />
-              <DetailItem label="Patta" value={application.patta_no} />
+              <DetailItem label="Patta No." value={application.patta_no} />
               <DetailItem label="Dag No." value={application.dag_no} />
-              <DetailItem label="Original Area of Plot" value={application.original_area_of_plot} />
-              <DetailItem label="Area for Change" value={application.area_for_change} />
+              <DetailItem label="Original Area of Plot" value={`${application.original_area_of_plot} ${application.original_area_of_plot_unit}`} />
+              <DetailItem label="Area for Change" value={`${application.area_for_change} ${application.area_for_change_unit}`} />
               <DetailItem label="District" value={application.district} />
               <DetailItem label="SDO Circle" value={application.sdo_circle} />
               <DetailItem label="Village" value={application.village} />
@@ -119,7 +136,45 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">Document functionality is not yet implemented.</p>
+            {documents && Object.keys(documents).length > 0 ? (
+                 <div className="space-y-4">
+                    {Object.entries(documents).map(([groupName, files]) => (
+                        <div key={groupName}>
+                            <h4 className="font-semibold capitalize mb-2">{groupName.replace(/_/g, ' ')}</h4>
+                            <div className="border rounded-md">
+                               <Table>
+                                 <TableHeader>
+                                     <TableRow>
+                                         <TableHead>File Name</TableHead>
+                                         <TableHead className="text-right">Action</TableHead>
+                                     </TableRow>
+                                 </TableHeader>
+                                 <TableBody>
+                                     {files.map((file, index) => (
+                                         <TableRow key={index}>
+                                             <TableCell className="flex items-center gap-2">
+                                                 <FileText className="text-muted-foreground" />
+                                                 <span>{file.file_name}</span>
+                                             </TableCell>
+                                             <TableCell className="text-right">
+                                                 <Button variant="outline" size="sm" asChild>
+                                                     <a href={file.file_path} target="_blank" rel="noopener noreferrer">
+                                                         <Download className="mr-2"/>
+                                                         View/Download
+                                                     </a>
+                                                 </Button>
+                                             </TableCell>
+                                         </TableRow>
+                                     ))}
+                                 </TableBody>
+                               </Table>
+                            </div>
+                        </div>
+                    ))}
+                 </div>
+            ) : (
+                <p className="text-muted-foreground">No documents attached to this application.</p>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -35,9 +35,9 @@ const formSchema = z.object({
   dag_no: z.string().min(1, 'Dag number is required.'),
   location_type_id: z.string().min(1, 'Location type is required.'),
   
-  original_area_of_plot: z.coerce.number().min(0, "Area must be a positive number"),
+  original_area_of_plot: z.coerce.number().min(0.00001, "Area must be a positive number"),
   area_unit_id: z.string().min(1, "Area unit is required."),
-  area_applied_for_conversion: z.coerce.number().min(0, "Area must be a positive number"),
+  area_applied_for_conversion: z.coerce.number().min(0.00001, "Area must be a positive number"),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
 
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
@@ -128,17 +128,22 @@ const getInitialValues = (
 
   const dobDate = application.dob ? parse(application.dob, 'yyyy-MM-dd', new Date()) : new Date();
 
+  // Mapping from name to ID
   const district = districts.find(d => d.name === application.district);
   const circle = circles.find(c => c.name === application.sdo_circle && c.district_id === district?.id);
-  const subDivision = subDivisions.find(s => s.name === application.sub_division && s.circle_id === circle?.id);
-  const village = villages.find(v => v.name === application.village && v.sub_division_id === subDivision?.id);
+  // Note: sub_division is not in the new API response, so we can't map it directly.
+  // We'll rely on the chained selection logic to handle this.
+  const village = villages.find(v => v.name === application.village); 
 
   const landClassification = landClassifications.find(lc => lc.name === application.land_classification);
   const purpose = landPurposes.find(p => p.purpose_name === application.purpose);
   const locationType = locationTypes.find(lt => lt.name === application.location_type);
-  
-  const landPurpose = landPurposes.find(p => p.id === application.land_purpose_id); 
-  const changeOfLandUse = changeOfLandUseDates.find(d => d.id === application.change_of_land_use_id);
+  const areaUnit = areaUnits.find(u => u.name === application.original_area_of_plot_unit);
+  const applicationAreaUnit = areaUnits.find(u => u.name === application.area_for_change_unit);
+
+  // These are not in the new response, so we need to handle potential undefined values.
+  const landPurpose = application.land_purpose_id ? landPurposes.find(p => p.id === application.land_purpose_id) : undefined;
+  const changeOfLandUse = application.change_of_land_use_id ? changeOfLandUseDates.find(d => d.id === application.change_of_land_use_id) : undefined;
   
   return {
     name: application.owner_name || '',
@@ -149,18 +154,18 @@ const getInitialValues = (
     email: application.email || '',
     district_id: district?.id.toString() || '',
     circle_id: circle?.id.toString() || '',
-    sub_division_id: subDivision?.id.toString() || '',
+    sub_division_id: '', // Cannot determine from API, user must re-select
     village_id: village?.id.toString() || '',
     patta_no: application.patta_no || '',
     dag_no: application.dag_no || '',
     location_type_id: locationType?.id.toString() || '',
     original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : ('' as any),
-    area_unit_id: application.area_unit_id?.toString() || '',
+    area_unit_id: areaUnit?.id.toString() || '',
     area_applied_for_conversion: application ? parseFloat(application.area_for_change) : ('' as any),
-    application_area_unit_id: application.application_area_unit_id?.toString() || '',
+    application_area_unit_id: applicationAreaUnit?.id.toString() || '',
     land_classification_id: landClassification?.id.toString() || '',
-    land_purpose_id: landPurpose?.id.toString() || '',
-    change_of_land_use_id: changeOfLandUse?.id.toString() || '',
+    land_purpose_id: landPurpose?.id.toString() || '', // May be undefined
+    change_of_land_use_id: changeOfLandUse?.id.toString() || '', // May be undefined
     purpose_id: purpose?.id.toString() || '',
   };
 };

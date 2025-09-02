@@ -1,4 +1,5 @@
 
+
 export type ApplicationStatus =
   | 'Pending'
   | 'Approved'
@@ -11,14 +12,16 @@ export type ApplicationStatus =
   | 'Review';
 
 export interface Document {
-  name: string;
-  fileName: string;
-  uploadedDate: string;
+  file_path: string;
+  file_name: string;
 }
 
-// This is now based on the API response for a single application
+export interface DocumentGroup {
+  [key: string]: Document[];
+}
+
+// This is based on the `owner_details` object in the API response for a single application
 export interface Application {
-  applictaion_id: string;
   owner_name: string;
   email: string;
   phone_number: string;
@@ -28,29 +31,39 @@ export interface Application {
   patta_no: string;
   dag_no: string;
   original_area_of_plot: string;
+  original_area_of_plot_unit: string;
   area_for_change: string;
+  area_for_change_unit: string;
   district: string;
-  district_id: number;
   sdo_circle: string;
-  circle_id: number;
-  sub_division: string;
-  sub_division_id: number;
   village: string;
-  village_id: number;
   village_number: string;
   location_type: string;
-  location_type_id: number;
   land_classification: string;
-  land_classification_id: number;
-  land_purpose_id: number;
-  area_unit_id: number;
-  application_area_unit_id: number;
-  change_of_land_use_id: number;
-  purpose_id: number;
   purpose: string;
   status: ApplicationStatus;
-  // Documents are not yet in the view API response
-  documents?: Document[]; 
+  
+  // These fields are not in the new response but were in the old one.
+  // Kept for compatibility with form logic for now.
+  // Will need to be mapped if not present in owner_details.
+  applictaion_id?: string;
+  district_id?: number;
+  circle_id?: number;
+  sub_division?: string;
+  sub_division_id?: number;
+  village_id?: number;
+  location_type_id?: number;
+  land_classification_id?: number;
+  land_purpose_id?: number;
+  area_unit_id?: number;
+  application_area_unit_id?: number;
+  change_of_land_use_id?: number;
+  purpose_id?: number;
+}
+
+export interface FullApplicationResponse {
+    owner_details: Application;
+    documents: DocumentGroup;
 }
 
 
