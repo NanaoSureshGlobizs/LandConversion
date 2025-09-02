@@ -1,6 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import Cookies from 'js-cookie';
 
 interface SendOtpResponse {
   success: boolean;
@@ -90,7 +91,6 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
 
     if (data.success && data.data?.accessToken) {
       cookies().set('accessToken', data.data.accessToken, {
-        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
@@ -119,7 +119,6 @@ export async function checkAuth() {
   return !!accessToken;
 }
 
-// Client-side fetching function needs accessToken
 export async function getDropdownData(endpoint: string, token: string) {
   const url = `${API_BASE_URL}${endpoint}`;
   try {
@@ -145,74 +144,3 @@ export async function getDropdownData(endpoint: string, token: string) {
     return [];
   }
 }
-
-async function fetchFromApi(endpoint: string) {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const cookieStore = cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-
-  const headers: HeadersInit = {
-    'Accept': 'application/json',
-  };
-
-  if (accessToken) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
-  } else {
-    // If there's no access token, we can't make an authenticated request.
-    // Depending on the API, this might be an error or return public data.
-    // For this use case, we'll proceed, but log a warning.
-    console.warn(`fetchFromApi called for ${endpoint} without an accessToken.`);
-  }
-
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers,
-    });
-
-    if (!response.ok) {
-      // Log the error response for debugging
-      const errorBody = await response.text();
-      console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${errorBody}`);
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    if (result.success) {
-      return result.data;
-    }
-    console.error(`API error from ${endpoint}:`, result.message);
-    return [];
-  } catch (error) {
-    console.error(`Failed to fetch from ${endpoint}:`, error);
-    return [];
-  }
-}
-
-// These are now fetched on the client-side
-// export async function getDistricts() {
-//   return fetchFromApi('/district');
-// }
-// export async function getCircles() {
-//   return fetchFromApi('/circle');
-// }
-// export async function getSubDivisions() {
-//   return fetchFromApi('/sub-division');
-// }
-// export async function getVillages() {
-//   return fetchFromApi('/village');
-// }
-// export async function getLandPurposes() {
-//   return fetchFromApi('/land-purpose');
-// }
-// export async function getLocationTypes() {
-//   return fetchFromApi('/location-type');
-// }
-// export async function getAreaUnits() {
-//   return fetchFromApi('/area-unit');
-// }
-// export async function getLandClassifications() {
-//   return fetchFromApi('/land-classification');
-// }
-// export async function getChangeOfLandUseDates() {
-//   return fetchFromApi('/change-of-land-use');
-// }
