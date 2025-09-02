@@ -28,6 +28,16 @@ export function Step3ConversionDetails({ locationTypes, areaUnits, landClassific
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
                 control={control}
+                name="patta_no"
+                render={({ field }) => (<FormItem><FormLabel>Patta No.</FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
+            />
+            <FormField
+                control={control}
+                name="dag_no"
+                render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
+            />
+            <FormField
+                control={control}
                 name="location_type_id"
                 render={({ field }) => (
                 <FormItem>
@@ -116,8 +126,7 @@ export function Step3ConversionDetails({ locationTypes, areaUnits, landClassific
                 name="purpose_id"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Purpose for which conversion is requested</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <FormLabel>Purpose for which conversion is requested</FormLabel>                    <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select requested purpose" /></SelectTrigger></FormControl>
                     <SelectContent>
                         {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}

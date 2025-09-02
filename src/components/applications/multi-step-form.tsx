@@ -163,9 +163,9 @@ const getInitialValues = (
 };
 
 const steps = [
-  { id: 'Step 1', name: 'Current Plot Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'patta_no', 'dag_no', 'land_purpose_id', 'change_of_land_use_id'] },
+  { id: 'Step 1', name: 'Current Plot Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Owner Details', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email'] },
-  { id: 'Step 3', name: 'Detailed Plot Information', fields: ['location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] }
+  { id: 'Step 3', name: 'Detailed Plot Information', fields: ['patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] }
 ]
 
 export function MultiStepForm({

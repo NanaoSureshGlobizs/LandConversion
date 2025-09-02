@@ -166,16 +166,6 @@ export function Step1LandDetails({ districts, circles, subDivisions, villages, l
         />
         <FormField
             control={control}
-            name="patta_no"
-            render={({ field }) => (<FormItem><FormLabel>Patta No.</FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
-        />
-        <FormField
-            control={control}
-            name="dag_no"
-            render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
-        />
-        <FormField
-            control={control}
             name="land_purpose_id"
             render={({ field }) => (
             <FormItem>
