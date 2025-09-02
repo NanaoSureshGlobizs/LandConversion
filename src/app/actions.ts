@@ -307,8 +307,14 @@ export async function getChangeOfLandUseDates(token: string) {
     const { data, debugLog } = await fetchFromApi('/change-of-land-use', token);
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
-export async function getApplications(token: string, page = 1, limit = 10) {
-    const { data, debugLog } = await fetchFromApi(`/applications/lists?page=${page}&limit=${limit}`, token);
+
+export async function getApplications(page = 1, limit = 10) {
+    const cookieStore = cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+    if (!accessToken) {
+      return { data: null, log: "No access token found" };
+    }
+    const { data, debugLog } = await fetchFromApi(`/applications/lists?page=${page}&limit=${limit}`, accessToken);
     return { data, log: debugLog };
 }
 
@@ -317,3 +323,5 @@ export async function getApplicationById(token: string, id: string) {
     // The API now returns a nested object.
     return { data, log: debugLog };
 }
+
+    

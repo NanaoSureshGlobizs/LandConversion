@@ -1,3 +1,4 @@
+
 import { ApplicationsTable } from '@/components/applications/applications-table';
 import { getApplications } from '@/app/actions';
 import { cookies } from 'next/headers';
@@ -16,7 +17,7 @@ export default async function MyApplicationsPage() {
     redirect('/');
   }
 
-  const { data: applicationsData, log } = await getApplications(accessToken);
+  const { data: initialApplicationsData, log } = await getApplications();
 
   return (
     <>
@@ -34,8 +35,10 @@ export default async function MyApplicationsPage() {
         <p className="text-muted-foreground">
           View and manage all your past and current land use applications.
         </p>
-        <ApplicationsTable data={applicationsData?.lists || []} />
+        <ApplicationsTable initialData={initialApplicationsData} />
       </div>
     </>
   );
 }
+
+    
