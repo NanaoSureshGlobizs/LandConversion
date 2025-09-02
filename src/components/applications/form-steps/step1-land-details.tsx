@@ -96,7 +96,7 @@ export function Step1LandDetails({ districts, circles, subDivisions, villages, l
   return (
     <div className="space-y-8">
       <CardHeader className='p-0'>
-        <CardTitle className="font-headline">Current Plot Details</CardTitle>
+        <CardTitle className="font-headline">Plot Details</CardTitle>
         <CardDescription>Provide details about the plot of land.</CardDescription>
       </CardHeader>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

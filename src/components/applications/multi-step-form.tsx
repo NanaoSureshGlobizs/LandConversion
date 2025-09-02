@@ -15,8 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import type { Application } from '@/lib/definitions';
 import { Step1LandDetails } from './form-steps/step1-land-details';
 import { Step2DocumentRequirements } from './form-steps/step2-document-requirements';
-import { Step3ApplicantDetails } from './form-steps/step3-applicant-details';
-import { Step4DetailedPlotInfo } from './form-steps/step4-detailed-plot-info';
+import { Step3Details } from './form-steps/step3-details';
 import { StepIndicator } from './form-steps/step-indicator';
 
 const formSchema = z.object({
@@ -164,10 +163,9 @@ const getInitialValues = (
 };
 
 const steps = [
-  { id: 'Step 1', name: 'Current Plot Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
+  { id: 'Step 1', name: 'Plot Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
-  { id: 'Step 3', name: 'Owner Details', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email'] },
-  { id: 'Step 4', name: 'Detailed Plot Information', fields: ['patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] }
+  { id: 'Step 3', name: 'Applicant & Detailed Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] }
 ]
 
 export function MultiStepForm({
@@ -293,9 +291,8 @@ export function MultiStepForm({
                 />
               )}
               {currentStep === 1 && <Step2DocumentRequirements documentType={documentType} />}
-              {currentStep === 2 && <Step3ApplicantDetails />}
-              {currentStep === 3 && (
-                <Step4DetailedPlotInfo
+              {currentStep === 2 && (
+                <Step3Details
                     locationTypes={locationTypes}
                     areaUnits={areaUnits}
                     landClassifications={landClassifications}
