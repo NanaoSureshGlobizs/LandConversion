@@ -110,7 +110,6 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
 }
 
 export async function logout() {
-  await logoutAction();
   cookies().delete('accessToken');
 }
 
@@ -124,14 +123,26 @@ export async function checkAuth() {
 
 async function fetchFromApi(endpoint: string) {
   const url = `${API_BASE_URL}${endpoint}`;
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  const headers: HeadersInit = {
+    'Accept': 'application/json',
+  };
+
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
   try {
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers,
     });
     if (!response.ok) {
+      // Log the error response for debugging
+      const errorBody = await response.text();
+      console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${errorBody}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const result = await response.json();
