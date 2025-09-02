@@ -125,14 +125,14 @@ export function NewApplicationForm({
   const { addLog } = useDebug();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [filteredCircles, setFilteredCircles] = useState<Circle[]>(circles);
-  const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>(subDivisions);
-  const [filteredVillages, setFilteredVillages] = useState<Village[]>(villages);
+  const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
+  const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
+  const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
   const [dobInput, setDobInput] = useState('');
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: existingApplication ? undefined : {
       name: '',
       aadhar_no: '',
       address: '',
@@ -203,50 +203,49 @@ export function NewApplicationForm({
   }, [dobValue]);
   
   useEffect(() => {
-    if (selectedDistrictId) {
-      const isPrepopulation = form.getValues('circle_id') !== '' && filteredCircles.length > 0;
-      if (!isPrepopulation) {
+    const districtId = form.getValues('district_id');
+    if (districtId) {
+      const relevantCircles = circles.filter(c => c.district_id === parseInt(districtId));
+      setFilteredCircles(relevantCircles);
+
+      if (!relevantCircles.find(c => c.id.toString() === form.getValues('circle_id'))) {
         form.setValue('circle_id', '');
         form.setValue('sub_division_id', '');
         form.setValue('village_id', '');
       }
-      setFilteredCircles(circles.filter(c => c.district_id === parseInt(selectedDistrictId)));
-      if (!isPrepopulation) {
-        setFilteredSubDivisions([]);
-        setFilteredVillages([]);
-      }
     } else {
-        setFilteredCircles(circles);
+      setFilteredCircles([]);
     }
-  }, [selectedDistrictId, circles, form, filteredCircles.length]);
-  
+  }, [selectedDistrictId, circles, form]);
+
   useEffect(() => {
-    if (selectedCircleId) {
-      const isPrepopulation = form.getValues('sub_division_id') !== '' && filteredSubDivisions.length > 0;
-      if (!isPrepopulation) {
+    const circleId = form.getValues('circle_id');
+    if (circleId) {
+      const relevantSubDivisions = subDivisions.filter(sd => sd.circle_id === parseInt(circleId));
+      setFilteredSubDivisions(relevantSubDivisions);
+
+      if (!relevantSubDivisions.find(sd => sd.id.toString() === form.getValues('sub_division_id'))) {
         form.setValue('sub_division_id', '');
         form.setValue('village_id', '');
       }
-      setFilteredSubDivisions(subDivisions.filter(sd => sd.circle_id === parseInt(selectedCircleId)));
-       if (!isPrepopulation) {
-        setFilteredVillages([]);
-      }
     } else {
-        setFilteredSubDivisions(subDivisions);
+      setFilteredSubDivisions([]);
     }
-  }, [selectedCircleId, subDivisions, form, filteredSubDivisions.length]);
+  }, [selectedCircleId, subDivisions, form]);
 
   useEffect(() => {
-    if (selectedSubDivisionId) {
-       const isPrepopulation = form.getValues('village_id') !== '' && filteredVillages.length > 0;
-      if (!isPrepopulation) {
+    const subDivisionId = form.getValues('sub_division_id');
+    if (subDivisionId) {
+      const relevantVillages = villages.filter(v => v.sub_division_id === parseInt(subDivisionId));
+      setFilteredVillages(relevantVillages);
+
+      if (!relevantVillages.find(v => v.id.toString() === form.getValues('village_id'))) {
         form.setValue('village_id', '');
       }
-      setFilteredVillages(villages.filter(v => v.sub_division_id === parseInt(selectedSubDivisionId)));
     } else {
-        setFilteredVillages(villages);
+      setFilteredVillages([]);
     }
-  }, [selectedSubDivisionId, villages, form, filteredVillages.length]);
+  }, [selectedSubDivisionId, villages, form]);
 
 
   const onSubmit = async (values: FormValues) => {
@@ -323,27 +322,20 @@ export function NewApplicationForm({
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
-                            <div className="relative">
-                              <Input
-                                placeholder="dd/MM/yyyy"
-                                value={dobInput}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  setDobInput(value);
-                                  try {
-                                    const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
-                                    if (!isNaN(parsedDate.getTime())) {
-                                      field.onChange(parsedDate);
-                                    } else {
-                                      field.onChange(undefined);
-                                    }
-                                  } catch {
-                                    field.onChange(undefined);
-                                  }
-                                }}
-                              />
-                              <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                            </div>
+                            <Button
+                              variant={'outline'}
+                              className={cn(
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, 'PPP')
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -353,13 +345,10 @@ export function NewApplicationForm({
                             fromYear={1900}
                             toYear={new Date().getFullYear()}
                             selected={field.value}
-                            onSelect={(date) => {
-                              field.onChange(date);
-                              if (date) {
-                                setDobInput(format(date, 'dd/MM/yyyy'));
-                              }
-                            }}
-                            disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date('1900-01-01')
+                            }
                             initialFocus
                           />
                         </PopoverContent>
