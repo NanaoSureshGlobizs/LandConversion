@@ -123,7 +123,6 @@ export async function checkAuth() {
 async function fetchFromApi(endpoint: string, token: string | undefined) {
   if (!token) {
     console.error(`Authentication token not found for endpoint: ${endpoint}`);
-    // In a real app, you might want to throw an error or handle this case differently
     return [];
   }
 
@@ -139,8 +138,6 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${errorBody}`);
-      // Depending on the expected behavior, you might want to throw an error
-      // or return an empty array. Returning empty for now to avoid crashing the form.
       return [];
     }
 
@@ -156,6 +153,37 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
     return [];
   }
 }
+
+export async function submitApplication(formData: any, token: string | undefined) {
+    if (!token) {
+    return { success: false, message: 'Authentication token not found.' };
+  }
+
+  const url = `${API_BASE_URL}/applications`;
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}` };
+    }
+
+    return result;
+  } catch (error) {
+    console.error('submitApplication error:', error);
+    return { success: false, message: 'An unexpected error occurred.' };
+  }
+}
+
 
 // Functions to be called from Server Components
 export async function getDistricts(token: string) {

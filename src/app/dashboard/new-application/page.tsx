@@ -4,7 +4,11 @@ import {
   getCircles, 
   getSubDivisions, 
   getVillages, 
-  getLandPurposes 
+  getLandPurposes,
+  getLocationTypes,
+  getAreaUnits,
+  getLandClassifications,
+  getChangeOfLandUseDates
 } from "@/app/actions";
 import { cookies } from "next/headers";
 import { redirect } from 'next/navigation';
@@ -14,17 +18,29 @@ export default async function NewApplicationPage() {
   const accessToken = cookieStore.get('accessToken')?.value;
 
   if (!accessToken) {
-    // This should ideally not happen if ProtectedRoute is working, but as a safeguard:
     redirect('/');
   }
 
-  // Fetch all data on the server in parallel, passing the token
-  const [districts, circles, subDivisions, villages, landPurposes] = await Promise.all([
+  const [
+    districts, 
+    circles, 
+    subDivisions, 
+    villages, 
+    landPurposes, 
+    locationTypes, 
+    areaUnits, 
+    landClassifications, 
+    changeOfLandUseDates
+  ] = await Promise.all([
     getDistricts(accessToken),
     getCircles(accessToken),
     getSubDivisions(accessToken),
     getVillages(accessToken),
     getLandPurposes(accessToken),
+    getLocationTypes(accessToken),
+    getAreaUnits(accessToken),
+    getLandClassifications(accessToken),
+    getChangeOfLandUseDates(accessToken)
   ]);
 
   return (
@@ -38,6 +54,11 @@ export default async function NewApplicationPage() {
         subDivisions={subDivisions}
         villages={villages}
         landPurposes={landPurposes}
+        locationTypes={locationTypes}
+        areaUnits={areaUnits}
+        landClassifications={landClassifications}
+        changeOfLandUseDates={changeOfLandUseDates}
+        accessToken={accessToken}
       />
     </div>
   );
