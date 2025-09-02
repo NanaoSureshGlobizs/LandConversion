@@ -118,7 +118,9 @@ export const ImagePicker = ({
   }, []);
 
   const renderPreviewContent = (file: UploadedFile) => {
-    if (file.previewUrl.startsWith('blob:')) { // Assuming blob URLs for images
+    const isImage = file.previewUrl.startsWith('blob:') && file.originalName.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+    
+    if (isImage) {
         return (
             <Image
                 src={file.previewUrl}
@@ -135,6 +137,7 @@ export const ImagePicker = ({
         </div>
     );
   };
+
 
   return (
     <div className="py-4 border-b last:border-b-0">

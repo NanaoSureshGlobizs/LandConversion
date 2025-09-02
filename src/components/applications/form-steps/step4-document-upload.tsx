@@ -51,7 +51,7 @@ interface Step4Props {
 }
 
 export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
-  const { control, getValues, setValue } = useFormContext<FormValues>();
+  const { getValues, setValue } = useFormContext<FormValues>();
   const { toast } = useToast();
   const { addLog } = useDebug();
 
@@ -75,7 +75,9 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
     
     setIsUploading(true);
     const formData = new FormData();
-    formData.append(newAadharFile.name, newAadharFile);
+    // The API expects the key to be unique for each relative's aadhar
+    const aadharKey = `${newName.replace(/\s+/g, '_')}_relative_aadhar`;
+    formData.append(aadharKey, newAadharFile);
 
     const result = await uploadFile(formData, accessToken);
     if(result.debugLog) addLog(result.debugLog);
