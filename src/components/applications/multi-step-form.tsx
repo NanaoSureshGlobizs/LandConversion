@@ -17,6 +17,7 @@ import { Step1LandDetails } from './form-steps/step1-land-details';
 import { Step2DocumentRequirements } from './form-steps/step2-document-requirements';
 import { Step3Details } from './form-steps/step3-details';
 import { StepIndicator } from './form-steps/step-indicator';
+import { Step4DocumentUpload } from './form-steps/step4-document-upload';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -165,7 +166,8 @@ const getInitialValues = (
 const steps = [
   { id: 'Step 1', name: 'Plot Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
-  { id: 'Step 3', name: 'Applicant & Detailed Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] }
+  { id: 'Step 3', name: 'Applicant & Detailed Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] },
+  { id: 'Step 4', name: 'Document Upload', fields: [] },
 ]
 
 export function MultiStepForm({
@@ -298,6 +300,9 @@ export function MultiStepForm({
                     landClassifications={landClassifications}
                     landPurposes={landPurposes}
                 />
+              )}
+              {currentStep === 3 && (
+                <Step4DocumentUpload documentType={documentType} />
               )}
             </CardContent>
           </Card>
