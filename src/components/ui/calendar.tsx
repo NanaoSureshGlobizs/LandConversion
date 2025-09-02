@@ -28,7 +28,10 @@ function Calendar({
           props.captionLayout === 'dropdown-buttons' && 'hidden'
         ),
         caption_dropdowns: "flex justify-center gap-1",
-        nav: "space-x-1 flex items-center",
+        nav: cn(
+          "space-x-1 flex items-center",
+          props.captionLayout === 'dropdown-buttons' && 'hidden'
+        ),
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
