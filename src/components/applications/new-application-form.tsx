@@ -315,7 +315,7 @@ export function NewApplicationForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Aadhar Number</FormLabel>
-                    <FormControl><Input placeholder="Enter 12-digit Aadhar" {...field} /></FormControl>
+                    <FormControl><Input placeholder="Enter 12-digit Aadhar" {...field} maxLength={12} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -337,7 +337,7 @@ export function NewApplicationForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone Number</FormLabel>
-                    <FormControl><Input placeholder="Enter 10-digit mobile number" {...field} /></FormControl>
+                    <FormControl><Input placeholder="Enter 10-digit mobile number" {...field} maxLength={10} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
