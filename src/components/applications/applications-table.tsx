@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Application, ApplicationStatus } from '@/lib/definitions';
+import type { ApplicationListItem } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -13,16 +13,10 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Trash2 } from 'lucide-react';
 
 interface ApplicationsTableProps {
-  data: Application[];
+  data: ApplicationListItem[];
 }
 
 export function ApplicationsTable({ data }: ApplicationsTableProps) {
@@ -34,9 +28,9 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
     const lowercasedFilter = searchTerm.toLowerCase();
     return data.filter(
       (item) =>
-        item.id.toLowerCase().includes(lowercasedFilter) ||
-        item.pattaNumber.toLowerCase().includes(lowercasedFilter) ||
-        item.status.toLowerCase().includes(lowercasedFilter)
+        item.applictaion_id?.toLowerCase().includes(lowercasedFilter) ||
+        item.patta_no.toLowerCase().includes(lowercasedFilter) ||
+        item.status_name.toLowerCase().includes(lowercasedFilter)
     );
   }, [data, searchTerm]);
 
@@ -69,7 +63,7 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
             <TableRow>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta Number</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Area Unit</TableHead>
               <TableHead>Date Submitted</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -78,16 +72,16 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
-                  <TableCell className="font-medium">{app.id}</TableCell>
-                  <TableCell>{app.pattaNumber}</TableCell>
-                  <TableCell>{app.area.toLocaleString()} acres</TableCell>
+                <TableRow key={app.applictaion_id}>
+                  <TableCell className="font-medium">{app.applictaion_id}</TableCell>
+                  <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{app.area_type}</TableCell>
                   <TableCell>
-                    {new Date(app.dateSubmitted).toLocaleDateString('en-CA')}
+                    {app.date_submitted}
                   </TableCell>
                   <TableCell>
                     <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold">
-                      {app.status}
+                      {app.status_name}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
@@ -95,14 +89,14 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleView(app.id)}
+                        onClick={() => handleView(app.applictaion_id)}
                       >
                         View
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleEdit(app.id)}
+                        onClick={() => handleEdit(app.applictaion_id)}
                       >
                         Edit
                       </Button>
@@ -110,7 +104,7 @@ export function ApplicationsTable({ data }: ApplicationsTableProps) {
                         variant="ghost"
                         size="icon"
                         className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(app.id)}
+                        onClick={() => handleDelete(app.applictaion_id)}
                       >
                         <Trash2 className="size-4" />
                         <span className="sr-only">Delete</span>

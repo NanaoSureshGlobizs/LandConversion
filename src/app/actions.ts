@@ -123,7 +123,7 @@ export async function checkAuth() {
 async function fetchFromApi(endpoint: string, token: string | undefined) {
   if (!token) {
     console.error(`Authentication token not found for endpoint: ${endpoint}`);
-    return [];
+    return null;
   }
 
   const url = `${API_BASE_URL}${endpoint}`;
@@ -138,19 +138,19 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${errorBody}`);
-      return [];
+      return null;
     }
 
     const result = await response.json();
-    if (result.success && Array.isArray(result.data)) {
+    if (result.success) {
       return result.data;
     }
 
     console.error(`API error or unexpected data format from ${endpoint}:`, result.message || result);
-    return [];
+    return null;
   } catch (error) {
     console.error(`Failed to fetch from ${endpoint}:`, error);
-    return [];
+    return null;
   }
 }
 
@@ -187,29 +187,41 @@ export async function submitApplication(formData: any, token: string | undefined
 
 // Functions to be called from Server Components
 export async function getDistricts(token: string) {
-  return fetchFromApi('/district', token);
+  const data = await fetchFromApi('/district', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getCircles(token: string) {
-  return fetchFromApi('/circle', token);
+  const data = await fetchFromApi('/circle', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getSubDivisions(token: string) {
-  return fetchFromApi('/sub-division', token);
+  const data = await fetchFromApi('/sub-division', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getVillages(token: string) {
-  return fetchFromApi('/village', token);
+  const data = await fetchFromApi('/village', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getLandPurposes(token: string) {
-  return fetchFromApi('/land-purpose', token);
+  const data = await fetchFromApi('/land-purpose', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getLocationTypes(token: string) {
-  return fetchFromApi('/location-type', token);
+  const data = await fetchFromApi('/location-type', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getAreaUnits(token: string) {
-  return fetchFromApi('/area-unit', token);
+  const data = await fetchFromApi('/area-unit', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getLandClassifications(token: string) {
-  return fetchFromApi('/land-classification', token);
+  const data = await fetchFromApi('/land-classification', token);
+  return Array.isArray(data) ? data : [];
 }
 export async function getChangeOfLandUseDates(token: string) {
-  return fetchFromApi('/change-of-land-use', token);
+  const data = await fetchFromApi('/change-of-land-use', token);
+  return Array.isArray(data) ? data : [];
+}
+export async function getApplications(token: string, page = 1, limit = 10) {
+  return fetchFromApi(`/applications/lists?page=${page}&limit=${limit}`, token);
 }

@@ -5,7 +5,9 @@ export type ApplicationStatus =
   | 'In Review'
   | 'Submitted'
   | 'Inprogress'
-  | 'Completed';
+  | 'Completed'
+  | 'New'
+  | 'Review';
 
 export interface Document {
   name: string;
@@ -41,4 +43,22 @@ export interface Application {
   presentLandClassification: string;
   purpose: string;
   documents: Document[];
+}
+
+export interface ApplicationListItem {
+  patta_no: string;
+  area_type: string;
+  date_submitted: string;
+  applictaion_id: string;
+  status_name: ApplicationStatus;
+}
+
+export interface PaginatedApplications {
+  lists: ApplicationListItem[];
+  pagination: {
+    totalCount: number;
+    pageCount: number;
+    currentPage: number;
+    perPage: number;
+  };
 }

@@ -1,7 +1,19 @@
 import { ApplicationsTable } from '@/components/applications/applications-table';
-import { mockApplications } from '@/lib/mock-data';
+import { getApplications } from '@/app/actions';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import type { PaginatedApplications } from '@/lib/definitions';
 
-export default function MyApplicationsPage() {
+export default async function MyApplicationsPage() {
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  if (!accessToken) {
+    redirect('/');
+  }
+
+  const applicationsData: PaginatedApplications | null = await getApplications(accessToken);
+
   return (
     <div className="flex-1 space-y-4 px-4 md:px-8">
       <div className="flex items-center justify-between space-y-2">
@@ -10,7 +22,7 @@ export default function MyApplicationsPage() {
       <p className="text-muted-foreground">
         View and manage all your past and current land use applications.
       </p>
-      <ApplicationsTable data={mockApplications} />
+      <ApplicationsTable data={applicationsData?.lists || []} />
     </div>
   );
 }
