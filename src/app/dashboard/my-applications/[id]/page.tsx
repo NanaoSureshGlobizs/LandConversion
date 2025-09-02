@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 import type { FullApplicationResponse } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 
 function DetailItem({
@@ -201,6 +202,10 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                           <CardTitle>Actions</CardTitle>
                       </CardHeader>
                       <CardContent className="flex flex-col gap-2">
+                          {/* <Button>
+                            <Edit className="mr-2"/>
+                            Edit Application
+                          </Button> */}
                           <Button variant="outline">
                             <Printer className="mr-2"/>
                             Print Application
