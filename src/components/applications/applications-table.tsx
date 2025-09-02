@@ -75,17 +75,8 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
     );
   }, [applications, searchTerm]);
 
-  const handleView = (appId: string) => {
+  const handleRowClick = (appId: string) => {
     router.push(`/dashboard/my-applications/${appId}`);
-  };
-
-  const handleEdit = (appId: string) => {
-    router.push(`/dashboard/my-applications/${appId}/edit`);
-  };
-
-  const handleDelete = (appId: string) => {
-    // In a real app, you'd show a confirmation dialog here.
-    console.log('Delete application:', appId);
   };
 
   return (
@@ -107,13 +98,16 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
               <TableHead>Area Unit</TableHead>
               <TableHead>Date Submitted</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.applictaion_id}>
+                <TableRow 
+                    key={app.applictaion_id}
+                    onClick={() => handleRowClick(app.applictaion_id)}
+                    className="cursor-pointer"
+                >
                   <TableCell className="font-medium">{app.applictaion_id}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
@@ -125,38 +119,11 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
                       {app.status_name}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleView(app.applictaion_id)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(app.applictaion_id)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(app.applictaion_id)}
-                      >
-                        <Trash2 className="size-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
