@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -127,6 +127,7 @@ export function NewApplicationForm({
   const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
   const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
   const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
+  const [dobInput, setDobInput] = useState('');
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -157,6 +158,15 @@ export function NewApplicationForm({
   const selectedDistrictId = form.watch('district_id');
   const selectedCircleId = form.watch('circle_id');
   const selectedSubDivisionId = form.watch('sub_division_id');
+  const dobValue = form.watch('date_of_birth');
+
+  useEffect(() => {
+    if (dobValue) {
+      setDobInput(format(dobValue, 'dd/MM/yyyy'));
+    } else {
+      setDobInput('');
+    }
+  }, [dobValue]);
   
   useEffect(() => {
     if (selectedDistrictId) {
@@ -258,20 +268,38 @@ export function NewApplicationForm({
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn('pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}
-                          >
-                            {field.value ? (format(field.value, 'PPP')) : (<span>Select DOB</span>)}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
+                          <div className="relative">
+                            <Input
+                              placeholder="dd/MM/yyyy"
+                              value={dobInput}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setDobInput(value);
+                                const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                                if (!isNaN(parsedDate.getTime())) {
+                                  field.onChange(parsedDate);
+                                } else {
+                                  field.onChange(undefined);
+                                }
+                              }}
+                            />
+                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                          </div>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
+                          captionLayout="dropdown-buttons"
+                          fromYear={1900}
+                          toYear={new Date().getFullYear()}
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            if (date) {
+                              setDobInput(format(date, 'dd/MM/yyyy'));
+                            }
+                          }}
                           disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                           initialFocus
                         />
