@@ -5,6 +5,8 @@ import { CardContent, CardDescription, CardHeader, CardTitle } from "@/component
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UploadCloud } from "lucide-react";
+import React, { useRef, useState } from "react";
+import Image from "next/image";
 
 interface DocumentUploadItemProps {
   title: string;
@@ -12,23 +14,62 @@ interface DocumentUploadItemProps {
   isMultiple?: boolean;
 }
 
-const DocumentUploadItem = ({ title, description, isMultiple = false }: DocumentUploadItemProps) => (
-  <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 py-4 border-b last:border-b-0">
-    <div className="flex-1">
-      <h3 className="font-semibold text-lg">{title}</h3>
-      <p className="text-muted-foreground text-sm">{description}</p>
-      <Button variant="default" className="mt-4 bg-gray-800 hover:bg-gray-700 text-white">
-        {isMultiple ? 'Multiple Upload' : 'Upload'}
-      </Button>
+const DocumentUploadItem = ({ title, description, isMultiple = false }: DocumentUploadItemProps) => {
+  const [preview, setPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  return (
+    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 py-4 border-b last:border-b-0">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/png, image/jpeg, application/pdf"
+        multiple={isMultiple}
+      />
+      <div className="flex-1">
+        <h3 className="font-semibold text-lg">{title}</h3>
+        <p className="text-muted-foreground text-sm">{description}</p>
+        <Button 
+          variant="default" 
+          className="mt-4 bg-gray-800 hover:bg-gray-700 text-white"
+          onClick={handleUploadClick}
+        >
+          {isMultiple ? 'Multiple Upload' : 'Upload'}
+        </Button>
+      </div>
+      <div 
+        className="w-full md:w-64 h-32 bg-gray-200 rounded-md flex items-center justify-center border-2 border-dashed border-gray-400 cursor-pointer"
+        onClick={handleUploadClick}
+      >
+        {preview ? (
+          <Image src={preview} alt="Document preview" width={256} height={128} className="object-contain h-full w-full" />
+        ) : (
+          <div className="text-center text-gray-500">
+              <UploadCloud className="mx-auto h-10 w-10" />
+              <p className="mt-2 text-sm">Click to upload</p>
+          </div>
+        )}
+      </div>
     </div>
-    <div className="w-full md:w-64 h-32 bg-gray-200 rounded-md flex items-center justify-center border-2 border-dashed border-gray-400">
-        <div className="text-center text-gray-500">
-            <UploadCloud className="mx-auto h-10 w-10" />
-            <p className="mt-2 text-sm">Click to upload</p>
-        </div>
-    </div>
-  </div>
-);
+  );
+};
 
 
 const landDiversionDocs = [
