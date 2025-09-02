@@ -91,8 +91,8 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
 
     if (data.success && data.data?.accessToken) {
       cookies().set('accessToken', data.data.accessToken, {
-        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
       });
@@ -120,10 +120,7 @@ export async function checkAuth() {
   return !!accessToken;
 }
 
-async function fetchFromApi(endpoint: string) {
-  const cookieStore = cookies();
-  const token = cookieStore.get('accessToken')?.value;
-
+async function fetchFromApi(endpoint: string, token: string | undefined) {
   if (!token) {
     console.error(`Authentication token not found for endpoint: ${endpoint}`);
     // In a real app, you might want to throw an error or handle this case differently
@@ -161,30 +158,30 @@ async function fetchFromApi(endpoint: string) {
 }
 
 // Functions to be called from Server Components
-export async function getDistricts() {
-  return fetchFromApi('/district');
+export async function getDistricts(token: string) {
+  return fetchFromApi('/district', token);
 }
-export async function getCircles() {
-  return fetchFromApi('/circle');
+export async function getCircles(token: string) {
+  return fetchFromApi('/circle', token);
 }
-export async function getSubDivisions() {
-  return fetchFromApi('/sub-division');
+export async function getSubDivisions(token: string) {
+  return fetchFromApi('/sub-division', token);
 }
-export async function getVillages() {
-  return fetchFromApi('/village');
+export async function getVillages(token: string) {
+  return fetchFromApi('/village', token);
 }
-export async function getLandPurposes() {
-  return fetchFromApi('/land-purpose');
+export async function getLandPurposes(token: string) {
+  return fetchFromApi('/land-purpose', token);
 }
-export async function getLocationTypes() {
-  return fetchFromApi('/location-type');
+export async function getLocationTypes(token: string) {
+  return fetchFromApi('/location-type', token);
 }
-export async function getAreaUnits() {
-  return fetchFromApi('/area-unit');
+export async function getAreaUnits(token: string) {
+  return fetchFromApi('/area-unit', token);
 }
-export async function getLandClassifications() {
-  return fetchFromApi('/land-classification');
+export async function getLandClassifications(token: string) {
+  return fetchFromApi('/land-classification', token);
 }
-export async function getChangeOfLandUseDates() {
-  return fetchFromApi('/change-of-land-use');
+export async function getChangeOfLandUseDates(token: string) {
+  return fetchFromApi('/change-of-land-use', token);
 }

@@ -6,15 +6,25 @@ import {
   getVillages, 
   getLandPurposes 
 } from "@/app/actions";
+import { cookies } from "next/headers";
+import { redirect } from 'next/navigation';
 
 export default async function NewApplicationPage() {
-  // Fetch all data on the server in parallel
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  if (!accessToken) {
+    // This should ideally not happen if ProtectedRoute is working, but as a safeguard:
+    redirect('/');
+  }
+
+  // Fetch all data on the server in parallel, passing the token
   const [districts, circles, subDivisions, villages, landPurposes] = await Promise.all([
-    getDistricts(),
-    getCircles(),
-    getSubDivisions(),
-    getVillages(),
-    getLandPurposes(),
+    getDistricts(accessToken),
+    getCircles(accessToken),
+    getSubDivisions(accessToken),
+    getVillages(accessToken),
+    getLandPurposes(accessToken),
   ]);
 
   return (
