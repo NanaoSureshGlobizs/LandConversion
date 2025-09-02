@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, UploadCloud, Loader2 } from 'lucide-react';
+import { X, UploadCloud, Loader2, FileText } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
@@ -118,23 +118,25 @@ export const ImagePicker = ({
   }, []);
 
   const renderPreviewContent = (file: UploadedFile) => {
-    const isImage = file.previewUrl.startsWith('blob:') && file.originalName.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+    const isPdf = file.originalName.toLowerCase().endsWith('.pdf');
     
-    if (isImage) {
+    if (isPdf) {
         return (
-            <Image
-                src={file.previewUrl}
-                alt={`Preview ${file.originalName}`}
-                fill
-                className="object-cover rounded-md border"
-            />
+            <div className="w-full h-full bg-muted rounded-md flex flex-col items-center justify-center p-2 border">
+                <FileText className="w-8 h-8 text-destructive" />
+                <p className="text-xs font-semibold text-center break-all mt-2">{file.originalName}</p>
+            </div>
         );
     }
-    // Fallback for non-image files like PDFs
+    
+    // Fallback for image files
     return (
-        <div className="w-full h-full bg-muted rounded-md flex flex-col items-center justify-center p-2">
-            <p className="text-sm font-semibold text-center break-all">{file.originalName}</p>
-        </div>
+        <Image
+            src={file.previewUrl}
+            alt={`Preview ${file.originalName}`}
+            fill
+            className="object-cover rounded-md border"
+        />
     );
   };
 

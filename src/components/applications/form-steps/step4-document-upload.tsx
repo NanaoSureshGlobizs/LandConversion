@@ -112,8 +112,11 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
   }
   
   const onUploadComplete = (categoryId: string, uploadedFile: UploadedFile) => {
-      const currentFiles = getValues(categoryId as keyof FormValues) as string[] || [];
-      setValue(categoryId as keyof FormValues, [...currentFiles, uploadedFile.serverFileName] as any);
+      const currentFiles = getValues(categoryId as keyof FormValues) as (string[] | string) || [];
+      const newFiles = Array.isArray(currentFiles) 
+        ? [...currentFiles, uploadedFile.serverFileName]
+        : [uploadedFile.serverFileName];
+      setValue(categoryId as keyof FormValues, newFiles as any);
   }
 
   const onRemove = (categoryId: string, fileToRemove: UploadedFile) => {
@@ -232,9 +235,9 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="aadhar" className="text-right">
-                      Aadhar PDF
+                      Aadhar
                     </Label>
-                    <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="application/pdf" className="col-span-3" />
+                    <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="image/*,application/pdf" className="col-span-3" />
                   </div>
                   {newAadharFile && <p className="text-sm text-muted-foreground col-span-4 text-center">Selected: {newAadharFile.name}</p>}
                 </div>
