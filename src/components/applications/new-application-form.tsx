@@ -108,33 +108,86 @@ interface NewApplicationFormProps {
   accessToken: string;
 }
 
-const getInitialValues = (application?: Application | null): FormValues => {
-  const dobDate = application?.dob ? parse(application.dob, 'yyyy-MM-dd', new Date()) : new Date();
+const getInitialValues = (
+    application: Application | null | undefined,
+    districts: District[],
+    circles: Circle[],
+    subDivisions: SubDivision[],
+    villages: Village[],
+    landClassifications: LandClassification[],
+    landPurposes: LandPurpose[],
+    locationTypes: LocationType[],
+    changeOfLandUseDates: ChangeOfLandUseDate[],
+    areaUnits: AreaUnit[]
+  ): FormValues => {
 
+  if (!application) {
+    return {
+        name: '',
+        date_of_birth: new Date(),
+        aadhar_no: '',
+        address: '',
+        phone_number: '',
+        email: '',
+        district_id: '',
+        circle_id: '',
+        sub_division_id: '',
+        village_id: '',
+        patta_no: '',
+        dag_no: '',
+        location_type_id: '',
+        original_area_of_plot: 0,
+        area_unit_id: '',
+        area_applied_for_conversion: 0,
+        application_area_unit_id: '',
+        land_classification_id: '',
+        land_purpose_id: '',
+        change_of_land_use_id: '',
+        purpose_id: '',
+      };
+  }
+
+  const dobDate = application.dob ? parse(application.dob, 'yyyy-MM-dd', new Date()) : new Date();
+
+  const district = districts.find(d => d.name === application.district);
+  const circle = circles.find(c => c.name === application.sdo_circle && c.district_id === district?.id);
+  const subDivision = subDivisions.find(s => s.name === application.sub_division && s.circle_id === circle?.id);
+  const village = villages.find(v => v.name === application.village && v.sub_division_id === subDivision?.id);
+
+  const landClassification = landClassifications.find(lc => lc.name === application.land_classification);
+  const purpose = landPurposes.find(p => p.purpose_name === application.purpose);
+  const locationType = locationTypes.find(lt => lt.name === application.location_type);
+  
+  // Note: These are not in the provided API response for a single application.
+  // We'll need to confirm what the API will return for these. For now, we search by name if possible.
+  const landPurpose = landPurposes.find(p => p.id === application.land_purpose_id); 
+  const changeOfLandUse = changeOfLandUseDates.find(d => d.id === application.change_of_land_use_id);
+  
   return {
-    name: application?.owner_name || '',
+    name: application.owner_name || '',
     date_of_birth: dobDate,
-    aadhar_no: application?.aadhar || '',
-    address: application?.owner_address || '',
-    phone_number: application?.phone_number || '',
-    email: application?.email || '',
-    district_id: application?.district_id?.toString() || '',
-    circle_id: application?.circle_id?.toString() || '',
-    sub_division_id: application?.sub_division_id?.toString() || '',
-    village_id: application?.village_id?.toString() || '',
-    patta_no: application?.patta_no || '',
-    dag_no: application?.dag_no || '',
-    location_type_id: application?.location_type_id?.toString() || '',
+    aadhar_no: application.aadhar || '',
+    address: application.owner_address || '',
+    phone_number: application.phone_number || '',
+    email: application.email || '',
+    district_id: district?.id.toString() || '',
+    circle_id: circle?.id.toString() || '',
+    sub_division_id: subDivision?.id.toString() || '',
+    village_id: village?.id.toString() || '',
+    patta_no: application.patta_no || '',
+    dag_no: application.dag_no || '',
+    location_type_id: locationType?.id.toString() || '',
     original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : 0,
-    area_unit_id: application?.area_unit_id?.toString() || '',
+    area_unit_id: application.area_unit_id?.toString() || '',
     area_applied_for_conversion: application ? parseFloat(application.area_for_change) : 0,
-    application_area_unit_id: application?.application_area_unit_id?.toString() || '',
-    land_classification_id: application?.land_classification_id?.toString() || '',
-    land_purpose_id: application?.land_purpose_id?.toString() || '',
-    change_of_land_use_id: application?.change_of_land_use_id?.toString() || '',
-    purpose_id: application?.purpose_id?.toString() || '',
+    application_area_unit_id: application.application_area_unit_id?.toString() || '',
+    land_classification_id: landClassification?.id.toString() || '',
+    land_purpose_id: landPurpose?.id.toString() || '',
+    change_of_land_use_id: changeOfLandUse?.id.toString() || '',
+    purpose_id: purpose?.id.toString() || '',
   };
 };
+
 
 export function NewApplicationForm({
   existingApplication,
@@ -159,7 +212,7 @@ export function NewApplicationForm({
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: getInitialValues(existingApplication),
+    defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits),
   });
   
   const selectedDistrictId = form.watch('district_id');
@@ -217,15 +270,15 @@ export function NewApplicationForm({
   useEffect(() => {
     // Prime the dependent dropdowns on initial load for the edit page
     if (existingApplication) {
-      const initialDistrictId = existingApplication.district_id?.toString();
+      const initialDistrictId = form.getValues('district_id');
       if (initialDistrictId) {
         setFilteredCircles(circles.filter(c => c.district_id === parseInt(initialDistrictId)));
       }
-      const initialCircleId = existingApplication.circle_id?.toString();
+      const initialCircleId = form.getValues('circle_id');
       if (initialCircleId) {
         setFilteredSubDivisions(subDivisions.filter(sd => sd.circle_id === parseInt(initialCircleId)));
       }
-      const initialSubDivisionId = existingApplication.sub_division_id?.toString();
+      const initialSubDivisionId = form.getValues('sub_division_id');
       if (initialSubDivisionId) {
         setFilteredVillages(villages.filter(v => v.sub_division_id === parseInt(initialSubDivisionId)));
       }
@@ -267,7 +320,7 @@ export function NewApplicationForm({
         description: result.message || `Your application has been ${existingApplication ? 'updated' : 'received'}.`,
       });
       if (!existingApplication) {
-        form.reset(getInitialValues());
+        form.reset(getInitialValues(null, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits));
       }
     } else {
        toast({
@@ -632,5 +685,3 @@ export function NewApplicationForm({
     </div>
   );
 }
-
-    
