@@ -87,12 +87,12 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             Application Details
           </h1>
           <div className="flex-1" />
-          <Button asChild>
+          {/* <Button asChild>
             <Link href={`/dashboard/my-applications/${id}/edit`}>
               <Pencil className="mr-2" />
               Edit
             </Link>
-          </Button>
+          </Button> */}
         </div>
 
         <Card>
