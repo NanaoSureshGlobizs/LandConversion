@@ -24,7 +24,7 @@ interface VerifyOtpResponse {
   debugLog?: string;
 }
 
-const API_BASE_URL = 'https://villageapi.globizsapp.com/api';
+const API_BASE_URL = 'https://conversionapi.globizsapp.com/api';
 
 export async function sendOtp(username: string): Promise<SendOtpResponse> {
   const url = `${API_BASE_URL}/auth/send-otp`;
@@ -64,7 +64,7 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
 
 export async function verifyOtp(username: string, otp: string): Promise<VerifyOtpResponse> {
   const url = `${API_BASE_URL}/auth/verify-otp`;
-  const payload = { username, otp };
+  const payload = { username, otp_code: otp };
   let debugLog = '--- Verifying OTP ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
