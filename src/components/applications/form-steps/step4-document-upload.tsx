@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, FileText, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -19,6 +19,7 @@ import { FormValues } from "../multi-step-form";
 import { useToast } from "@/hooks/use-toast";
 import { uploadFile } from "@/app/actions";
 import { useDebug } from "@/context/DebugContext";
+import Image from "next/image";
 
 const documentCategories = {
     land_diversion: [
@@ -63,9 +64,21 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
   const [newDob, setNewDob] = useState<Date | undefined>();
   const [newRelation, setNewRelation] = useState('');
   const [newAadharFile, setNewAadharFile] = useState<File | null>(null);
+  const [newAadharPreview, setNewAadharPreview] = useState<string | null>(null);
 
   const documents = documentCategories[documentType];
   const familyMembers = getValues('relatives') || [];
+
+  const resetDialog = () => {
+    setNewName('');
+    setNewDob(undefined);
+    setNewRelation('');
+    setNewAadharFile(null);
+    if (newAadharPreview) {
+      URL.revokeObjectURL(newAadharPreview);
+    }
+    setNewAadharPreview(null);
+  };
 
   const handleAddMember = async () => {
     if (!newName || !newDob || !newRelation || !newAadharFile) {
@@ -75,13 +88,12 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
     
     setIsUploading(true);
     const formData = new FormData();
-    // The API expects the key to be unique for each relative's aadhar
     const aadharKey = `${newName.replace(/\s+/g, '_')}_relative_aadhar`;
     formData.append(aadharKey, newAadharFile);
 
     const result = await uploadFile(formData, accessToken);
     if(result.debugLog) addLog(result.debugLog);
-    setIsUploading(false);
+    
 
     if (result.success && result.data.filename) {
         const newMember = {
@@ -91,24 +103,41 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
             relative_aadhar: result.data.filename
         };
         setValue('relatives', [...familyMembers, newMember]);
-
-        // Reset form and close dialog
-        setNewName('');
-        setNewDob(undefined);
-        setNewRelation('');
-        setNewAadharFile(null);
+        
+        resetDialog();
         setIsDialogOpen(false);
         toast({ title: "Family Member Added", description: "The new family member has been added to the list." });
     } else {
         toast({ title: "Upload Failed", description: result.message || "Could not upload the Aadhar file.", variant: "destructive" });
     }
+    setIsUploading(false);
   };
   
   const handleAadharFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if(file) {
+          if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+            toast({
+                title: 'Invalid File Type',
+                description: 'Please upload only images or PDFs for the Aadhar.',
+                variant: 'destructive',
+            });
+            return;
+          }
           setNewAadharFile(file);
+          if (newAadharPreview) {
+              URL.revokeObjectURL(newAadharPreview);
+          }
+          setNewAadharPreview(URL.createObjectURL(file));
       }
+  }
+
+  const handleRemoveAadhar = () => {
+      setNewAadharFile(null);
+      if (newAadharPreview) {
+          URL.revokeObjectURL(newAadharPreview);
+      }
+      setNewAadharPreview(null);
   }
   
   const onUploadComplete = (categoryId: string, uploadedFile: UploadedFile) => {
@@ -123,6 +152,16 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
     const currentFiles = getValues(categoryId as keyof FormValues) as string[] || [];
     setValue(categoryId as keyof FormValues, currentFiles.filter(f => f !== fileToRemove.serverFileName) as any);
   }
+
+  useEffect(() => {
+    // Cleanup object URL on unmount
+    return () => {
+        if (newAadharPreview) {
+            URL.revokeObjectURL(newAadharPreview);
+        }
+    };
+  }, [newAadharPreview]);
+
 
   return (
     <div className="space-y-8">
@@ -233,15 +272,47 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
                     </Label>
                     <Input id="relation" value={newRelation} onChange={(e) => setNewRelation(e.target.value)} className="col-span-3" />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="aadhar" className="text-right">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="aadhar" className="text-right pt-2">
                       Aadhar
                     </Label>
-                    <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="image/*,application/pdf" className="col-span-3" />
+                    <div className="col-span-3">
+                      {!newAadharPreview ? (
+                          <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="image/*,application/pdf" />
+                      ) : (
+                          <div className="relative group w-32 h-32">
+                             {newAadharFile?.type.startsWith('image/') ? (
+                                <Image
+                                    src={newAadharPreview}
+                                    alt="Aadhar Preview"
+                                    fill
+                                    className="object-cover rounded-md border"
+                                />
+                             ) : (
+                                <div className="w-full h-full bg-muted rounded-md flex flex-col items-center justify-center p-2 border">
+                                    <FileText className="w-8 h-8 text-destructive" />
+                                    <p className="text-xs font-semibold text-center break-all mt-2">{newAadharFile?.name}</p>
+                                </div>
+                             )}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={handleRemoveAadhar}
+                                >
+                                    <X className="h-4 w-4" />
+                                    <span className="sr-only">Remove</span>
+                                </Button>
+                               </div>
+                          </div>
+                      )}
+                    </div>
                   </div>
-                  {newAadharFile && <p className="text-sm text-muted-foreground col-span-4 text-center">Selected: {newAadharFile.name}</p>}
                 </div>
                 <DialogFooter>
+                   <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
                   <Button type="button" onClick={handleAddMember} disabled={isUploading}>
                     {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Add Member
