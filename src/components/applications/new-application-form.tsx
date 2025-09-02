@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { CalendarIcon, Loader2 } from 'lucide-react';
+import Cookies from 'js-cookie';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,17 +32,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import {
-  getDistricts,
-  getCircles,
-  getSubDivisions,
-  getVillages,
-  getLandPurposes,
-} from '@/app/actions';
 import type { Application } from '@/lib/definitions';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { getDropdownData } from '@/app/actions';
 
 const formSchema = z.object({
   district: z.string().min(1, 'District is required.'),
@@ -113,12 +108,26 @@ export function NewApplicationForm({
 
   useEffect(() => {
     const fetchData = async () => {
+      // In a real app, the token might be stored in context or a more secure httpOnly cookie
+      // For this scenario, we read it from the cookie if available on the client.
+      const token = Cookies.get('accessToken');
+      if (!token) {
+        console.error("Authentication token not found. Cannot fetch form data.");
+        // Optionally, show a toast to the user
+        toast({
+            title: "Authentication Error",
+            description: "Could not fetch form data. Please try logging in again.",
+            variant: "destructive"
+        });
+        return;
+      }
+
       const [districtsData, circlesData, subDivisionsData, villagesData, landPurposesData] = await Promise.all([
-        getDistricts(),
-        getCircles(),
-        getSubDivisions(),
-        getVillages(),
-        getLandPurposes(),
+        getDropdownData('/district', token),
+        getDropdownData('/circle', token),
+        getDropdownData('/sub-division', token),
+        getDropdownData('/village', token),
+        getDropdownData('/land-purpose', token),
       ]);
       setDistricts(districtsData);
       setCircles(circlesData);
@@ -127,7 +136,7 @@ export function NewApplicationForm({
       setLandPurposes(landPurposesData);
     };
     fetchData();
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (selectedDistrictId) {
