@@ -1,5 +1,5 @@
 
-import { NewApplicationForm } from "@/components/applications/new-application-form";
+import { MultiStepForm } from "@/components/applications/multi-step-form";
 import { getApplicationById, getDistricts, getCircles, getSubDivisions, getVillages, getLandPurposes, getLocationTypes, getAreaUnits, getLandClassifications, getChangeOfLandUseDates } from "@/app/actions";
 import { cookies } from "next/headers";
 import { notFound, redirect } from 'next/navigation';
@@ -68,7 +68,7 @@ export default async function EditApplicationPage({ params }: { params: { id: st
         <p className="text-muted-foreground">
           Modify the details for the land use change application.
         </p>
-        <NewApplicationForm 
+        <MultiStepForm 
           existingApplication={application}
           districts={districtsResult.data}
           circles={circlesResult.data}

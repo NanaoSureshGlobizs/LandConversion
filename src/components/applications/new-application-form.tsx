@@ -158,8 +158,6 @@ const getInitialValues = (
   const purpose = landPurposes.find(p => p.purpose_name === application.purpose);
   const locationType = locationTypes.find(lt => lt.name === application.location_type);
   
-  // Note: These are not in the provided API response for a single application.
-  // We'll need to confirm what the API will return for these. For now, we search by name if possible.
   const landPurpose = landPurposes.find(p => p.id === application.land_purpose_id); 
   const changeOfLandUse = changeOfLandUseDates.find(d => d.id === application.change_of_land_use_id);
   
@@ -177,9 +175,9 @@ const getInitialValues = (
     patta_no: application.patta_no || '',
     dag_no: application.dag_no || '',
     location_type_id: locationType?.id.toString() || '',
-    original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : 0,
+    original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : undefined as any,
     area_unit_id: application.area_unit_id?.toString() || '',
-    area_applied_for_conversion: application ? parseFloat(application.area_for_change) : 0,
+    area_applied_for_conversion: application ? parseFloat(application.area_for_change) : undefined as any,
     application_area_unit_id: application.application_area_unit_id?.toString() || '',
     land_classification_id: landClassification?.id.toString() || '',
     land_purpose_id: landPurpose?.id.toString() || '',
