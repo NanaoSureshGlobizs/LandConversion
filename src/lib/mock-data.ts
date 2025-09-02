@@ -62,7 +62,7 @@ export const mockApplications: Application[] = [
     ],
   },
   {
-    id: 'APP67890',
+    id: 'APP67891',
     pattaNumber: 'PT12345',
     area: 12,
     dateSubmitted: '2023-07-22',
