@@ -1,112 +1,30 @@
 
 'use client';
 
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UploadCloud } from "lucide-react";
-import React, { useRef, useState } from "react";
-import Image from "next/image";
-
-interface DocumentUploadItemProps {
-  title: string;
-  description: string;
-  isMultiple?: boolean;
-}
-
-const DocumentUploadItem = ({ title, description, isMultiple = false }: DocumentUploadItemProps) => {
-  const [previews, setPreviews] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const newPreviews: string[] = [];
-      const fileArray = Array.from(files);
-      
-      fileArray.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push(reader.result as string);
-          // If we've processed all files, update the state
-          if (newPreviews.length === fileArray.length) {
-            setPreviews(isMultiple ? [...previews, ...newPreviews] : newPreviews);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-  
-  return (
-    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 py-4 border-b last:border-b-0">
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-        accept="image/png, image/jpeg, application/pdf"
-        multiple={isMultiple}
-      />
-      <div className="flex-1">
-        <h3 className="font-semibold text-lg">{title}</h3>
-        <p className="text-muted-foreground text-sm">{description}</p>
-        <Button 
-          variant="default" 
-          className="mt-4 bg-gray-800 hover:bg-gray-700 text-white"
-          onClick={handleUploadClick}
-        >
-          {isMultiple ? 'Upload Files' : 'Upload File'}
-        </Button>
-      </div>
-      <div 
-        className="w-full md:w-64 h-32 bg-gray-200 rounded-md flex items-center justify-center border-2 border-dashed border-gray-400 cursor-pointer overflow-hidden"
-        onClick={handleUploadClick}
-      >
-        {previews.length > 0 ? (
-           <div className="flex items-center justify-center h-full w-full relative">
-            {previews.length > 1 && (
-              <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs rounded-full px-2 py-1">
-                {previews.length} files
-              </div>
-            )}
-            <Image src={previews[0]} alt="Document preview" layout="fill" className="object-contain" />
-          </div>
-        ) : (
-          <div className="text-center text-gray-500">
-              <UploadCloud className="mx-auto h-10 w-10" />
-              <p className="mt-2 text-sm">Click to upload</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
+import { ImagePicker } from "./image-picker";
 
 const landDiversionDocs = [
-  { title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing (PDF or JPG)', isMultiple: true },
-  { title: 'Aadhar', description: 'Upload a copy of your Aadhar card (PDF or JPG)' },
-  { title: 'Passport Photo', description: 'Upload a recent passport sized photo (JPG)' },
-  { title: 'MARSAC Imagery Report', description: 'Upload the MARSAC report (PDF)' },
-  { title: 'Tax Receipt', description: 'Upload the latest tax receipt (PDF or JPG)' },
-  { title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document (PDF)' },
-  { title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates (PDF)' },
-  { title: 'NOC', description: 'From Co-owner, Municipal Council or GP (PDF)' },
+  { title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
+  { title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
+  { title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
+  { title: 'MARSAC Imagery Report', description: 'Upload the MARSAC report' },
+  { title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
+  { title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
+  { title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
+  { title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
 ];
 
 const landConversionDocs = [
-  { title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing (PDF or JPG)', isMultiple: true },
-  { title: 'Aadhar', description: 'Upload a copy of your Aadhar card (PDF or JPG)' },
-  { title: 'Passport Photo', description: 'Upload a recent passport sized photo (JPG)' },
-  { title: 'Tax Receipt', description: 'Upload the latest tax receipt (PDF or JPG)' },
-  { title: 'Sale Deed/Title Deed/Partial Deed', 'description': 'Upload the relevant deed document (PDF)' },
-  { title: 'Affidavit/Encumbrance Certificate', 'description': 'Upload the necessary certificates (PDF)' },
-  { title: 'NOC', description: 'From Co-owner, Municipal Council or GP (PDF)' },
+  { title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
+  { title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
+  { title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
+  { title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
+  { title: 'Sale Deed/Title Deed/Partial Deed', 'description': 'Upload the relevant deed document' },
+  { title: 'Affidavit/Encumbrance Certificate', 'description': 'Upload the necessary certificates' },
+  { title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
 ];
 
 const familyMembers = [
@@ -128,9 +46,9 @@ export function Step4DocumentUpload({ documentType }: Step4Props) {
         <CardHeader className="p-0">
           <CardTitle className="font-headline">Upload Documents</CardTitle>
         </CardHeader>
-        <CardContent className="p-0 mt-4">
+        <CardContent className="p-0 mt-4 space-y-4">
             {documents.map((doc) => (
-                <DocumentUploadItem key={doc.title} {...doc} />
+                <ImagePicker key={doc.title} {...doc} />
             ))}
         </CardContent>
       </div>
