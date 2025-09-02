@@ -642,7 +642,7 @@ export function NewApplicationForm({
           </CardContent>
         </Card>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 mb-8">
           <Button type="button" variant="outline" disabled={isSubmitting}>
             Save Draft
           </Button>
