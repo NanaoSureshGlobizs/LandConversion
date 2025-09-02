@@ -15,17 +15,26 @@ interface DocumentUploadItemProps {
 }
 
 const DocumentUploadItem = ({ title, description, isMultiple = false }: DocumentUploadItemProps) => {
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = event.target.files;
+    if (files) {
+      const newPreviews: string[] = [];
+      const fileArray = Array.from(files);
+      
+      fileArray.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          // If we've processed all files, update the state
+          if (newPreviews.length === fileArray.length) {
+            setPreviews(isMultiple ? [...previews, ...newPreviews] : newPreviews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
@@ -51,15 +60,22 @@ const DocumentUploadItem = ({ title, description, isMultiple = false }: Document
           className="mt-4 bg-gray-800 hover:bg-gray-700 text-white"
           onClick={handleUploadClick}
         >
-          {isMultiple ? 'Multiple Upload' : 'Upload'}
+          {isMultiple ? 'Upload Files' : 'Upload File'}
         </Button>
       </div>
       <div 
-        className="w-full md:w-64 h-32 bg-gray-200 rounded-md flex items-center justify-center border-2 border-dashed border-gray-400 cursor-pointer"
+        className="w-full md:w-64 h-32 bg-gray-200 rounded-md flex items-center justify-center border-2 border-dashed border-gray-400 cursor-pointer overflow-hidden"
         onClick={handleUploadClick}
       >
-        {preview ? (
-          <Image src={preview} alt="Document preview" width={256} height={128} className="object-contain h-full w-full" />
+        {previews.length > 0 ? (
+           <div className="flex items-center justify-center h-full w-full relative">
+            {previews.length > 1 && (
+              <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs rounded-full px-2 py-1">
+                {previews.length} files
+              </div>
+            )}
+            <Image src={previews[0]} alt="Document preview" layout="fill" className="object-contain" />
+          </div>
         ) : (
           <div className="text-center text-gray-500">
               <UploadCloud className="mx-auto h-10 w-10" />
