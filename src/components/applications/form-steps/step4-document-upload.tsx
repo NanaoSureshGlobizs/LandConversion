@@ -88,8 +88,7 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
     
     setIsUploading(true);
     const formData = new FormData();
-    const aadharKey = `${newName.replace(/\s+/g, '_')}_relative_aadhar`;
-    formData.append(aadharKey, newAadharFile);
+    formData.append('relative_aadhar', newAadharFile);
 
     const result = await uploadFile(formData, accessToken);
     if(result.debugLog) addLog(result.debugLog);
