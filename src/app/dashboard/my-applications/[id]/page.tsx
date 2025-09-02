@@ -8,33 +8,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, Pencil, FileText } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Printer } from 'lucide-react';
 import { getApplicationById } from '@/app/actions';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 import type { FullApplicationResponse } from '@/lib/definitions';
+import { Badge } from '@/components/ui/badge';
+
 
 function DetailItem({
   label,
   value,
+  className,
 }: {
   label: string;
   value: string | number | undefined | null;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-col">
+    <div className={cn("grid grid-cols-2 gap-2", className)}>
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="font-medium">{value || '-'}</p>
+      <p className="font-medium text-right">{value || '-'}</p>
     </div>
   );
 }
@@ -74,110 +70,145 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     <>
       <ServerLogHandler logs={[log]} />
       <div className="flex-1 space-y-6 px-4 md:px-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            asChild
-          >
-            <Link href="/dashboard/my-applications">
-              <ArrowLeft />
-            </Link>
-          </Button>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Application Details
-          </h1>
-          <div className="flex-1" />
-          {/* <Button asChild>
-            <Link href={`/dashboard/my-applications/${id}/edit`}>
-              <Pencil className="mr-2" />
-              Edit
-            </Link>
-          </Button> */}
-        </div>
+          <div className="flex items-center gap-4">
+              <Button variant="outline" size="icon" asChild>
+                  <Link href="/dashboard/my-applications">
+                      <ArrowLeft />
+                      <span className="sr-only">Back to applications</span>
+                  </Link>
+              </Button>
+              <h1 className="text-2xl font-bold tracking-tight font-headline">
+                  Application Details
+              </h1>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Applicant Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <DetailItem label="Owner Name" value={application.owner_name} />
-              <DetailItem label="Email" value={application.email} />
-              <DetailItem label="Phone Number" value={application.phone_number} />
-              <DetailItem label="DOB" value={application.dob} />
-              <DetailItem label="Aadhar" value={application.aadhar} />
-              <DetailItem label="Owner Address" value={application.owner_address} />
-              <Separator className="md:col-span-2 lg:col-span-3 my-2" />
-              <DetailItem label="Patta No." value={application.patta_no} />
-              <DetailItem label="Dag No." value={application.dag_no} />
-              <DetailItem label="Original Area of Plot" value={`${application.original_area_of_plot} ${application.original_area_of_plot_unit}`} />
-              <DetailItem label="Area for Change" value={`${application.area_for_change} ${application.area_for_change_unit}`} />
-              <DetailItem label="District" value={application.district} />
-              <DetailItem label="SDO Circle" value={application.sdo_circle} />
-              <DetailItem label="Village" value={application.village} />
-              <DetailItem label="Village Number" value={application.village_number} />
-              <Separator className="md:col-span-2 lg:col-span-3 my-2" />
-              <DetailItem label="Location Type" value={application.location_type} />
-              <DetailItem
-                label="Present Land Classification"
-                value={application.land_classification}
-              />
-              <DetailItem label="Purpose" value={application.purpose} />
-              <DetailItem label="Status" value={application.status} />
-            </div>
-          </CardContent>
-        </Card>
+          <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-6">
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Applicant Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <DetailItem label="Owner Name" value={application.owner_name} />
+                        <Separator />
+                        <DetailItem label="Date of Birth" value={application.dob} />
+                         <Separator />
+                        <DetailItem label="Aadhar Number" value={application.aadhar} />
+                         <Separator />
+                        <DetailItem label="Phone Number" value={application.phone_number} />
+                         <Separator />
+                        <DetailItem label="Email" value={application.email} />
+                         <Separator />
+                        <DetailItem label="Owner Address" value={application.owner_address} />
+                    </CardContent>
+                </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Documents</CardTitle>
-            <CardDescription>
-              Attached documents for the application.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {documents && Object.keys(documents).length > 0 ? (
-                 <div className="space-y-4">
-                    {Object.entries(documents).map(([groupName, files]) => (
-                        <div key={groupName}>
-                            <h4 className="font-semibold capitalize mb-2">{groupName.replace(/_/g, ' ')}</h4>
-                            <div className="border rounded-md">
-                               <Table>
-                                 <TableHeader>
-                                     <TableRow>
-                                         <TableHead>File Name</TableHead>
-                                         <TableHead className="text-right">Action</TableHead>
-                                     </TableRow>
-                                 </TableHeader>
-                                 <TableBody>
-                                     {files.map((file, index) => (
-                                         <TableRow key={index}>
-                                             <TableCell className="flex items-center gap-2">
-                                                 <FileText className="text-muted-foreground" />
-                                                 <span>{file.file_name}</span>
-                                             </TableCell>
-                                             <TableCell className="text-right">
-                                                 <Button variant="outline" size="sm" asChild>
-                                                     <a href={file.file_path} target="_blank" rel="noopener noreferrer">
-                                                         <Download className="mr-2"/>
-                                                         View/Download
-                                                     </a>
-                                                 </Button>
-                                             </TableCell>
-                                         </TableRow>
-                                     ))}
-                                 </TableBody>
-                               </Table>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Land & Location Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <DetailItem label="District" value={application.district} />
+                        <Separator />
+                        <DetailItem label="SDO Circle" value={application.sdo_circle} />
+                        <Separator />
+                        <DetailItem label="Village" value={application.village} />
+                        <Separator />
+                        <DetailItem label="Village Number" value={application.village_number} />
+                         <Separator />
+                        <DetailItem label="Location Type" value={application.location_type} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Plot & Purpose Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <DetailItem label="Patta No." value={application.patta_no} />
+                        <Separator />
+                        <DetailItem label="Dag No." value={application.dag_no} />
+                        <Separator />
+                        <DetailItem label="Original Area of Plot" value={`${application.original_area_of_plot} ${application.original_area_of_plot_unit}`} />
+                        <Separator />
+                        <DetailItem label="Area for Change" value={`${application.area_for_change} ${application.area_for_change_unit}`} />
+                        <Separator />
+                        <DetailItem label="Present Land Classification" value={application.land_classification} />
+                        <Separator />
+                        <DetailItem label="Purpose" value={application.purpose} />
+                    </CardContent>
+                </Card>
+                
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Documents</CardTitle>
+                        <CardDescription>
+                        Attached documents for the application.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {documents && Object.keys(documents).length > 0 ? (
+                            <div className="space-y-6">
+                                {Object.entries(documents).map(([groupName, files]) => (
+                                    <div key={groupName}>
+                                        <h4 className="font-semibold capitalize mb-3 text-lg">{groupName.replace(/_/g, ' ')}</h4>
+                                        <div className="space-y-2">
+                                            {files.map((file, index) => (
+                                                <div key={index} className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
+                                                    <div className="flex items-center gap-3">
+                                                      <FileText className="text-muted-foreground" />
+                                                      <span className="font-mono text-sm">{file.file_name}</span>
+                                                    </div>
+                                                    <Button variant="outline" size="sm" asChild>
+                                                        <a href={file.file_path} target="_blank" rel="noopener noreferrer">
+                                                            <Download className="mr-2"/>
+                                                            View
+                                                        </a>
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        </div>
-                    ))}
-                 </div>
-            ) : (
-                <p className="text-muted-foreground">No documents attached to this application.</p>
-            )}
-          </CardContent>
-        </Card>
+                        ) : (
+                            <p className="text-muted-foreground">No documents attached to this application.</p>
+                        )}
+                    </CardContent>
+                </Card>
+
+              </div>
+
+              <div className="lg:col-span-1 space-y-6">
+                  <Card>
+                      <CardHeader>
+                          <CardTitle>Application Summary</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Application ID</p>
+                            <p className="font-semibold text-lg font-mono">{id}</p>
+                          </div>
+                           <div>
+                            <p className="text-sm text-muted-foreground">Status</p>
+                            <Badge variant="secondary" className="text-base mt-1">{application.status}</Badge>
+                          </div>
+                      </CardContent>
+                  </Card>
+                   <Card>
+                      <CardHeader>
+                          <CardTitle>Actions</CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex flex-col gap-2">
+                          <Button variant="outline">
+                            <Printer className="mr-2"/>
+                            Print Application
+                          </Button>
+                      </CardContent>
+                  </Card>
+              </div>
+          </div>
       </div>
     </>
   );
