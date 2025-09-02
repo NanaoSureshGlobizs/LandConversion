@@ -92,6 +92,7 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
     if (data.success && data.data?.accessToken) {
       cookies().set('accessToken', data.data.accessToken, {
         secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
         sameSite: 'lax',
         path: '/',
       });
@@ -119,7 +120,16 @@ export async function checkAuth() {
   return !!accessToken;
 }
 
-export async function getDropdownData(endpoint: string, token: string) {
+async function fetchFromApi(endpoint: string) {
+  const cookieStore = cookies();
+  const token = cookieStore.get('accessToken')?.value;
+
+  if (!token) {
+    console.error(`Authentication token not found for endpoint: ${endpoint}`);
+    // In a real app, you might want to throw an error or handle this case differently
+    return [];
+  }
+
   const url = `${API_BASE_URL}${endpoint}`;
   try {
     const response = await fetch(url, {
@@ -128,19 +138,35 @@ export async function getDropdownData(endpoint: string, token: string) {
         'Authorization': `Bearer ${token}`
       },
     });
+
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${errorBody}`);
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Depending on the expected behavior, you might want to throw an error
+      // or return an empty array. Returning empty for now to avoid crashing the form.
+      return [];
     }
+
     const result = await response.json();
-    if (result.success) {
+    if (result.success && Array.isArray(result.data)) {
       return result.data;
     }
-    console.error(`API error from ${endpoint}:`, result.message);
+
+    console.error(`API error or unexpected data format from ${endpoint}:`, result.message || result);
     return [];
   } catch (error) {
     console.error(`Failed to fetch from ${endpoint}:`, error);
     return [];
   }
 }
+
+// Functions to be called from Server Components
+export const getDistricts = async () => fetchFromApi('/district');
+export const getCircles = async () => fetchFromApi('/circle');
+export const getSubDivisions = async () => fetchFromApi('/sub-division');
+export const getVillages = async () => fetchFromApi('/village');
+export const getLandPurposes = async () => fetchFromApi('/land-purpose');
+export const getLocationTypes = async () => fetchFromApi('/location-type');
+export const getAreaUnits = async () => fetchFromApi('/area-unit');
+export const getLandClassifications = async () => fetchFromApi('/land-classification');
+export const getChangeOfLandUseDates = async () => fetchFromApi('/change-of-land-use');

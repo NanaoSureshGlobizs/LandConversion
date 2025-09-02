@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { CalendarIcon, Loader2 } from 'lucide-react';
-import Cookies from 'js-cookie';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -36,7 +35,6 @@ import type { Application } from '@/lib/definitions';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { getDropdownData } from '@/app/actions';
 
 const formSchema = z.object({
   district: z.string().min(1, 'District is required.'),
@@ -50,10 +48,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-interface NewApplicationFormProps {
-  existingApplication?: Application;
-}
 
 interface Option {
   id: number;
@@ -70,26 +64,32 @@ interface Village extends Option {
   sub_division_id: number;
 }
 interface LandPurpose extends Option {
-    purpose_name: string;
+  purpose_name: string;
 }
 
+interface NewApplicationFormProps {
+  existingApplication?: Application;
+  districts: District[];
+  circles: Circle[];
+  subDivisions: SubDivision[];
+  villages: Village[];
+  landPurposes: LandPurpose[];
+}
 
 export function NewApplicationForm({
   existingApplication,
+  districts,
+  circles,
+  subDivisions,
+  villages,
+  landPurposes,
 }: NewApplicationFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [districts, setDistricts] = useState<District[]>([]);
-  const [circles, setCircles] = useState<Circle[]>([]);
-  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
-  const [villages, setVillages] = useState<Village[]>([]);
-  const [landPurposes, setLandPurposes] = useState<LandPurpose[]>([]);
-  
   const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
   const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
   const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
-
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -105,39 +105,7 @@ export function NewApplicationForm({
   const selectedDistrictId = form.watch('district');
   const selectedCircleId = form.watch('circle');
   const selectedSubDivisionId = form.watch('subDivision');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      // In a real app, the token might be stored in context or a more secure httpOnly cookie
-      // For this scenario, we read it from the cookie if available on the client.
-      const token = Cookies.get('accessToken');
-      if (!token) {
-        console.error("Authentication token not found. Cannot fetch form data.");
-        // Optionally, show a toast to the user
-        toast({
-            title: "Authentication Error",
-            description: "Could not fetch form data. Please try logging in again.",
-            variant: "destructive"
-        });
-        return;
-      }
-
-      const [districtsData, circlesData, subDivisionsData, villagesData, landPurposesData] = await Promise.all([
-        getDropdownData('/district', token),
-        getDropdownData('/circle', token),
-        getDropdownData('/sub-division', token),
-        getDropdownData('/village', token),
-        getDropdownData('/land-purpose', token),
-      ]);
-      setDistricts(districtsData);
-      setCircles(circlesData);
-      setSubDivisions(subDivisionsData);
-      setVillages(villagesData);
-      setLandPurposes(landPurposesData);
-    };
-    fetchData();
-  }, [toast]);
-
+  
   useEffect(() => {
     if (selectedDistrictId) {
       form.setValue('circle', '');
@@ -247,11 +215,11 @@ export function NewApplicationForm({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={!selectedDistrictId}
+                      disabled={!selectedDistrictId || filteredCircles.length === 0}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Circle" />
+                          <SelectValue placeholder={!selectedDistrictId ? "Select a district first" : "Select Circle"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -275,11 +243,11 @@ export function NewApplicationForm({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={!selectedCircleId}
+                      disabled={!selectedCircleId || filteredSubDivisions.length === 0}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Sub Division" />
+                          <SelectValue placeholder={!selectedCircleId ? "Select a circle first" : "Select Sub Division"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -303,11 +271,11 @@ export function NewApplicationForm({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={!selectedSubDivisionId}
+                      disabled={!selectedSubDivisionId || filteredVillages.length === 0}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Village" />
+                          <SelectValue placeholder={!selectedSubDivisionId ? "Select a sub-division first" : "Select Village"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
