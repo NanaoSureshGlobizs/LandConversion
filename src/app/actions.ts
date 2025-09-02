@@ -110,6 +110,7 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
 }
 
 export async function logout() {
+  await logoutAction();
   cookies().delete('accessToken');
 }
 
@@ -117,4 +118,58 @@ export async function checkAuth() {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken');
   return !!accessToken;
+}
+
+// New functions to fetch form data
+
+async function fetchFromApi(endpoint: string) {
+  const url = `${API_BASE_URL}${endpoint}`;
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    if (result.success) {
+      return result.data;
+    }
+    console.error(`API error from ${endpoint}:`, result.message);
+    return [];
+  } catch (error) {
+    console.error(`Failed to fetch from ${endpoint}:`, error);
+    return [];
+  }
+}
+
+export async function getDistricts() {
+  return fetchFromApi('/district');
+}
+export async function getCircles() {
+  return fetchFromApi('/circle');
+}
+export async function getSubDivisions() {
+  return fetchFromApi('/sub-division');
+}
+export async function getVillages() {
+  return fetchFromApi('/village');
+}
+export async function getLandPurposes() {
+  return fetchFromApi('/land-purpose');
+}
+export async function getLocationTypes() {
+  return fetchFromApi('/location-type');
+}
+export async function getAreaUnits() {
+  return fetchFromApi('/area-unit');
+}
+export async function getLandClassifications() {
+  return fetchFromApi('/land-classification');
+}
+export async function getChangeOfLandUseDates() {
+  return fetchFromApi('/change-of-land-use');
 }

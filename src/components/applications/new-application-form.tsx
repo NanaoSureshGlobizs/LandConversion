@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -31,14 +30,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
-  districts,
-  villages,
-  landUseTypes,
-  sdoCircles,
-} from '@/lib/mock-data';
+  getDistricts,
+  getCircles,
+  getSubDivisions,
+  getVillages,
+  getLandPurposes,
+} from '@/app/actions';
 import type { Application } from '@/lib/definitions';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -61,11 +60,41 @@ interface NewApplicationFormProps {
   existingApplication?: Application;
 }
 
+interface Option {
+  id: number;
+  name: string;
+}
+interface District extends Option {}
+interface Circle extends Option {
+  district_id: number;
+}
+interface SubDivision extends Option {
+  circle_id: number;
+}
+interface Village extends Option {
+  sub_division_id: number;
+}
+interface LandPurpose extends Option {
+    purpose_name: string;
+}
+
+
 export function NewApplicationForm({
   existingApplication,
 }: NewApplicationFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [circles, setCircles] = useState<Circle[]>([]);
+  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+  const [villages, setVillages] = useState<Village[]>([]);
+  const [landPurposes, setLandPurposes] = useState<LandPurpose[]>([]);
+  
+  const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
+  const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
+  const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -77,19 +106,70 @@ export function NewApplicationForm({
       purpose: '',
     },
   });
+  
+  const selectedDistrictId = form.watch('district');
+  const selectedCircleId = form.watch('circle');
+  const selectedSubDivisionId = form.watch('subDivision');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [districtsData, circlesData, subDivisionsData, villagesData, landPurposesData] = await Promise.all([
+        getDistricts(),
+        getCircles(),
+        getSubDivisions(),
+        getVillages(),
+        getLandPurposes(),
+      ]);
+      setDistricts(districtsData);
+      setCircles(circlesData);
+      setSubDivisions(subDivisionsData);
+      setVillages(villagesData);
+      setLandPurposes(landPurposesData);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDistrictId) {
+      form.setValue('circle', '');
+      form.setValue('subDivision', '');
+      form.setValue('village', '');
+      setFilteredCircles(circles.filter(c => c.district_id === parseInt(selectedDistrictId)));
+      setFilteredSubDivisions([]);
+      setFilteredVillages([]);
+    }
+  }, [selectedDistrictId, circles, form]);
+  
+  useEffect(() => {
+    if (selectedCircleId) {
+      form.setValue('subDivision', '');
+      form.setValue('village', '');
+      setFilteredSubDivisions(subDivisions.filter(sd => sd.circle_id === parseInt(selectedCircleId)));
+      setFilteredVillages([]);
+    }
+  }, [selectedCircleId, subDivisions, form]);
+
+  useEffect(() => {
+    if (selectedSubDivisionId) {
+      form.setValue('village', '');
+      setFilteredVillages(villages.filter(v => v.sub_division_id === parseInt(selectedSubDivisionId)));
+    }
+  }, [selectedSubDivisionId, villages, form]);
 
   useEffect(() => {
     if (existingApplication) {
+      // This part would need more complex logic to match names to IDs from fetched data
+      // For now, it will set the IDs if they exist on the mock.
       form.reset({
-        district: existingApplication.district,
-        village: existingApplication.village,
+        // district: existingApplication.district,
+        // village: existingApplication.village,
         purpose: existingApplication.purpose,
-        circle: existingApplication.sdoCircle,
-        subDivision: existingApplication.sdoCircle, // Mocking subDivision with sdoCircle
+        // circle: existingApplication.sdoCircle,
+        // subDivision: existingApplication.sdoCircle,
         dateOfChange: new Date(existingApplication.dateSubmitted),
       });
     }
-  }, [existingApplication, form]);
+  }, [existingApplication, form, districts, circles, subDivisions, villages]);
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -139,8 +219,8 @@ export function NewApplicationForm({
                       </FormControl>
                       <SelectContent>
                         {districts.map((district) => (
-                          <SelectItem key={district} value={district}>
-                            {district}
+                          <SelectItem key={district.id} value={district.id.toString()}>
+                            {district.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -158,6 +238,7 @@ export function NewApplicationForm({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
+                      disabled={!selectedDistrictId}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -165,9 +246,9 @@ export function NewApplicationForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {sdoCircles.map((circle) => (
-                          <SelectItem key={circle} value={circle}>
-                            {circle}
+                        {filteredCircles.map((circle) => (
+                          <SelectItem key={circle.id} value={circle.id.toString()}>
+                            {circle.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -185,6 +266,7 @@ export function NewApplicationForm({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
+                      disabled={!selectedCircleId}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -192,9 +274,9 @@ export function NewApplicationForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {sdoCircles.map((circle) => (
-                          <SelectItem key={circle} value={circle}>
-                            {circle}
+                        {filteredSubDivisions.map((subDivision) => (
+                          <SelectItem key={subDivision.id} value={subDivision.id.toString()}>
+                            {subDivision.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -212,6 +294,7 @@ export function NewApplicationForm({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
+                      disabled={!selectedSubDivisionId}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -219,9 +302,9 @@ export function NewApplicationForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {villages.map((village) => (
-                          <SelectItem key={village} value={village}>
-                            {village}
+                        {filteredVillages.map((village) => (
+                          <SelectItem key={village.id} value={village.id.toString()}>
+                            {village.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -248,9 +331,9 @@ export function NewApplicationForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {landUseTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {landPurposes.map((purpose) => (
+                          <SelectItem key={purpose.id} value={purpose.id.toString()}>
+                            {purpose.purpose_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
