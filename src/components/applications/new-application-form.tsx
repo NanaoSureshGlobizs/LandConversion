@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -124,9 +125,9 @@ export function NewApplicationForm({
   const { addLog } = useDebug();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
-  const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
-  const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
+  const [filteredCircles, setFilteredCircles] = useState<Circle[]>(circles);
+  const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>(subDivisions);
+  const [filteredVillages, setFilteredVillages] = useState<Village[]>(villages);
   const [dobInput, setDobInput] = useState('');
 
   const form = useForm<FormValues>({
@@ -154,7 +155,40 @@ export function NewApplicationForm({
       purpose_id: '',
     },
   });
-  
+
+  useEffect(() => {
+    if (existingApplication) {
+      const dobDate = existingApplication.dob ? parse(existingApplication.dob, 'yyyy-MM-dd', new Date()) : undefined;
+
+      form.reset({
+        name: existingApplication.owner_name || '',
+        date_of_birth: dobDate,
+        aadhar_no: existingApplication.aadhar || '',
+        address: existingApplication.owner_address || '',
+        phone_number: existingApplication.phone_number || '',
+        email: existingApplication.email || '',
+        district_id: existingApplication.district_id?.toString() || '',
+        circle_id: existingApplication.circle_id?.toString() || '',
+        sub_division_id: existingApplication.sub_division_id?.toString() || '',
+        village_id: existingApplication.village_id?.toString() || '',
+        patta_no: existingApplication.patta_no || '',
+        dag_no: existingApplication.dag_no || '',
+        location_type_id: existingApplication.location_type_id?.toString() || '',
+        original_area_of_plot: parseFloat(existingApplication.original_area_of_plot) || 0,
+        area_unit_id: existingApplication.area_unit_id?.toString() || '',
+        area_applied_for_conversion: parseFloat(existingApplication.area_for_change) || 0,
+        application_area_unit_id: existingApplication.application_area_unit_id?.toString() || '',
+        land_classification_id: existingApplication.land_classification_id?.toString() || '',
+        land_purpose_id: existingApplication.land_purpose_id?.toString() || '',
+        change_of_land_use_id: existingApplication.change_of_land_use_id?.toString() || '',
+        purpose_id: existingApplication.purpose_id?.toString() || '',
+      });
+       if (dobDate) {
+        setDobInput(format(dobDate, 'dd/MM/yyyy'));
+      }
+    }
+  }, [existingApplication, form]);
+
   const selectedDistrictId = form.watch('district_id');
   const selectedCircleId = form.watch('circle_id');
   const selectedSubDivisionId = form.watch('sub_division_id');
@@ -170,30 +204,50 @@ export function NewApplicationForm({
   
   useEffect(() => {
     if (selectedDistrictId) {
-      form.setValue('circle_id', '');
-      form.setValue('sub_division_id', '');
-      form.setValue('village_id', '');
+      const isPrepopulation = form.getValues('circle_id') !== '' && filteredCircles.length > 0;
+      if (!isPrepopulation) {
+        form.setValue('circle_id', '');
+        form.setValue('sub_division_id', '');
+        form.setValue('village_id', '');
+      }
       setFilteredCircles(circles.filter(c => c.district_id === parseInt(selectedDistrictId)));
-      setFilteredSubDivisions([]);
-      setFilteredVillages([]);
+      if (!isPrepopulation) {
+        setFilteredSubDivisions([]);
+        setFilteredVillages([]);
+      }
+    } else {
+        setFilteredCircles(circles);
     }
-  }, [selectedDistrictId, circles, form]);
+  }, [selectedDistrictId, circles, form, filteredCircles.length]);
   
   useEffect(() => {
     if (selectedCircleId) {
-      form.setValue('sub_division_id', '');
-      form.setValue('village_id', '');
+      const isPrepopulation = form.getValues('sub_division_id') !== '' && filteredSubDivisions.length > 0;
+      if (!isPrepopulation) {
+        form.setValue('sub_division_id', '');
+        form.setValue('village_id', '');
+      }
       setFilteredSubDivisions(subDivisions.filter(sd => sd.circle_id === parseInt(selectedCircleId)));
-      setFilteredVillages([]);
+       if (!isPrepopulation) {
+        setFilteredVillages([]);
+      }
+    } else {
+        setFilteredSubDivisions(subDivisions);
     }
-  }, [selectedCircleId, subDivisions, form]);
+  }, [selectedCircleId, subDivisions, form, filteredSubDivisions.length]);
 
   useEffect(() => {
     if (selectedSubDivisionId) {
-      form.setValue('village_id', '');
+       const isPrepopulation = form.getValues('village_id') !== '' && filteredVillages.length > 0;
+      if (!isPrepopulation) {
+        form.setValue('village_id', '');
+      }
       setFilteredVillages(villages.filter(v => v.sub_division_id === parseInt(selectedSubDivisionId)));
+    } else {
+        setFilteredVillages(villages);
     }
-  }, [selectedSubDivisionId, villages, form]);
+  }, [selectedSubDivisionId, villages, form, filteredVillages.length]);
+
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -275,10 +329,14 @@ export function NewApplicationForm({
                               onChange={(e) => {
                                 const value = e.target.value;
                                 setDobInput(value);
-                                const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
-                                if (!isNaN(parsedDate.getTime())) {
-                                  field.onChange(parsedDate);
-                                } else {
+                                try {
+                                  const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                                  if (!isNaN(parsedDate.getTime())) {
+                                    field.onChange(parsedDate);
+                                  } else {
+                                    field.onChange(undefined);
+                                  }
+                                } catch {
                                   field.onChange(undefined);
                                 }
                               }}
@@ -590,7 +648,7 @@ export function NewApplicationForm({
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && (<Loader2 className="mr-2 h-4 w-4 animate-spin" />)}
-            Submit Application
+            {existingApplication ? 'Update Application' : 'Submit Application'}
           </Button>
         </div>
       </form>

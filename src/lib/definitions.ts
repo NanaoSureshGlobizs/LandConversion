@@ -1,3 +1,4 @@
+
 export type ApplicationStatus =
   | 'Pending'
   | 'Approved'
@@ -17,6 +18,7 @@ export interface Document {
 
 // This is now based on the API response for a single application
 export interface Application {
+  applictaion_id: string;
   owner_name: string;
   email: string;
   phone_number: string;
@@ -28,11 +30,23 @@ export interface Application {
   original_area_of_plot: string;
   area_for_change: string;
   district: string;
+  district_id: number;
   sdo_circle: string;
+  circle_id: number;
+  sub_division: string;
+  sub_division_id: number;
   village: string;
+  village_id: number;
   village_number: string;
   location_type: string;
+  location_type_id: number;
   land_classification: string;
+  land_classification_id: number;
+  land_purpose_id: number;
+  area_unit_id: number;
+  application_area_unit_id: number;
+  change_of_land_use_id: number;
+  purpose_id: number;
   purpose: string;
   status: ApplicationStatus;
   // Documents are not yet in the view API response
