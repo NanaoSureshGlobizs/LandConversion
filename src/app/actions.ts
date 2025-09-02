@@ -140,21 +140,37 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
       },
     });
     
-    const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '---------------------------\n';
-
+    // Always read the body as text first to handle non-JSON error responses gracefully
+    const responseText = await response.text();
+    
     if (!response.ok) {
-      console.error(`HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${JSON.stringify(result)}`);
+      const errorMessage = `HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${responseText}`;
+      console.error(errorMessage);
+      debugLog += `API Error: ${errorMessage}\n`;
+      debugLog += '---------------------------\n';
       return { data: null, debugLog };
     }
 
-    if (result.success) {
-      return { data: result.data, debugLog };
+    try {
+        const result = JSON.parse(responseText);
+        debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+        debugLog += '---------------------------\n';
+        
+        if (result.success) {
+            return { data: result.data, debugLog };
+        }
+
+        console.error(`API error or unexpected data format from ${endpoint}:`, result.message || result);
+        return { data: null, debugLog };
+
+    } catch (jsonError) {
+        const errorMessage = `Failed to parse JSON from ${endpoint}. Response text: ${responseText}`;
+        console.error(errorMessage, jsonError);
+        debugLog += `Error: ${errorMessage}\n`;
+        debugLog += '---------------------------\n';
+        return { data: null, debugLog };
     }
 
-    console.error(`API error or unexpected data format from ${endpoint}:`, result.message || result);
-    return { data: null, debugLog };
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
