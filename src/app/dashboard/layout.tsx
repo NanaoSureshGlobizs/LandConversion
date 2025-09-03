@@ -22,9 +22,8 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const allowedRoutes = useMemo(() => {
-    return allMenuItems
-      .filter(item => access.includes(item.accessKey))
-      .map(item => item.href);
+    const routeMap = new Map(allMenuItems.map(item => [item.accessKey, item.href]));
+    return access.map(key => routeMap.get(key)).filter((route): route is string => !!route);
   }, [access]);
 
   useEffect(() => {
@@ -37,33 +36,35 @@ export default function DashboardLayout({
       return;
     }
 
-    const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
-    const isAllowed = allowedRoutes.includes(pathname);
-    
-    // If user is on the base /dashboard or on a page they don't have access to, redirect.
-    if (isRootDashboard || !isAllowed) {
-        if (allowedRoutes.length > 0) {
-            const destination = allowedRoutes[0];
-            // Only redirect if they aren't already at the destination
-            if (pathname !== destination) {
-                router.replace(destination);
-            }
-        } else if (role) {
-            // Fallback for a user with a role but no specific access rights defined.
-            // This could be a page that doesn't require a specific access key.
-            const fallbackDestination = '/dashboard/my-applications';
-            if (pathname !== fallbackDestination) {
-                router.replace(fallbackDestination);
-            }
+    // Now that we know the user is authenticated, check their routes
+    if (allowedRoutes.length > 0) {
+      const isAllowed = allowedRoutes.includes(pathname);
+      const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
+      
+      // If user is on the base /dashboard OR a page they don't have access to, redirect.
+      if (isRootDashboard || !isAllowed) {
+        const destination = allowedRoutes[0];
+        if (pathname !== destination) {
+          router.replace(destination);
         }
-        // If no access and no role, they might see a blank page if no redirect happens,
-        // which might be a valid state if dashboard has a default view for such users.
+      }
+    } else if (role) {
+      // Fallback for a user with a role but no specific access rights defined in allMenuItems.
+      // This could be a page that doesn't require a specific access key, like a profile page.
+      // We can redirect to a default safe page.
+      const fallbackDestination = '/dashboard/my-applications';
+      if (pathname !== fallbackDestination && allMenuItems.some(item => item.href === fallbackDestination)) {
+        router.replace(fallbackDestination);
+      }
     }
+    // If a user has a role but no allowedRoutes and no fallback, they might see a blank page.
+    // This state indicates a potential configuration issue (role assigned but no permissions).
+
   }, [isAuthenticated, isLoading, access, role, router, pathname, allowedRoutes]);
 
+  // Show a loader while verifying auth or if we are about to redirect.
+  // The second condition prevents a flash of the old page content before redirection.
   if (isLoading || !isAuthenticated || (allowedRoutes.length > 0 && !allowedRoutes.includes(pathname))) {
-    // Show a loader while verifying auth, before the initial redirect,
-    // or if we are about to redirect because the current path is not allowed.
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
