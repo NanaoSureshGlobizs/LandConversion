@@ -39,6 +39,11 @@ const menuItems = [
     icon: FileClock,
   },
   {
+    href: '/dashboard/enquiries',
+    label: 'Enquiries',
+    icon: FileSearch,
+  },
+  {
     href: '/dashboard/dlc-recommendations',
     label: 'DLC Recommendations',
     icon: ThumbsUp,
