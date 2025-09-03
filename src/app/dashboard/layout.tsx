@@ -2,7 +2,7 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import {
@@ -19,34 +19,33 @@ export default function DashboardLayout({
 }) {
   const { isAuthenticated, isLoading, access } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace('/');
     }
   }, [isAuthenticated, isLoading, router]);
-  
+
   useEffect(() => {
     if (!isLoading && isAuthenticated && access.length > 0) {
-      const defaultRoute = '/dashboard/my-applications'; // A reasonable default
-      const firstAllowedRoute = `/dashboard/${access[0].replace(/_/g, '-')}`;
-      
-      // A simple check to see if we are at the base dashboard URL
-      if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') {
-         if (access.includes('dashboard')) {
-            router.replace('/dashboard');
-         } else if (access.length > 0) {
-            // Find a valid route from the access list
-            const validRoute = access.find(key => key !== 'dashboard');
-            if (validRoute) {
-               router.replace(`/dashboard/${validRoute.replace(/_/g, '-')}`);
-            } else {
-               router.replace(defaultRoute); // Fallback
-            }
-         }
+      // If the user lands on the base dashboard path, redirect them to the first accessible route.
+      if (pathname === '/dashboard' || pathname === '/dashboard/') {
+        // The 'dashboard' key might grant access to the overview, otherwise find the first valid key.
+        if (access.includes('dashboard')) {
+          router.replace('/dashboard');
+        } else {
+          const firstAllowedRoute = access[0];
+          if (firstAllowedRoute) {
+            router.replace(`/dashboard/${firstAllowedRoute.replace(/_/g, '-')}`);
+          } else {
+            // Fallback if for some reason access array is empty but authenticated
+            router.replace('/dashboard/my-applications'); 
+          }
+        }
       }
     }
-  }, [isAuthenticated, isLoading, access, router]);
+  }, [isAuthenticated, isLoading, access, router, pathname]);
 
   if (isLoading) {
     return (
@@ -57,8 +56,12 @@ export default function DashboardLayout({
   }
 
   if (!isAuthenticated) {
-    // Return null or a loader while redirecting
-    return null;
+    // While redirecting, show a loader as well to prevent flashing content
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
