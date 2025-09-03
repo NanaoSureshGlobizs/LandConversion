@@ -45,9 +45,9 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     redirect('/');
   }
 
-  const { data: applicationResponse, log } = await getApplicationById(accessToken, id) as { data: FullApplicationResponse | null, log: string | undefined };
+  const { data: application, log } = await getApplicationById(accessToken, id) as { data: FullApplicationResponse | null, log: string | undefined };
   
-  if (!applicationResponse || !applicationResponse.owner_details) {
+  if (!application) {
     return (
         <>
             <ServerLogHandler logs={[log]} />
@@ -61,9 +61,6 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
         </>
     );
   }
-
-  const { owner_details: application, documents } = applicationResponse;
-
 
   return (
     <>
@@ -89,17 +86,17 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                         <CardTitle>Applicant Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <DetailItem label="Owner Name" value={application.owner_name} />
+                        <DetailItem label="Applicant Name" value={application.applicant_name} />
                         <Separator />
-                        <DetailItem label="Date of Birth" value={application.dob} />
+                        <DetailItem label="Date of Birth" value={application.date_of_birth} />
                          <Separator />
-                        <DetailItem label="Aadhar Number" value={application.aadhar} />
+                        <DetailItem label="Aadhar Number" value={application.aadhar_no} />
                          <Separator />
                         <DetailItem label="Phone Number" value={application.phone_number} />
                          <Separator />
                         <DetailItem label="Email" value={application.email} />
                          <Separator />
-                        <DetailItem label="Owner Address" value={application.owner_address} />
+                        <DetailItem label="Address" value={application.address} />
                     </CardContent>
                 </Card>
 
@@ -108,15 +105,15 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                         <CardTitle>Land & Location Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <DetailItem label="District" value={application.district} />
+                        <DetailItem label="District" value={application.district.name} />
                         <Separator />
-                        <DetailItem label="SDO Circle" value={application.sdo_circle} />
+                        <DetailItem label="Circle" value={application.circle_name} />
                         <Separator />
-                        <DetailItem label="Village" value={application.village} />
+                         <DetailItem label="Sub-Division" value={application.sub_division.name} />
                         <Separator />
-                        <DetailItem label="Village Number" value={application.village_number} />
-                         <Separator />
-                        <DetailItem label="Location Type" value={application.location_type} />
+                        <DetailItem label="Village" value={application.village_name} />
+                        <Separator />
+                        <DetailItem label="Location Type" value={application.location_name} />
                     </CardContent>
                 </Card>
 
@@ -129,13 +126,11 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                         <Separator />
                         <DetailItem label="Dag No." value={application.dag_no} />
                         <Separator />
-                        <DetailItem label="Original Area of Plot" value={`${application.original_area_of_plot} ${application.original_area_of_plot_unit}`} />
+                        <DetailItem label="Original Area of Plot" value={`${application.original_area_of_plot} ${application.land_area_unit_name}`} />
                         <Separator />
-                        <DetailItem label="Area for Change" value={`${application.area_for_change} ${application.area_for_change_unit}`} />
+                        <DetailItem label="Area for Change" value={`${application.area_applied_for_conversion} ${application.application_area_unit_name}`} />
                         <Separator />
                         <DetailItem label="Present Land Classification" value={application.land_classification} />
-                        <Separator />
-                        <DetailItem label="Purpose" value={application.purpose} />
                     </CardContent>
                 </Card>
                 
@@ -147,27 +142,20 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {documents && Object.keys(documents).length > 0 ? (
-                            <div className="space-y-6">
-                                {Object.entries(documents).map(([groupName, files]) => (
-                                    <div key={groupName}>
-                                        <h4 className="font-semibold capitalize mb-3 text-lg">{groupName.replace(/_/g, ' ')}</h4>
-                                        <div className="space-y-2">
-                                            {files.map((file, index) => (
-                                                <div key={index} className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
-                                                    <div className="flex items-center gap-3">
-                                                      <FileText className="text-muted-foreground" />
-                                                      <span className="font-mono text-sm">{file.file_name}</span>
-                                                    </div>
-                                                    <Button variant="outline" size="sm" asChild>
-                                                        <a href={file.file_path} target="_blank" rel="noopener noreferrer">
-                                                            <Download className="mr-2"/>
-                                                            View
-                                                        </a>
-                                                    </Button>
-                                                </div>
-                                            ))}
+                        {application.upload_files && application.upload_files.length > 0 ? (
+                            <div className="space-y-2">
+                                {application.upload_files.map((file, index) => (
+                                    <div key={index} className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
+                                        <div className="flex items-center gap-3">
+                                            <FileText className="text-muted-foreground" />
+                                            <span className="font-mono text-sm">{file.file_name}</span>
                                         </div>
+                                        <Button variant="outline" size="sm" asChild>
+                                            <a href={file.file_path} target="_blank" rel="noopener noreferrer">
+                                                <Download className="mr-2"/>
+                                                View
+                                            </a>
+                                        </Button>
                                     </div>
                                 ))}
                             </div>
@@ -187,11 +175,11 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                       <CardContent className="space-y-4">
                           <div>
                             <p className="text-sm text-muted-foreground">Application ID</p>
-                            <p className="font-semibold text-lg font-mono">{id}</p>
+                            <p className="font-semibold text-lg font-mono">{application.application_no}</p>
                           </div>
                            <div>
                             <p className="text-sm text-muted-foreground">Status</p>
-                            <Badge variant="secondary" className="text-base mt-1">{application.status}</Badge>
+                            <Badge variant="secondary" className="text-base mt-1">{application.application_status.name}</Badge>
                           </div>
                       </CardContent>
                   </Card>
@@ -200,10 +188,6 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                           <CardTitle>Actions</CardTitle>
                       </CardHeader>
                       <CardContent className="flex flex-col gap-2">
-                          {/* <Button>
-                            <Edit className="mr-2"/>
-                            Edit Application
-                          </Button> */}
                           <Button variant="outline">
                             <Printer className="mr-2"/>
                             Print Application

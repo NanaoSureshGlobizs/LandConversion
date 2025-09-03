@@ -11,60 +11,65 @@ export type ApplicationStatus =
   | 'New'
   | 'Review';
 
-export interface Document {
+export interface UploadedFile {
+  id: number;
   file_path: string;
   file_name: string;
 }
 
-export interface DocumentGroup {
-  [key: string]: Document[];
-}
-
-// This is based on the `owner_details` object in the API response for a single application
+// This is based on the `data` object in the API response for a single application
 export interface Application {
-  owner_name: string;
-  email: string;
+  id: number;
+  application_no: string;
+  applicant_details_id: number;
+  applicant_name: string;
   phone_number: string;
-  dob: string;
-  aadhar: string;
-  owner_address: string;
+  email: string;
+  address: string;
+  aadhar_no: string;
+  date_of_birth: string; // "1990-01-01"
+  land_purpose_id: number;
+  change_of_land_use_id: number;
+  area_applied_for_conversion: string;
+  application_area_unit_id: number;
+  application_area_unit_name: string;
+  purpose_id: number;
+  created_at: string; // "Sep 2, 2025"
   patta_no: string;
   dag_no: string;
+  sheet_no: string | null;
   original_area_of_plot: string;
-  original_area_of_plot_unit: string;
-  area_for_change: string;
-  area_for_change_unit: string;
-  district: string;
-  sdo_circle: string;
-  village: string;
-  village_number: string;
-  location_type: string;
+  land_area_unit_id: number;
+  land_area_unit_name: string;
+  location_type_id: number;
+  location_name: string;
+  land_classification_id: number;
   land_classification: string;
-  purpose: string;
-  status: ApplicationStatus;
-  
-  // These fields are not in the new response but were in the old one.
-  // Kept for compatibility with form logic for now.
-  // Will need to be mapped if not present in owner_details.
-  applictaion_id?: string;
-  district_id?: number;
-  circle_id?: number;
-  sub_division?: string;
-  sub_division_id?: number;
-  village_id?: number;
-  location_type_id?: number;
-  land_classification_id?: number;
-  land_purpose_id?: number;
-  area_unit_id?: number;
-  application_area_unit_id?: number;
-  change_of_land_use_id?: number;
-  purpose_id?: number;
+  circle_id: number;
+  circle_name: string;
+  village_id: number;
+  village_name: string;
+  can_forward: boolean;
+  highlight: boolean;
+  can_edit: boolean;
+  application_status: {
+    name: ApplicationStatus;
+    foreground_color: string;
+    background_color: string;
+  };
+  district: {
+    id: number;
+    name: string;
+  };
+  sub_division: {
+    id: number;
+    name: string;
+  };
+  upload_files: UploadedFile[];
 }
 
-export interface FullApplicationResponse {
-    owner_details: Application;
-    documents: DocumentGroup;
-}
+// Renaming for clarity as this is no longer the "Full" response but just the app data
+export type FullApplicationResponse = Application;
 
 
 export interface ApplicationListItem {
