@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +26,11 @@ const menuItems = [
     href: '/dashboard',
     label: 'Dashboard',
     icon: Home,
+  },
+  {
+    href: '/dashboard/unprocessed-applications',
+    label: 'Unprocessed Applications',
+    icon: FileSearch,
   },
   {
     href: '/dashboard/pending-enquiries',
