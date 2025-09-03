@@ -310,6 +310,10 @@ export async function getChangeOfLandUseDates(token: string) {
     const { data, debugLog } = await fetchFromApi('/change-of-land-use', token);
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
+export async function getPurposes(token: string) {
+    const { data, debugLog } = await fetchFromApi('/purpose', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
+}
 
 export async function getApplications(page = 1, limit = 10) {
     const cookieStore = cookies();
@@ -326,5 +330,3 @@ export async function getApplicationById(token: string, id: string) {
     // The API now returns a nested object.
     return { data, log: debugLog };
 }
-
-    

@@ -13,16 +13,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { LocationType, AreaUnit, LandClassification, LandPurpose, FormValues } from '../multi-step-form';
+import type { LocationType, AreaUnit, LandClassification, LandPurpose, Purpose, FormValues } from '../multi-step-form';
 
 interface Step3Props {
     locationTypes: LocationType[];
     areaUnits: AreaUnit[];
     landClassifications: LandClassification[];
     landPurposes: LandPurpose[];
+    purposes: Purpose[];
 }
 
-export function Step3Details({ locationTypes, areaUnits, landClassifications, landPurposes }: Step3Props) {
+export function Step3Details({ locationTypes, areaUnits, landClassifications, landPurposes, purposes }: Step3Props) {
   const { control } = useFormContext<FormValues>();
 
   return (
@@ -247,7 +248,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                       <FormLabel>Purpose for which conversion is requested</FormLabel>                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select requested purpose" /></SelectTrigger></FormControl>
                       <SelectContent>
-                          {landPurposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.purpose_name}</SelectItem>))}
+                          {purposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.name}</SelectItem>))}
                       </SelectContent>
                       </Select>
                       <FormMessage />

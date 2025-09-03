@@ -90,6 +90,7 @@ export interface LocationType extends Option {}
 export interface AreaUnit extends Option {}
 export interface LandClassification extends Option {}
 export interface ChangeOfLandUseDate extends Option {}
+export interface Purpose extends Option {}
 
 
 interface MultiStepFormProps {
@@ -103,6 +104,7 @@ interface MultiStepFormProps {
   areaUnits: AreaUnit[];
   landClassifications: LandClassification[];
   changeOfLandUseDates: ChangeOfLandUseDate[];
+  purposes: Purpose[];
   accessToken: string;
 }
 
@@ -116,7 +118,8 @@ const getInitialValues = (
     landPurposes: LandPurpose[],
     locationTypes: LocationType[],
     changeOfLandUseDates: ChangeOfLandUseDate[],
-    areaUnits: AreaUnit[]
+    areaUnits: AreaUnit[],
+    purposes: Purpose[],
   ): FormValues => {
 
   const emptyValues: FormValues = {
@@ -158,7 +161,7 @@ const getInitialValues = (
   const village = villages.find(v => v.name === application.village); 
 
   const landClassification = landClassifications.find(lc => lc.name === application.land_classification);
-  const purpose = landPurposes.find(p => p.purpose_name === application.purpose);
+  const purpose = purposes.find(p => p.name === application.purpose);
   const locationType = locationTypes.find(lt => lt.name === application.location_type);
   const areaUnit = areaUnits.find(u => u.name === application.original_area_of_plot_unit);
   const applicationAreaUnit = areaUnits.find(u => u.name === application.area_for_change_unit);
@@ -211,6 +214,7 @@ export function MultiStepForm({
   areaUnits,
   landClassifications,
   changeOfLandUseDates,
+  purposes,
   accessToken,
 }: MultiStepFormProps) {
   const { toast } = useToast();
@@ -221,7 +225,7 @@ export function MultiStepForm({
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits),
+    defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes),
   });
 
   const { handleSubmit, trigger, watch } = methods;
@@ -315,7 +319,7 @@ export function MultiStepForm({
         description: result.message || `Your application has been ${existingApplication ? 'updated' : 'received'}.`,
       });
       if (!existingApplication) {
-        methods.reset(getInitialValues(null, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits));
+        methods.reset(getInitialValues(null, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes));
         setCurrentStep(0);
       }
     } else {
@@ -351,6 +355,7 @@ export function MultiStepForm({
                     areaUnits={areaUnits}
                     landClassifications={landClassifications}
                     landPurposes={landPurposes}
+                    purposes={purposes}
                 />
               )}
               {currentStep === 3 && (
