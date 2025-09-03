@@ -17,7 +17,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading, access, role } = useAuth();
+  const { isAuthenticated, isLoading, access } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -35,41 +35,55 @@ export default function DashboardLayout({
       router.replace('/');
       return;
     }
-
-    // Now that we know the user is authenticated, check their routes
+    
+    // Once authenticated, check if the user has access to any routes.
     if (allowedRoutes.length > 0) {
-      const isAllowed = allowedRoutes.includes(pathname);
+      const isAllowed = allowedRoutes.some(route => {
+          const menuItem = allMenuItems.find(item => item.href === route);
+          if (menuItem?.exact) return pathname === route;
+          // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
+          return pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/');
+      });
+
       const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
       
       // If user is on the base /dashboard OR a page they don't have access to, redirect.
       if (isRootDashboard || !isAllowed) {
         const destination = allowedRoutes[0];
+        // Only redirect if they are not already at the destination
         if (pathname !== destination) {
           router.replace(destination);
         }
       }
-    } else if (role) {
-      // Fallback for a user with a role but no specific access rights defined in allMenuItems.
-      // This could be a page that doesn't require a specific access key, like a profile page.
-      // We can redirect to a default safe page.
-      const fallbackDestination = '/dashboard/my-applications';
-      if (pathname !== fallbackDestination && allMenuItems.some(item => item.href === fallbackDestination)) {
-        router.replace(fallbackDestination);
-      }
+    } else if (isAuthenticated) {
+        // This case handles a logged-in user with no specific access rights defined in the sidebar.
+        // They might get stuck on a blank page if not handled.
+        // For now, we can redirect them to a safe default, or you might want a dedicated 'no access' page.
+        // We'll keep them on the dashboard page which might show a generic message.
     }
-    // If a user has a role but no allowedRoutes and no fallback, they might see a blank page.
-    // This state indicates a potential configuration issue (role assigned but no permissions).
 
-  }, [isAuthenticated, isLoading, access, role, router, pathname, allowedRoutes]);
+  }, [isAuthenticated, isLoading, access, router, pathname, allowedRoutes]);
 
   // Show a loader while verifying auth or if we are about to redirect.
-  // The second condition prevents a flash of the old page content before redirection.
-  if (isLoading || !isAuthenticated || (allowedRoutes.length > 0 && !allowedRoutes.includes(pathname))) {
+  const isRedirecting = !isLoading && isAuthenticated && allowedRoutes.length > 0 && !allowedRoutes.some(route => pathname.startsWith(route));
+  if (isLoading || isRedirecting) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
+  }
+
+  // If authenticated but no allowed routes, maybe show a message
+  if (isAuthenticated && allowedRoutes.length === 0) {
+      return (
+          <div className="flex min-h-screen items-center justify-center bg-background">
+              <div className='text-center'>
+                  <h2 className='text-xl font-semibold'>No Access</h2>
+                  <p className='text-muted-foreground'>You do not have permission to view any pages.</p>
+              </div>
+          </div>
+      )
   }
 
 
