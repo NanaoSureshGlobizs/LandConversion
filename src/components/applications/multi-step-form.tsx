@@ -47,7 +47,7 @@ const formSchema = z.object({
   application_area_unit_id: z.string().min(1, "Area unit is required."),
 
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
-  land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
+  land_purpose_id: zstring().min(1, 'Present land use purpose is required.'),
   change_of_land_use_id: z.string().min(1, 'Date of change of land use is required.'),
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
   other_entry: z.string().optional(),
@@ -71,7 +71,10 @@ const formSchema = z.object({
     relative_aadhar: z.string(),
   })).optional(),
 }).superRefine((data, ctx) => {
-    if (data.purpose_id && data.purpose_id === '7' && (!data.other_entry || data.other_entry.trim() === '')) { // Assuming '7' is the ID for 'Other'
+    // This is a placeholder for the actual ID of the "Other" purpose.
+    // It should be dynamically retrieved or configured.
+    const OTHER_PURPOSE_ID = '7'; // Assuming '7' is the ID for 'Other' based on previous context.
+    if (data.purpose_id === OTHER_PURPOSE_ID && (!data.other_entry || data.other_entry.trim() === '')) {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['other_entry'],
@@ -79,6 +82,7 @@ const formSchema = z.object({
         });
     }
 });
+
 
 export type FormValues = z.infer<typeof formSchema>;
 
@@ -248,25 +252,7 @@ export function MultiStepForm({
   const { handleSubmit, trigger, watch } = methods;
 
   const watchedLandUseChangeId = watch('change_of_land_use_id');
-  const watchedPurposeId = watch('purpose_id');
-
-  useEffect(() => {
-    // When editing, if the purpose is "Other", we need to make sure the field is validated correctly.
-    // The Zod schema is set to find "Other" by ID, so we need to find the correct ID.
-    const otherPurpose = purposes.find(p => p.name === 'Other');
-    if (otherPurpose && watchedPurposeId === otherPurpose.id.toString()) {
-        formSchema.superRefine((data, ctx) => {
-            if (!data.other_entry || data.other_entry.trim() === '') {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ['other_entry'],
-                    message: 'Please specify the other purpose.',
-                });
-            }
-        });
-    }
-  }, [watchedPurposeId, purposes]);
-
+ 
   useEffect(() => {
     if (watchedLandUseChangeId) {
       const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === watchedLandUseChangeId);
@@ -344,8 +330,8 @@ export function MultiStepForm({
         delete payload.relatives;
     }
 
-    const selectedPurpose = purposes.find(p => p.id === payload.purpose_id);
-    if (selectedPurpose?.name !== 'Other') {
+    const otherPurpose = purposes.find(p => p.name === 'Other');
+    if (!otherPurpose || payload.purpose_id !== otherPurpose.id) {
       delete payload.other_entry;
     }
     
@@ -454,3 +440,4 @@ export function MultiStepForm({
     </div>
   );
 }
+

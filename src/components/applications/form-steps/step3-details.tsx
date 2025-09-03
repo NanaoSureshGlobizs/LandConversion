@@ -27,8 +27,8 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
   const { control, watch } = useFormContext<FormValues>();
 
   const watchedPurposeId = watch('purpose_id');
-  const selectedPurpose = purposes.find(p => p.id.toString() === watchedPurposeId);
-  const showOtherPurposeField = selectedPurpose?.name === 'Other';
+  const otherPurpose = purposes.find(p => p.name === 'Other');
+  const showOtherPurposeField = otherPurpose && watchedPurposeId === otherPurpose.id.toString();
 
   return (
     <div className="space-y-6">
@@ -265,7 +265,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   control={control}
                   name="other_entry"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel>Please specify other purpose</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter other purpose" {...field} />
