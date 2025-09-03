@@ -1,9 +1,9 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +11,7 @@ import { sendOtp, verifyOtp } from './actions';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
+import { Logo } from '@/components/icons/logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -123,57 +124,52 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm shadow-2xl">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex flex-col items-center justify-center gap-2">
-            <span className="text-2xl font-bold font-headline text-foreground">
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gray-50 p-4">
+      <div className="absolute -top-1/4 left-0 -z-0 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
+      <div className="absolute -bottom-1/4 right-0 -z-0 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
+        <div className="w-full max-w-sm">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex justify-center">
+              <Logo className="h-16 w-16 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold font-headline text-foreground">
               Change of Land Use
-            </span>
-            <span className="text-sm text-muted-foreground">
+            </h1>
+            <p className="mt-1 text-muted-foreground">
               Government of Manipur
-            </span>
+            </p>
           </div>
-          <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-          <CardDescription>
-            {step === 'send'
-              ? 'Enter your phone number to receive a login OTP.'
-              : `Enter the OTP sent to ${phoneNumber}.`}
-          </CardDescription>
-        </CardHeader>
-        {step === 'send' ? (
-          <form onSubmit={handleSendOtp}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="9999999999"
-                  required
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={isSubmitting}
-                  maxLength={10}
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Send OTP
-              </Button>
-            </CardFooter>
+
+          {step === 'send' ? (
+          <form onSubmit={handleSendOtp} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+               <div className="flex items-center">
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="10-digit mobile number"
+                    required
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    disabled={isSubmitting}
+                    maxLength={10}
+                    className="rounded-r-none"
+                  />
+                  <Button type="submit" className="rounded-l-none" disabled={isSubmitting} style={{ minWidth: '120px' }}>
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send OTP'}
+                  </Button>
+                </div>
+            </div>
           </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp}>
-            <CardContent className="space-y-4">
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="otp">OTP</Label>
-                <Input
+                <Label htmlFor="otp">Enter OTP</Label>
+                 <Input
                   id="otp"
                   type="text"
-                  placeholder="123456"
+                  placeholder="Enter 6-digit OTP"
                   required
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
@@ -181,16 +177,14 @@ export default function LoginPage() {
                   maxLength={6}
                 />
               </div>
-            </CardContent>
-            <CardFooter className="flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Verify OTP & Sign In
+               <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Verify & Sign In
               </Button>
-              <Button
+               <Button
                 variant="link"
                 size="sm"
-                className="text-muted-foreground"
+                className="w-full text-muted-foreground"
                 onClick={() => {
                   setStep('send');
                   setOtp('');
@@ -199,10 +193,12 @@ export default function LoginPage() {
               >
                 Use a different phone number
               </Button>
-            </CardFooter>
-          </form>
-        )}
-      </Card>
-    </div>
+            </form>
+          )}
+        </div>
+        <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
+            <p>An initiative by the Government of Manipur.</p>
+        </div>
+      </main>
   );
 }

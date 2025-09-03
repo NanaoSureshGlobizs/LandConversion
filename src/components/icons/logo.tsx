@@ -7,16 +7,16 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M2 12h20" />
-      <path d="M17 2H7a4 4 0 0 0-4 4v12a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4z" />
-      <path d="M12 18v-6" />
-      <path d="M7 18V6" />
-      <path d="M17 18V6" />
+      <path d="M12 2L14 7L12 12L10 7L12 2Z" />
+      <path d="M12 12L15 22L12 17L9 22L12 12Z" />
+      <path d="M2 12H22" />
+      <path d="M7 2L12 12L7 22" />
+      <path d="M17 2L12 12L17 22" />
     </svg>
   );
 }
