@@ -20,6 +20,10 @@ import { StepIndicator } from './form-steps/step-indicator';
 import { Step4DocumentUpload } from './form-steps/step4-document-upload';
 
 const fileUploadSchema = z.array(z.string()).optional();
+const otherDocumentSchema = z.array(z.object({
+  file_name: z.string(),
+  others_relevant_document: z.string(),
+})).optional();
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -54,10 +58,10 @@ const formSchema = z.object({
   passport_photo: fileUploadSchema,
   marsac_report: fileUploadSchema,
   tax_receipt: fileUploadSchema,
-  sale_deed: fileUploadSchema,
-  affidavit: fileUploadSchema,
-  noc: fileUploadSchema,
-  others_relevant_document: fileUploadSchema,
+  deed_certificate: fileUploadSchema,
+  affidavit_certificate: fileUploadSchema,
+  noc_certificate: fileUploadSchema,
+  others_relevant_document: otherDocumentSchema,
 
   // Family members
   relatives: z.array(z.object({
@@ -155,6 +159,7 @@ const getInitialValues = (
       purpose_id: '',
       other_entry: '',
       relatives: [],
+      others_relevant_document: [],
     };
 
   if (!application) {
@@ -204,6 +209,7 @@ const getInitialValues = (
     purpose_id: purpose?.id.toString() || '',
     other_entry: (application as any).other_entry || '',
     relatives: [], // Existing app data doesn't contain this yet
+    others_relevant_document: [],
   };
 };
 
@@ -313,7 +319,7 @@ export function MultiStepForm({
 
     // The API expects single-file uploads to be a string, not an array.
     // We will take the first element of the array for these fields.
-    const singleFileFields = ['applicant_aadhar', 'passport_photo', 'marsac_report', 'tax_receipt', 'sale_deed', 'affidavit', 'noc'];
+    const singleFileFields = ['applicant_aadhar', 'passport_photo', 'marsac_report', 'tax_receipt', 'deed_certificate', 'affidavit_certificate', 'noc_certificate'];
     singleFileFields.forEach(field => {
         if (Array.isArray(payload[field]) && payload[field].length > 0) {
             payload[field] = payload[field][0];
@@ -323,12 +329,16 @@ export function MultiStepForm({
     });
 
     // For multiple file fields, ensure they are arrays.
-    const multiFileFields = ['patta', 'others_relevant_document'];
+    const multiFileFields = ['patta'];
     multiFileFields.forEach(field => {
         if (!Array.isArray(payload[field]) || payload[field].length === 0) {
             delete payload[field]; // Remove if no files were uploaded
         }
     });
+
+    if(!payload.others_relevant_document || payload.others_relevant_document.length === 0) {
+        delete payload.others_relevant_document;
+    }
 
     if(!payload.relatives || payload.relatives.length === 0) {
         delete payload.relatives;

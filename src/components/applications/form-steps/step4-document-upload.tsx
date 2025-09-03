@@ -28,9 +28,9 @@ const documentCategories = {
       { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
       { id: 'marsac_report', title: 'MARSAC Imagery Report', description: 'Upload the MARSAC report' },
       { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
-      { id: 'sale_deed', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
-      { id: 'affidavit', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
-      { id: 'noc', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
+      { id: 'deed_certificate', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
+      { id: 'affidavit_certificate', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
+      { id: 'noc_certificate', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
       { id: 'others_relevant_document', title: 'Other Relevant Documents', description: 'Upload any other supporting documents', isMultiple: true },
     ],
     land_conversion: [
@@ -38,9 +38,9 @@ const documentCategories = {
       { id: 'applicant_aadhar', title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
       { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
       { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
-      { id: 'sale_deed', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
-      { id: 'affidavit', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
-      { id: 'noc', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
+      { id: 'deed_certificate', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
+      { id: 'affidavit_certificate', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
+      { id: 'noc_certificate', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
       { id: 'others_relevant_document', title: 'Other Relevant Documents', description: 'Upload any other supporting documents', isMultiple: true },
     ],
 };
@@ -140,16 +140,30 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
   }
   
   const onUploadComplete = (categoryId: string, uploadedFile: UploadedFile) => {
-      const currentFiles = getValues(categoryId as keyof FormValues) as (string[] | string) || [];
-      const newFiles = Array.isArray(currentFiles) 
-        ? [...currentFiles, uploadedFile.serverFileName]
-        : [uploadedFile.serverFileName];
-      setValue(categoryId as keyof FormValues, newFiles as any);
+      if (categoryId === 'others_relevant_document') {
+          const currentFiles = getValues('others_relevant_document') || [];
+          const newFileEntry = {
+              file_name: uploadedFile.originalName,
+              others_relevant_document: uploadedFile.serverFileName
+          };
+          setValue('others_relevant_document', [...currentFiles, newFileEntry]);
+      } else {
+          const currentFiles = getValues(categoryId as keyof FormValues) as (string[] | string) || [];
+          const newFiles = Array.isArray(currentFiles) 
+            ? [...currentFiles, uploadedFile.serverFileName]
+            : [uploadedFile.serverFileName];
+          setValue(categoryId as keyof FormValues, newFiles as any);
+      }
   }
 
   const onRemove = (categoryId: string, fileToRemove: UploadedFile) => {
-    const currentFiles = getValues(categoryId as keyof FormValues) as string[] || [];
-    setValue(categoryId as keyof FormValues, currentFiles.filter(f => f !== fileToRemove.serverFileName) as any);
+    if (categoryId === 'others_relevant_document') {
+        const currentFiles = getValues('others_relevant_document') || [];
+        setValue('others_relevant_document', currentFiles.filter(f => f.others_relevant_document !== fileToRemove.serverFileName));
+    } else {
+        const currentFiles = getValues(categoryId as keyof FormValues) as string[] || [];
+        setValue(categoryId as keyof FormValues, currentFiles.filter(f => f !== fileToRemove.serverFileName) as any);
+    }
   }
 
   useEffect(() => {
