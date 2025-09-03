@@ -259,23 +259,29 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
                      <Popover>
                         <PopoverTrigger asChild>
                             <Button
-                            variant={'outline'}
-                            className={cn(
-                                'col-span-3 justify-start text-left font-normal',
-                                !newDob && 'text-muted-foreground'
-                            )}
-                            >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {newDob ? format(newDob, 'PPP') : <span>Pick a date</span>}
+                                variant={'outline'}
+                                className={cn(
+                                    'col-span-3 justify-start text-left font-normal',
+                                    !newDob && 'text-muted-foreground'
+                                )}
+                                >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {newDob ? format(newDob, 'PPP') : <span>Pick a date</span>}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar
+                        <PopoverContent className="w-auto p-0" align="start">
+                           <Calendar
                             mode="single"
+                            captionLayout="dropdown-buttons"
+                            fromYear={1900}
+                            toYear={new Date().getFullYear()}
                             selected={newDob}
                             onSelect={setNewDob}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date('1900-01-01')
+                            }
                             initialFocus
-                            />
+                          />
                         </PopoverContent>
                     </Popover>
                   </div>
