@@ -26,6 +26,7 @@ const menuItems = [
     href: '/dashboard',
     label: 'Dashboard',
     icon: Home,
+    exact: true,
   },
   {
     href: '/dashboard/unprocessed-applications',
@@ -80,6 +81,13 @@ export function SidebarNav() {
     await logout();
     router.push('/');
   };
+  
+  const isLinkActive = (href: string, exact: boolean = false) => {
+    if (exact) {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -98,7 +106,7 @@ export function SidebarNav() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
+                isActive={isLinkActive(item.href, item.exact)}
               >
                 <Link href={item.href}>
                   <item.icon />
