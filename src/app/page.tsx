@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +12,6 @@ import { sendOtp, verifyOtp } from './actions';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
-import { Logo } from '@/components/icons/logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -130,7 +130,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4 flex justify-center">
-              <Logo className="h-16 w-16 text-primary" />
+              <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
             </div>
             <h1 className="text-3xl font-bold font-headline text-foreground">
               Change of Land Use
