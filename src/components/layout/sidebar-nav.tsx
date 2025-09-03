@@ -21,7 +21,7 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { useMemo } from 'react';
 
-const allMenuItems = [
+export const allMenuItems = [
   {
     href: '/dashboard',
     label: 'Dashboard',
@@ -107,7 +107,9 @@ export function SidebarNav() {
     if (exact) {
       return pathname === href;
     }
-    return pathname.startsWith(href);
+    // Ensure that a more specific path does not activate a less specific one.
+    // e.g., /dashboard/reports-from-dlc should not activate /dashboard/report
+    return pathname.startsWith(href) && (pathname.length === href.length || pathname[href.length] === '/');
   };
   
   const visibleMenuItems = useMemo(() => {
@@ -132,7 +134,7 @@ export function SidebarNav() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={isLinkActive(item.href, item.exact)}
+                isActive={isLinkActive(item.href, !!item.exact)}
               >
                 <Link href={item.href}>
                   <item.icon />

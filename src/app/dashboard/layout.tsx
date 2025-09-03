@@ -3,14 +3,14 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { SidebarNav } from '@/components/layout/sidebar-nav';
+import { SidebarNav, allMenuItems } from '@/components/layout/sidebar-nav';
 
 export default function DashboardLayout({
   children,
@@ -20,6 +20,12 @@ export default function DashboardLayout({
   const { isAuthenticated, isLoading, access, role } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  const allowedRoutes = useMemo(() => {
+    return allMenuItems
+      .filter(item => access.includes(item.accessKey))
+      .map(item => item.href);
+  }, [access]);
 
   useEffect(() => {
     if (isLoading) {
@@ -31,29 +37,33 @@ export default function DashboardLayout({
       return;
     }
 
-    // Redirect if user is on the base /dashboard page and has access rights
-    if (pathname === '/dashboard' || pathname === '/dashboard/') {
-      if (access.length > 0) {
-        // Redirect to dashboard overview if they have access, otherwise to the first available page
-        const destination = access.includes('dashboard') 
-          ? '/dashboard' 
-          : `/dashboard/${access[0].replace(/_/g, '-')}`;
-        
-        // Only redirect if they aren't already at the destination (for the 'dashboard' case)
-        if (pathname !== destination) {
-            router.replace(destination);
+    const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
+    const isAllowed = allowedRoutes.includes(pathname);
+    
+    // If user is on the base /dashboard or on a page they don't have access to, redirect.
+    if (isRootDashboard || !isAllowed) {
+        if (allowedRoutes.length > 0) {
+            const destination = allowedRoutes[0];
+            // Only redirect if they aren't already at the destination
+            if (pathname !== destination) {
+                router.replace(destination);
+            }
+        } else if (role) {
+            // Fallback for a user with a role but no specific access rights defined.
+            // This could be a page that doesn't require a specific access key.
+            const fallbackDestination = '/dashboard/my-applications';
+            if (pathname !== fallbackDestination) {
+                router.replace(fallbackDestination);
+            }
         }
-      } else if (role) {
-        // Fallback for a user with a role but no specific access rights defined yet
-        router.replace('/dashboard/my-applications');
-      }
-      // If no role and no access, they will see the default dashboard page if it exists
-      // or a blank page if not, which is a valid state if no default is configured.
+        // If no access and no role, they might see a blank page if no redirect happens,
+        // which might be a valid state if dashboard has a default view for such users.
     }
-  }, [isAuthenticated, isLoading, access, role, router, pathname]);
+  }, [isAuthenticated, isLoading, access, role, router, pathname, allowedRoutes]);
 
-  if (isLoading || !isAuthenticated) {
-    // Show a loader while verifying auth or before the initial redirect
+  if (isLoading || !isAuthenticated || (allowedRoutes.length > 0 && !allowedRoutes.includes(pathname))) {
+    // Show a loader while verifying auth, before the initial redirect,
+    // or if we are about to redirect because the current path is not allowed.
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -61,15 +71,6 @@ export default function DashboardLayout({
     );
   }
 
-  // If user is authenticated but redirection logic hasn't kicked in yet,
-  // we can still show a loader to prevent a flash of un-redirected content.
-  if ((pathname === '/dashboard' || pathname === '/dashboard/') && access.length > 0 && !access.includes('dashboard')) {
-     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <SidebarProvider>
