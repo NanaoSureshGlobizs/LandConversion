@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -54,9 +54,15 @@ const menuItems = [
     icon: ShieldCheck,
   },
   {
+    href: '/dashboard/decision-and-fees',
+    label: 'Decision & Fees',
+    icon: Gavel,
+  },
+  {
     href: '/dashboard/report',
     label: 'Report',
     icon: FileBarChart,
+    exact: true,
   },
   {
     href: '/dashboard/my-applications',
