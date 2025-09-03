@@ -235,6 +235,9 @@ export async function uploadFile(
   const url = `${API_BASE_URL}/upload-file`;
   let debugLog = "--- Uploading File ---\n";
   debugLog += `Request URL: ${url}\n`;
+  // FormData objects are complex and cannot be directly stringified.
+  // We log the keys to give an idea of what's being sent.
+  debugLog += `Request Payload (FormData keys): ${JSON.stringify(Array.from(formData.keys()), null, 2)}\n`;
 
   try {
     const response = await fetch(url, {
