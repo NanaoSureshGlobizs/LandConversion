@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { checkAuth as checkAuthAction, logout as logoutAction } from '@/app/actions';
 
 interface AuthContextType {
@@ -9,7 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   role: string | null;
   access: string[];
-  login: () => void;
+  login: (role: string, access: string[]) => void;
   logout: () => void;
   refetchAuth: () => void;
 }
@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [access, setAccess] = useState<string[]>([]);
 
-  const verifyAuth = async () => {
+  const verifyAuth = useCallback(async () => {
     setIsLoading(true);
     try {
       const authStatus = await checkAuthAction();
@@ -37,15 +37,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     verifyAuth();
-  }, []);
+  }, [verifyAuth]);
 
-  const login = () => {
-    // Re-verify auth from cookies to get role and access rights
-    verifyAuth();
+  const login = (role: string, access: string[]) => {
+    // Directly update the state upon login instead of re-fetching.
+    // The cookies are already set by the server action.
+    setIsAuthenticated(true);
+    setRole(role);
+    setAccess(access);
+    setIsLoading(false);
   };
   
   const logout = async () => {

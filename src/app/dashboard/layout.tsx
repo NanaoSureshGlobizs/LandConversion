@@ -17,42 +17,54 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading, access } = useAuth();
+  const { isAuthenticated, isLoading, access, role } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     if (isLoading) {
-      return; // Do nothing while auth state is loading
+      return; // Wait until the auth state is confirmed
     }
 
     if (!isAuthenticated) {
       router.replace('/');
       return;
     }
-    
-    // If authenticated, check for redirection from the base dashboard path
-    if (isAuthenticated && access.length > 0 && (pathname === '/dashboard' || pathname === '/dashboard/')) {
-        // The 'dashboard' key might grant access to the overview, otherwise find the first valid key.
-        if (access.includes('dashboard')) {
-          // If they have dashboard access and are on dashboard, no need to redirect.
-          // This check prevents potential redirect loops.
-          return; 
-        }
 
-        const firstAllowedRoute = access[0];
-        if (firstAllowedRoute) {
-          router.replace(`/dashboard/${firstAllowedRoute.replace(/_/g, '-')}`);
-        } else {
-          // Fallback if for some reason access array is empty but authenticated
-          router.replace('/dashboard/my-applications'); 
+    // Redirect if user is on the base /dashboard page and has access rights
+    if (pathname === '/dashboard' || pathname === '/dashboard/') {
+      if (access.length > 0) {
+        // Redirect to dashboard overview if they have access, otherwise to the first available page
+        const destination = access.includes('dashboard') 
+          ? '/dashboard' 
+          : `/dashboard/${access[0].replace(/_/g, '-')}`;
+        
+        // Only redirect if they aren't already at the destination (for the 'dashboard' case)
+        if (pathname !== destination) {
+            router.replace(destination);
         }
+      } else if (role) {
+        // Fallback for a user with a role but no specific access rights defined yet
+        router.replace('/dashboard/my-applications');
+      }
+      // If no role and no access, they will see the default dashboard page if it exists
+      // or a blank page if not, which is a valid state if no default is configured.
     }
-  }, [isAuthenticated, isLoading, access, router, pathname]);
+  }, [isAuthenticated, isLoading, access, role, router, pathname]);
 
   if (isLoading || !isAuthenticated) {
-    // Show a loader while verifying auth or redirecting
+    // Show a loader while verifying auth or before the initial redirect
     return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // If user is authenticated but redirection logic hasn't kicked in yet,
+  // we can still show a loader to prevent a flash of un-redirected content.
+  if ((pathname === '/dashboard' || pathname === '/dashboard/') && access.length > 0 && !access.includes('dashboard')) {
+     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>

@@ -88,12 +88,13 @@ export default function LoginPage() {
        if (result.debugLog) {
         addLog(result.debugLog);
       }
-      if (result.success) {
+      if (result.success && result.data) {
         toast({
           title: 'Login Successful',
           description: 'Welcome back! Redirecting...',
         });
-        login(); // Update auth state from cookies
+        // Pass the role and access data directly to the auth context
+        login(result.data.role, result.data.access);
         router.push('/dashboard');
       } else {
         toast({
