@@ -13,7 +13,7 @@ export default async function EnquiriesPage() {
     redirect('/');
   }
 
-  const { data: initialApplicationsData, log } = await getApplications();
+  const { data: initialApplicationsData, log } = await getApplications(accessToken);
 
   return (
     <>
@@ -25,7 +25,7 @@ export default async function EnquiriesPage() {
         <p className="text-muted-foreground">
           View and manage all enquiries.
         </p>
-        <EnquiriesTable initialData={initialApplicationsData} />
+        <EnquiriesTable initialData={initialApplicationsData} accessToken={accessToken} />
       </div>
     </>
   );

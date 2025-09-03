@@ -14,7 +14,7 @@ export default async function ReportsFromDlcPage() {
   }
 
   const [{ data: initialApplicationsData, log: appLog }, { data: districts, log: districtLog }] = await Promise.all([
-    getApplications(),
+    getApplications(accessToken),
     getDistricts(accessToken)
   ]);
   
@@ -26,7 +26,7 @@ export default async function ReportsFromDlcPage() {
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">Reports from DLC</h1>
         </div>
-        <ReportsFromDlcTable initialData={initialApplicationsData} districts={districts} />
+        <ReportsFromDlcTable initialData={initialApplicationsData} districts={districts} accessToken={accessToken} />
       </div>
     </>
   );

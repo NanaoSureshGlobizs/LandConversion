@@ -17,7 +17,7 @@ export default async function PendingEnquiriesPage() {
     redirect('/');
   }
 
-  const { data: initialApplicationsData, log } = await getApplications();
+  const { data: initialApplicationsData, log } = await getApplications(accessToken);
 
   return (
     <>
@@ -29,7 +29,7 @@ export default async function PendingEnquiriesPage() {
         <p className="text-muted-foreground">
           View and manage all pending enquiries.
         </p>
-        <PendingEnquiriesTable initialData={initialApplicationsData} />
+        <PendingEnquiriesTable initialData={initialApplicationsData} accessToken={accessToken}/>
       </div>
     </>
   );

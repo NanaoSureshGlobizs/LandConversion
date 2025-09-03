@@ -13,7 +13,7 @@ export default async function UnprocessedApplicationsPage() {
     redirect('/');
   }
 
-  const { data: initialApplicationsData, log } = await getApplications();
+  const { data: initialApplicationsData, log } = await getApplications(accessToken);
 
   return (
     <>
@@ -22,7 +22,7 @@ export default async function UnprocessedApplicationsPage() {
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">Unprocessed Applications</h1>
         </div>
-        <UnprocessedApplicationsTable initialData={initialApplicationsData} />
+        <UnprocessedApplicationsTable initialData={initialApplicationsData} accessToken={accessToken} />
       </div>
     </>
   );

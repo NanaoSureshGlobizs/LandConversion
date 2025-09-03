@@ -23,9 +23,10 @@ import { cn } from '@/lib/utils';
 
 interface ApplicationsTableProps {
   initialData: PaginatedApplications | null;
+  accessToken: string;
 }
 
-export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
+export function ApplicationsTable({ initialData, accessToken }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -45,7 +46,7 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -57,7 +58,7 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog]);
+  }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
     if (isNearScreen) {

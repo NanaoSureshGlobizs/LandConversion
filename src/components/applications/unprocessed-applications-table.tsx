@@ -23,6 +23,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 
 interface UnprocessedApplicationsTableProps {
   initialData: PaginatedApplications | null;
+  accessToken: string;
 }
 
 const mockOwners = [
@@ -35,7 +36,7 @@ const mockAreas = [
     "10 acres", "5 acres", "8 acres", "12 acres", "7 acres", "9 acres", "6 acres", "11 acres", "4 acres", "15 acres"
 ]
 
-export function UnprocessedApplicationsTable({ initialData }: UnprocessedApplicationsTableProps) {
+export function UnprocessedApplicationsTable({ initialData, accessToken }: UnprocessedApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState('');
   const [status, setStatus] = useState('');
@@ -57,7 +58,7 @@ export function UnprocessedApplicationsTable({ initialData }: UnprocessedApplica
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -69,7 +70,7 @@ export function UnprocessedApplicationsTable({ initialData }: UnprocessedApplica
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog]);
+  }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
     if (isNearScreen) {

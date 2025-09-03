@@ -13,7 +13,7 @@ export default async function ReportPage() {
     redirect('/');
   }
 
-  const { data: initialApplicationsData, log } = await getApplications();
+  const { data: initialApplicationsData, log } = await getApplications(accessToken);
 
   return (
     <>
@@ -22,7 +22,7 @@ export default async function ReportPage() {
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">Report</h1>
         </div>
-        <ReportTable initialData={initialApplicationsData} />
+        <ReportTable initialData={initialApplicationsData} accessToken={accessToken}/>
       </div>
     </>
   );

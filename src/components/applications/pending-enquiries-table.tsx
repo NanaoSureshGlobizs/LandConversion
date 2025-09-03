@@ -28,9 +28,10 @@ import Link from 'next/link';
 
 interface PendingEnquiriesTableProps {
   initialData: PaginatedApplications | null;
+  accessToken: string;
 }
 
-export function PendingEnquiriesTable({ initialData }: PendingEnquiriesTableProps) {
+export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnquiriesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -54,7 +55,7 @@ export function PendingEnquiriesTable({ initialData }: PendingEnquiriesTableProp
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -66,7 +67,7 @@ export function PendingEnquiriesTable({ initialData }: PendingEnquiriesTableProp
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog]);
+  }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
     if (isNearScreen) {

@@ -22,9 +22,10 @@ import { Label } from '../ui/label';
 
 interface ReportTableProps {
   initialData: PaginatedApplications | null;
+  accessToken: string;
 }
 
-export function ReportTable({ initialData }: ReportTableProps) {
+export function ReportTable({ initialData, accessToken }: ReportTableProps) {
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -44,7 +45,7 @@ export function ReportTable({ initialData }: ReportTableProps) {
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -56,7 +57,7 @@ export function ReportTable({ initialData }: ReportTableProps) {
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog]);
+  }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
     if (isNearScreen) {
@@ -152,4 +153,3 @@ export function ReportTable({ initialData }: ReportTableProps) {
     </div>
   );
 }
-

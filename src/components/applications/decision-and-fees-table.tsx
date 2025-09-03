@@ -21,6 +21,7 @@ import Link from 'next/link';
 
 interface DecisionAndFeesTableProps {
   initialData: PaginatedApplications | null;
+  accessToken: string;
 }
 
 const mockOwners = [
@@ -29,7 +30,7 @@ const mockOwners = [
     "James Wilson", "Charlotte Taylor", "Benjamin Moore", "Amelia Anderson"
 ];
 
-export function DecisionAndFeesTable({ initialData }: DecisionAndFeesTableProps) {
+export function DecisionAndFeesTable({ initialData, accessToken }: DecisionAndFeesTableProps) {
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -47,7 +48,7 @@ export function DecisionAndFeesTable({ initialData }: DecisionAndFeesTableProps)
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -59,7 +60,7 @@ export function DecisionAndFeesTable({ initialData }: DecisionAndFeesTableProps)
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog]);
+  }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
     if (isNearScreen) {

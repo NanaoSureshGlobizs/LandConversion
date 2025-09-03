@@ -13,7 +13,7 @@ export default async function DlcRecommendationsPage() {
     redirect('/');
   }
 
-  const { data: initialApplicationsData, log } = await getApplications();
+  const { data: initialApplicationsData, log } = await getApplications(accessToken);
 
   return (
     <>
@@ -22,7 +22,7 @@ export default async function DlcRecommendationsPage() {
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">DLC Recommendations</h1>
         </div>
-        <DlcRecommendationsTable initialData={initialApplicationsData} />
+        <DlcRecommendationsTable initialData={initialApplicationsData} accessToken={accessToken} />
       </div>
     </>
   );

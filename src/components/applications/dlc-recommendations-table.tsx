@@ -22,6 +22,7 @@ import Link from 'next/link';
 
 interface DlcRecommendationsTableProps {
   initialData: PaginatedApplications | null;
+  accessToken: string;
 }
 
 const mockOwners = [
@@ -30,7 +31,7 @@ const mockOwners = [
     "Rohan Mishra", "Kavita Reddy", "Suresh Patel", "Meena Kumari"
 ];
 
-export function DlcRecommendationsTable({ initialData }: DlcRecommendationsTableProps) {
+export function DlcRecommendationsTable({ initialData, accessToken }: DlcRecommendationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -50,7 +51,7 @@ export function DlcRecommendationsTable({ initialData }: DlcRecommendationsTable
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -62,7 +63,7 @@ export function DlcRecommendationsTable({ initialData }: DlcRecommendationsTable
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog]);
+  }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
     if (isNearScreen) {

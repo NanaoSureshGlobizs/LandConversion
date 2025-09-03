@@ -331,9 +331,7 @@ export async function getPurposes(token: string) {
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 
-export async function getApplications(page = 1, limit = 10) {
-    const cookieStore = cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
+export async function getApplications(accessToken: string, page = 1, limit = 10) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
