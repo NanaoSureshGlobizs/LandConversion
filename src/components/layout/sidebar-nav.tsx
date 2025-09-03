@@ -57,7 +57,6 @@ const menuItems = [
     href: '/dashboard/report',
     label: 'Report',
     icon: FileBarChart,
-    exact: true,
   },
   {
     href: '/dashboard/my-applications',
