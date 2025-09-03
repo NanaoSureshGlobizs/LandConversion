@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FilePlus2, Files, LogOut } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,11 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 
 const menuItems = [
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
+    icon: Home,
+  },
   {
     href: '/dashboard/my-applications',
     label: 'My Applications',
@@ -62,7 +67,7 @@ export function SidebarNav() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href)}
+                isActive={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
               >
                 <Link href={item.href}>
                   <item.icon />
