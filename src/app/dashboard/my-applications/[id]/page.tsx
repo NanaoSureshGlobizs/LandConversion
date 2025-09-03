@@ -55,10 +55,8 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                  <h1 className="text-3xl font-bold tracking-tight font-headline">
                     Application Not Found
                 </h1>
-                <p>The application with ID {id} could not be loaded.</p>
-                <pre className="mt-4 p-4 bg-muted rounded-md text-sm overflow-auto">
-                    {log}
-                </pre>
+                <p>The application with ID {id} could not be loaded. This might be due to a server error or invalid data.</p>
+                <p className='text-muted-foreground text-sm'>Check the debug panel for the full server response.</p>
             </div>
         </>
     );

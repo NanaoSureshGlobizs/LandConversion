@@ -147,13 +147,7 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
       console.error(errorMessage);
       debugLog += `API Error: ${errorMessage}\n`;
       debugLog += '---------------------------\n';
-      // Attempt to parse the error response as JSON anyway
-      try {
-        const errorJson = JSON.parse(responseText);
-        return { data: errorJson, debugLog };
-      } catch (e) {
-        return { data: null, debugLog };
-      }
+      return { data: null, debugLog };
     }
 
     try {
