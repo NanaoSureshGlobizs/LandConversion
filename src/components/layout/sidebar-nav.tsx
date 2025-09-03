@@ -12,7 +12,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarTrigger,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -20,73 +19,84 @@ import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
+import { useMemo } from 'react';
 
-const menuItems = [
+const allMenuItems = [
   {
     href: '/dashboard',
     label: 'Dashboard',
     icon: Home,
+    accessKey: 'dashboard',
     exact: true,
   },
   {
     href: '/dashboard/unprocessed-applications',
     label: 'Unprocessed Applications',
     icon: FileSearch,
+    accessKey: 'unprocessed_applications',
   },
   {
     href: '/dashboard/pending-enquiries',
     label: 'Pending Enquiries',
     icon: FileClock,
+    accessKey: 'pending_enquiries',
   },
   {
     href: '/dashboard/enquiries',
     label: 'Enquiries',
     icon: FileSearch,
+    accessKey: 'enquiries',
   },
   {
     href: '/dashboard/dlc-recommendations',
     label: 'DLC Recommendations',
     icon: ThumbsUp,
+    accessKey: 'dlc_recommendations',
   },
   {
     href: '/dashboard/reports-from-dlc',
     label: 'Reports from DLC',
     icon: FileText,
+    accessKey: 'report_from_dlc',
   },
   {
     href: '/dashboard/lrd-decision',
     label: 'LRD Decision',
     icon: ShieldCheck,
+    accessKey: 'lrd_decision',
   },
   {
     href: '/dashboard/decision-and-fees',
     label: 'Decision & Fees',
     icon: Gavel,
+    accessKey: 'decision_and_fee',
   },
   {
     href: '/dashboard/report',
     label: 'Report',
     icon: FileBarChart,
+    accessKey: 'report',
     exact: true,
   },
   {
     href: '/dashboard/my-applications',
     label: 'My Applications',
     icon: Files,
+    accessKey: 'view_application',
   },
   {
     href: '/dashboard/new-application',
     label: 'New Application',
     icon: FilePlus2,
+    accessKey: 'create_application',
   },
 ];
 
 export function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, access } = useAuth();
   const { isDebugMode, setIsDebugMode } = useDebug();
-
 
   const handleLogout = async () => {
     await logout();
@@ -99,6 +109,11 @@ export function SidebarNav() {
     }
     return pathname.startsWith(href);
   };
+  
+  const visibleMenuItems = useMemo(() => {
+    return allMenuItems.filter(item => access.includes(item.accessKey));
+  }, [access]);
+
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -113,7 +128,7 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item) => (
+          {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild

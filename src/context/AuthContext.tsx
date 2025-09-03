@@ -1,14 +1,17 @@
+
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { checkAuth as checkAuthAction, logout as logoutAction } from '@/app/actions';
-import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
+  role: string | null;
+  access: string[];
   login: () => void;
   logout: () => void;
+  refetchAuth: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,32 +19,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
+  const [access, setAccess] = useState<string[]>([]);
+
+  const verifyAuth = async () => {
+    setIsLoading(true);
+    try {
+      const authStatus = await checkAuthAction();
+      setIsAuthenticated(authStatus.isAuthenticated);
+      setRole(authStatus.role);
+      setAccess(authStatus.access);
+    } catch (error) {
+      console.error('Failed to check auth status', error);
+      setIsAuthenticated(false);
+      setRole(null);
+      setAccess([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const authStatus = await checkAuthAction();
-        setIsAuthenticated(authStatus);
-      } catch (error) {
-        console.error('Failed to check auth status', error);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     verifyAuth();
   }, []);
 
   const login = () => {
-    setIsAuthenticated(true);
+    // Re-verify auth from cookies to get role and access rights
+    verifyAuth();
   };
   
   const logout = async () => {
     await logoutAction();
     setIsAuthenticated(false);
+    setRole(null);
+    setAccess([]);
   }
 
-  const value = { isAuthenticated, isLoading, login, logout };
+  const value = { isAuthenticated, isLoading, role, access, login, logout, refetchAuth: verifyAuth };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

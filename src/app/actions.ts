@@ -13,8 +13,7 @@ interface SendOtpResponse {
 interface VerifyOtpData {
   accessToken: string;
   refreshToken: string;
-  name: string;
-  designation: string;
+  role: string;
   access: string[];
 }
 
@@ -90,12 +89,15 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
     }
 
     if (data.success && data.data?.accessToken) {
-      cookies().set('accessToken', data.data.accessToken, {
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'lax' as const,
         path: '/',
-      });
+      };
+      cookies().set('accessToken', data.data.accessToken, cookieOptions);
+      cookies().set('userRole', data.data.role, cookieOptions);
+      cookies().set('userAccess', JSON.stringify(data.data.access), cookieOptions);
     }
     
     const responseData = data as VerifyOtpResponse;
@@ -112,13 +114,33 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
 
 export async function logout() {
   cookies().delete('accessToken');
+  cookies().delete('userRole');
+  cookies().delete('userAccess');
 }
 
 export async function checkAuth() {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken');
-  return !!accessToken;
+  const role = cookieStore.get('userRole');
+  const access = cookieStore.get('userAccess');
+  
+  if (!accessToken?.value) {
+    return { isAuthenticated: false, role: null, access: [] };
+  }
+  
+  try {
+    const accessArray = access ? JSON.parse(access.value) : [];
+    return { 
+      isAuthenticated: true, 
+      role: role?.value || null, 
+      access: accessArray 
+    };
+  } catch (error) {
+    console.error("Failed to parse user access cookie:", error);
+    return { isAuthenticated: true, role: role?.value || null, access: [] };
+  }
 }
+
 
 async function fetchFromApi(endpoint: string, token: string | undefined) {
   const url = `${API_BASE_URL}${endpoint}`;
