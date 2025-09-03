@@ -157,12 +157,12 @@ export function PendingEnquiriesTable({ initialData }: PendingEnquiriesTableProp
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || 'N/A'}</TableCell>
-                  <TableCell>N/A</TableCell> {/* Placeholder */}
+                  <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
+                  <TableCell>{''}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>N/A</TableCell> {/* Placeholder */}
-                  <TableCell className="p-2">
-                    <div className="flex justify-end gap-2">
+                  <TableCell>{''}</TableCell>
+                  <TableCell className="p-0">
+                    <div className="flex justify-end gap-2 p-2">
                       <Button variant="outline" size="sm">Enquiry Report</Button>
                        <Button variant="default" size="sm" asChild>
                          <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View Details</Link>
