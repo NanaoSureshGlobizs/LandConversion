@@ -26,7 +26,7 @@ export default function LoginPage() {
   
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      router.replace('/dashboard/new-application');
+      router.replace('/dashboard/my-applications');
     }
   }, [isAuthenticated, isAuthLoading, router]);
 
@@ -94,7 +94,7 @@ export default function LoginPage() {
           description: 'Welcome back! Redirecting...',
         });
         login(); // Update auth state
-        router.push('/dashboard/new-application');
+        router.push('/dashboard/my-applications');
       } else {
         toast({
           title: 'Error',
