@@ -68,15 +68,29 @@ export interface FullApplicationResponse {
 
 
 export interface ApplicationListItem {
+  id: number;
   patta_no: string;
   area_type: string;
-  date_submitted: string;
+  created_at: string;
   applictaion_id: string;
-  status_name: ApplicationStatus;
+  application_status: {
+    name: ApplicationStatus;
+    foreground_color: string;
+    background_color: string;
+  };
+  district: {
+    id: number;
+    name: string;
+  };
+  sub_division: {
+    id: number;
+    name: string;
+  };
 }
 
+
 export interface PaginatedApplications {
-  lists: ApplicationListItem[];
+  applications: ApplicationListItem[];
   pagination: {
     totalCount: number;
     pageCount: number;

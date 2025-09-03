@@ -27,7 +27,7 @@ interface ApplicationsTableProps {
 export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
-  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.lists || []);
+  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
@@ -47,8 +47,8 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
     const { data: newData, log } = await getApplications(nextPage);
     addLog(log || "Log for getApplications");
 
-    if (newData && Array.isArray(newData.lists)) {
-      setApplications(prev => [...prev, ...newData.lists]);
+    if (newData && Array.isArray(newData.applications)) {
+      setApplications(prev => [...prev, ...newData.applications]);
       setPage(newData.pagination.currentPage);
       setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
     } else {
@@ -72,11 +72,12 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
       (item) =>
         item.applictaion_id?.toLowerCase().includes(lowercasedFilter) ||
         item.patta_no.toLowerCase().includes(lowercasedFilter) ||
-        item.status_name.toLowerCase().includes(lowercasedFilter)
+        item.application_status.name.toLowerCase().includes(lowercasedFilter)
     );
   }, [applications, searchTerm]);
 
   const handleRowClick = (appId: string) => {
+    if(!appId) return;
     router.push(`/dashboard/my-applications/${appId}`);
   };
 
@@ -105,18 +106,18 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
                 <TableRow 
-                    key={app.applictaion_id}
+                    key={app.id}
                     onClick={() => handleRowClick(app.applictaion_id)}
-                    className="cursor-pointer"
+                    className={cn(app.applictaion_id && "cursor-pointer")}
                 >
-                  <TableCell className="font-medium font-mono">{app.applictaion_id}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.applictaion_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
                   <TableCell>
-                    {app.date_submitted}
+                    {app.created_at}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{app.status_name}</Badge>
+                    <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                 </TableRow>
               ))
