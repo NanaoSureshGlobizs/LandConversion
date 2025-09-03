@@ -24,7 +24,11 @@ interface Step3Props {
 }
 
 export function Step3Details({ locationTypes, areaUnits, landClassifications, landPurposes, purposes }: Step3Props) {
-  const { control } = useFormContext<FormValues>();
+  const { control, watch } = useFormContext<FormValues>();
+
+  const watchedPurposeId = watch('purpose_id');
+  const selectedPurpose = purposes.find(p => p.id.toString() === watchedPurposeId);
+  const showOtherPurposeField = selectedPurpose?.name === 'Other';
 
   return (
     <div className="space-y-6">
@@ -245,16 +249,32 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   name="purpose_id"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Purpose for which conversion is requested</FormLabel>                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select requested purpose" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                          {purposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.name}</SelectItem>))}
-                      </SelectContent>
+                      <FormLabel>Purpose for which conversion is requested</FormLabel>                    
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select requested purpose" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            {purposes.map((purpose) => (<SelectItem key={purpose.id} value={purpose.id.toString()}>{purpose.name}</SelectItem>))}
+                        </SelectContent>
                       </Select>
                       <FormMessage />
                   </FormItem>
                   )}
               />
+              {showOtherPurposeField && (
+                <FormField
+                  control={control}
+                  name="other_entry"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Please specify other purpose</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter other purpose" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
           </div>
         </CardContent>
       </Card>

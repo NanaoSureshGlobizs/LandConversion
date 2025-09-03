@@ -46,6 +46,7 @@ const formSchema = z.object({
   land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
   change_of_land_use_id: z.string().min(1, 'Date of change of land use is required.'),
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
+  other_entry: z.string().optional(),
 
   // Document fields
   patta: fileUploadSchema,
@@ -65,6 +66,14 @@ const formSchema = z.object({
     relationship: z.string(),
     relative_aadhar: z.string(),
   })).optional(),
+}).superRefine((data, ctx) => {
+    if (data.purpose_id && data.purpose_id === '7' && (!data.other_entry || data.other_entry.trim() === '')) { // Assuming '7' is the ID for 'Other'
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['other_entry'],
+            message: 'Please specify the other purpose.',
+        });
+    }
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -144,6 +153,7 @@ const getInitialValues = (
       land_purpose_id: '',
       change_of_land_use_id: '',
       purpose_id: '',
+      other_entry: '',
       relatives: [],
     };
 
@@ -192,6 +202,7 @@ const getInitialValues = (
     land_purpose_id: landPurpose?.id.toString() || '', // May be undefined
     change_of_land_use_id: changeOfLandUse?.id.toString() || '', // May be undefined
     purpose_id: purpose?.id.toString() || '',
+    other_entry: (application as any).other_entry || '',
     relatives: [], // Existing app data doesn't contain this yet
   };
 };
@@ -199,7 +210,7 @@ const getInitialValues = (
 const steps = [
   { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
-  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id'] },
+  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry'] },
   { id: 'Step 4', name: 'Document Upload', fields: [] },
 ]
 
@@ -231,6 +242,24 @@ export function MultiStepForm({
   const { handleSubmit, trigger, watch } = methods;
 
   const watchedLandUseChangeId = watch('change_of_land_use_id');
+  const watchedPurposeId = watch('purpose_id');
+
+  useEffect(() => {
+    // When editing, if the purpose is "Other", we need to make sure the field is validated correctly.
+    // The Zod schema is set to find "Other" by ID, so we need to find the correct ID.
+    const otherPurpose = purposes.find(p => p.name === 'Other');
+    if (otherPurpose && watchedPurposeId === otherPurpose.id.toString()) {
+        formSchema.superRefine((data, ctx) => {
+            if (!data.other_entry || data.other_entry.trim() === '') {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['other_entry'],
+                    message: 'Please specify the other purpose.',
+                });
+            }
+        });
+    }
+  }, [watchedPurposeId, purposes]);
 
   useEffect(() => {
     if (watchedLandUseChangeId) {
@@ -260,7 +289,7 @@ export function MultiStepForm({
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
@@ -303,6 +332,11 @@ export function MultiStepForm({
 
     if(!payload.relatives || payload.relatives.length === 0) {
         delete payload.relatives;
+    }
+
+    const selectedPurpose = purposes.find(p => p.id === payload.purpose_id);
+    if (selectedPurpose?.name !== 'Other') {
+      delete payload.other_entry;
     }
     
     const result = await submitApplication(payload, accessToken);
