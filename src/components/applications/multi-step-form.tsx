@@ -47,7 +47,7 @@ const formSchema = z.object({
   application_area_unit_id: z.string().min(1, "Area unit is required."),
 
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
-  land_purpose_id: zstring().min(1, 'Present land use purpose is required.'),
+  land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
   change_of_land_use_id: z.string().min(1, 'Date of change of land use is required.'),
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
   other_entry: z.string().optional(),
@@ -440,4 +440,3 @@ export function MultiStepForm({
     </div>
   );
 }
-
