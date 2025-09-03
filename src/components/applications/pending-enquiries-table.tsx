@@ -150,7 +150,7 @@ export function PendingEnquiriesTable({ initialData }: PendingEnquiriesTableProp
               <TableHead>Owner</TableHead>
               <TableHead>Patta No.</TableHead>
               <TableHead>Area (Ha)</TableHead>
-              <TableHead className="text-right pr-4">Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -161,7 +161,7 @@ export function PendingEnquiriesTable({ initialData }: PendingEnquiriesTableProp
                   <TableCell>N/A</TableCell> {/* Placeholder */}
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>N/A</TableCell> {/* Placeholder */}
-                  <TableCell className="p-0 pr-4">
+                  <TableCell className="p-2">
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm">Enquiry Report</Button>
                        <Button variant="default" size="sm" asChild>
