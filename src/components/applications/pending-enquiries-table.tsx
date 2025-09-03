@@ -161,11 +161,13 @@ export function PendingEnquiriesTable({ initialData }: PendingEnquiriesTableProp
                   <TableCell>N/A</TableCell> {/* Placeholder */}
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>N/A</TableCell> {/* Placeholder */}
-                  <TableCell className="space-x-2">
-                    <Button variant="outline" size="sm">Enquiry Report</Button>
-                     <Button variant="default" size="sm" asChild>
-                       <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View Details</Link>
-                     </Button>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">Enquiry Report</Button>
+                       <Button variant="default" size="sm" asChild>
+                         <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View Details</Link>
+                       </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
