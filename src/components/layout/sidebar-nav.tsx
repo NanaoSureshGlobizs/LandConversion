@@ -1,8 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileClock } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +26,11 @@ const menuItems = [
     href: '/dashboard',
     label: 'Dashboard',
     icon: Home,
+  },
+  {
+    href: '/dashboard/pending-enquiries',
+    label: 'Pending Enquiries',
+    icon: FileClock,
   },
   {
     href: '/dashboard/my-applications',
