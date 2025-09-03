@@ -100,7 +100,7 @@ export function DlcRecommendationsTable({ initialData }: DlcRecommendationsTable
               <TableHead>App-ID</TableHead>
               <TableHead>Owner</TableHead>
               <TableHead>Area (Ha)</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -110,8 +110,8 @@ export function DlcRecommendationsTable({ initialData }: DlcRecommendationsTable
                   <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
                   <TableCell>{mockOwners[index % mockOwners.length]}</TableCell>
                   <TableCell>Urban</TableCell>
-                  <TableCell>
-                    <div className='flex items-center gap-4'>
+                  <TableCell className="p-0">
+                    <div className='flex justify-end items-center gap-2 p-2'>
                         <Button variant="link" className="p-0 h-auto" asChild>
                             <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View</Link>
                         </Button>
