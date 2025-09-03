@@ -73,10 +73,10 @@ export function ReportTable({ initialData, accessToken }: ReportTableProps) {
   const renderAction = (status: string) => {
     const lowerStatus = status.toLowerCase();
     if (lowerStatus === 'approved') {
-        return <Button variant="link" className="p-0 h-auto">Download Report</Button>;
+        return <Button variant="outline" size="sm">Download Report</Button>;
     }
     if (lowerStatus === 'rejected' || lowerStatus === 'pending') {
-        return <Button variant="link" className="p-0 h-auto">Request Report</Button>;
+        return <Button variant="default" size="sm">Request Report</Button>;
     }
     return null;
   }

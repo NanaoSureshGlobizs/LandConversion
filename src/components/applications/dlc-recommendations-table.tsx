@@ -111,9 +111,9 @@ export function DlcRecommendationsTable({ initialData, accessToken }: DlcRecomme
                   <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
                   <TableCell>{mockOwners[index % mockOwners.length]}</TableCell>
                   <TableCell>Urban</TableCell>
-                  <TableCell className="p-0">
-                    <div className='flex justify-end items-center gap-2 p-2'>
-                        <Button variant="link" className="p-0 h-auto" asChild>
+                  <TableCell>
+                    <div className='flex justify-end items-center gap-2'>
+                        <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View</Link>
                         </Button>
                         <Button variant="default" size="sm">Forward to LRD</Button>

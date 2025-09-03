@@ -159,7 +159,7 @@ export function EnquiriesTable({ initialData, accessToken }: EnquiriesTableProps
                   <TableCell>{app.patta}</TableCell>
                   <TableCell>{app.area}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="link" asChild className="p-0 h-auto">
+                    <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/my-applications/${app.id}`}>View Details</Link>
                     </Button>
                   </TableCell>

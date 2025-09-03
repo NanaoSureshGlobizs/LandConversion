@@ -92,7 +92,7 @@ export function DecisionAndFeesTable({ initialData, accessToken }: DecisionAndFe
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="link" className="p-0 h-auto" asChild>
+                    <Button variant="default" size="sm" asChild>
                       <Link href="#">Take Decision</Link>
                     </Button>
                   </TableCell>

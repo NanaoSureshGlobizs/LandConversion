@@ -162,8 +162,8 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
                   <TableCell>{''}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{''}</TableCell>
-                  <TableCell className="p-0">
-                    <div className="flex justify-end gap-2 p-2">
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm">Enquiry Report</Button>
                        <Button variant="default" size="sm" asChild>
                          <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View Details</Link>

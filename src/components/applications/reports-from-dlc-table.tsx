@@ -149,7 +149,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
                      <Badge variant={'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="link" asChild className='p-0 h-auto'>
+                    <Button variant="outline" size="sm" asChild>
                       <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View</Link>
                     </Button>
                   </TableCell>
