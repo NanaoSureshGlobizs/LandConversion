@@ -47,12 +47,12 @@ export function ApplicationsTable({ initialData }: ApplicationsTableProps) {
     const { data: newData, log } = await getApplications(nextPage);
     addLog(log || "Log for getApplications");
 
-    if (newData) {
+    if (newData && Array.isArray(newData.lists)) {
       setApplications(prev => [...prev, ...newData.lists]);
       setPage(newData.pagination.currentPage);
       setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
     } else {
-        setHasMore(false); // Stop trying if API fails
+        setHasMore(false); // Stop trying if API fails or returns unexpected data
     }
     
     setIsLoading(false);
