@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +41,11 @@ const menuItems = [
     href: '/dashboard/dlc-recommendations',
     label: 'DLC Recommendations',
     icon: ThumbsUp,
+  },
+  {
+    href: '/dashboard/lrd-decision',
+    label: 'LRD Decision',
+    icon: ShieldCheck,
   },
   {
     href: '/dashboard/report',
