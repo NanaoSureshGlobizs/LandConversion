@@ -133,15 +133,15 @@ export default function LoginPage() {
             <div className="mx-auto mb-4 flex justify-center">
               <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
             </div>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-2xl font-bold font-headline text-foreground">
               Revenue Department
-            </p>
-            <p className="mb-2 text-sm text-muted-foreground">
-              Government of Manipur
-            </p>
-            <h1 className="text-3xl font-bold font-headline text-foreground">
-              Change of Land Use
             </h1>
+            <h2 className="text-xl font-semibold font-headline text-foreground mb-2">
+              Government of Manipur
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Change of Land Use
+            </p>
           </div>
 
           {step === 'send' ? (
