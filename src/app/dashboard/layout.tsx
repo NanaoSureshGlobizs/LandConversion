@@ -38,35 +38,36 @@ export default function DashboardLayout({
     
     // Once authenticated, check if the user has access to any routes.
     if (allowedRoutes.length > 0) {
-      const isAllowed = allowedRoutes.some(route => {
+      const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
+      
+      const isAllowed = isRootDashboard || allowedRoutes.some(route => {
           const menuItem = allMenuItems.find(item => item.href === route);
           if (menuItem?.exact) return pathname === route;
           // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
           return pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/');
       });
 
-      const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
       
-      // If user is on the base /dashboard OR a page they don't have access to, redirect.
-      if (isRootDashboard || !isAllowed) {
+      // If user is on a page they don't have access to, redirect.
+      if (!isAllowed) {
         const destination = allowedRoutes[0];
         // Only redirect if they are not already at the destination
         if (pathname !== destination) {
           router.replace(destination);
         }
       }
-    } else if (isAuthenticated) {
-        // This case handles a logged-in user with no specific access rights defined in the sidebar.
-        // They might get stuck on a blank page if not handled.
-        // For now, we can redirect them to a safe default, or you might want a dedicated 'no access' page.
-        // We'll keep them on the dashboard page which might show a generic message.
+    } else if (isAuthenticated && pathname !== '/dashboard' && pathname !== '/dashboard/') {
+        // If logged in user has no allowed routes, but isn't on the dashboard, send them to the dashboard.
+        router.replace('/dashboard');
     }
 
   }, [isAuthenticated, isLoading, access, router, pathname, allowedRoutes]);
 
   // Show a loader while verifying auth or if we are about to redirect.
-  const isRedirecting = !isLoading && isAuthenticated && allowedRoutes.length > 0 && !allowedRoutes.some(route => pathname.startsWith(route));
-  if (isLoading || isRedirecting) {
+  const isAuthenticating = isLoading;
+  const isRedirecting = !isLoading && isAuthenticated && allowedRoutes.length > 0 && !allowedRoutes.some(route => (pathname === '/dashboard' || pathname === '/dashboard/') || pathname.startsWith(route));
+
+  if (isAuthenticating || isRedirecting) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -75,7 +76,8 @@ export default function DashboardLayout({
   }
 
   // If authenticated but no allowed routes, maybe show a message
-  if (isAuthenticated && allowedRoutes.length === 0) {
+  // Also check if they are on the root dashboard page itself.
+  if (isAuthenticated && allowedRoutes.length === 0 && (pathname !== '/dashboard' && pathname !== '/dashboard/')) {
       return (
           <div className="flex min-h-screen items-center justify-center bg-background">
               <div className='text-center'>
