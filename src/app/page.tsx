@@ -136,6 +136,9 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold font-headline text-foreground">
               Change of Land Use
             </h1>
+            <p className="mt-2 text-muted-foreground">
+              Revenue Department
+            </p>
             <p className="mt-1 text-muted-foreground">
               Government of Manipur
             </p>
