@@ -55,10 +55,14 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
     responseData.debugLog = debugLog;
     return responseData;
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '-------------------';
-    console.error('sendOtp error:', error);
-    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog: `Error: ${error}\n-------------------` };
   }
 }
 
@@ -339,8 +343,10 @@ export async function getApplications(accessToken: string, page = 1, limit = 10)
     return { data, log: debugLog };
 }
 
-export async function getApplicationById(token: string, id: string) {
-    const { data, debugLog } = await fetchFromApi(`/applications/view?application_id=${id}`, token);
+export async function getApplicationById(token: string, application_id: string) {
+    const { data, debugLog } = await fetchFromApi(`/applications/view?application_id=${application_id}`, token);
     // The API now returns a nested object.
     return { data, log: debugLog };
 }
+
+    

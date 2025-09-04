@@ -4,7 +4,7 @@ import { getApplicationById, getDistricts, getCircles, getSubDivisions, getVilla
 import { cookies } from "next/headers";
 import { notFound, redirect } from 'next/navigation';
 import { ServerLogHandler } from "@/components/debug/server-log-handler";
-import type { FullApplicationResponse } from "@/lib/definitions";
+import type { FullApplicationResponse, Application } from "@/lib/definitions";
 
 
 export default async function EditApplicationPage({ params }: { params: { id: string } }) {
@@ -130,3 +130,5 @@ export default async function EditApplicationPage({ params }: { params: { id: st
     </>
   );
 }
+
+    

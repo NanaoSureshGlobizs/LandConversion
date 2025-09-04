@@ -78,7 +78,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     );
   }, [applications, searchTerm]);
 
-  const handleRowClick = (appId: string) => {
+  const handleRowClick = (appId: number) => {
     if(!appId) return;
     router.push(`/dashboard/my-applications/${appId}`);
   };
@@ -109,8 +109,8 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
               filteredData.map((app) => (
                 <TableRow 
                     key={app.id}
-                    onClick={() => handleRowClick(app.applictaion_id)}
-                    className={cn(app.applictaion_id && "cursor-pointer")}
+                    onClick={() => handleRowClick(app.id)}
+                    className={cn(app.id && "cursor-pointer")}
                 >
                   <TableCell className="font-medium font-mono">{app.applictaion_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
@@ -155,3 +155,5 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     </div>
   );
 }
+
+    

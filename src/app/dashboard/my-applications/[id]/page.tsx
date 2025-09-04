@@ -200,3 +200,5 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     </>
   );
 }
+
+    
