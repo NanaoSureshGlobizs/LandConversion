@@ -64,7 +64,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
     }
   }, [id, accessToken, initialApplication]);
 
-  const showSdoButton = role === 'Admin' || role === 'SDAO';
+  const canShowSurveyButton = (role === 'Admin' || role === 'SDAO') && from === '/dashboard/pending-enquiries';
   const backHref = from ? `${from}?from=${from}` : '/dashboard/my-applications';
 
 
@@ -223,7 +223,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                             <Printer className="mr-2"/>
                             Print Application
                           </Button>
-                          {showSdoButton && (
+                          {canShowSurveyButton && (
                             <SurveyReportDialog>
                                <Button variant="default">
                                   <FileText className="mr-2"/>
