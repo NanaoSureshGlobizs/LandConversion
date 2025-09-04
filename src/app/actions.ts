@@ -370,6 +370,10 @@ export async function getPurposes(token: string) {
     const { data, debugLog } = await fetchFromApi('/purpose', token);
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
+export async function getApplicationStatuses(token: string) {
+    const { data, debugLog } = await fetchFromApi('/application-status', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
+}
 
 export async function getApplications(accessToken: string, page = 1, limit = 10) {
     if (!accessToken) {

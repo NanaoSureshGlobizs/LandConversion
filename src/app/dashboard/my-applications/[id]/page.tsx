@@ -2,7 +2,7 @@
 // This is the parent Server Component that fetches data.
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getApplicationById } from '@/app/actions';
+import { getApplicationById, getApplicationStatuses } from '@/app/actions';
 import { DetailPageClient } from './detail-page-client';
 import type { FullApplicationResponse } from '@/lib/definitions';
 
@@ -17,7 +17,14 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
 
   // Fetch data on the server
   const { data: application, log } = await getApplicationById(accessToken, id);
+  const { data: statuses, log: statusesLog } = await getApplicationStatuses(accessToken);
 
   // Pass server-fetched data to the client component
-  return <DetailPageClient id={id} accessToken={accessToken} initialApplication={application as FullApplicationResponse | null} initialLog={log} />;
+  return <DetailPageClient 
+            id={id} 
+            accessToken={accessToken} 
+            initialApplication={application as FullApplicationResponse | null} 
+            initialLog={[log, statusesLog]}
+            statuses={statuses} 
+        />;
 }

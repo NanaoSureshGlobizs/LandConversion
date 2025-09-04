@@ -1,6 +1,6 @@
 
 
-export type ApplicationStatus =
+export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
   | 'Rejected'
@@ -15,6 +15,11 @@ export interface UploadedFile {
   id: number;
   file_path: string;
   file_name: string;
+}
+
+export interface ApplicationStatusOption {
+  id: string;
+  status_name: string;
 }
 
 // This is based on the `data` object in the API response for a single application
@@ -53,7 +58,7 @@ export interface Application {
   highlight: boolean;
   can_edit: boolean;
   application_status: {
-    name: ApplicationStatus;
+    name: ApplicationStatusName;
     foreground_color: string;
     background_color: string;
   };
@@ -79,7 +84,7 @@ export interface ApplicationListItem {
   created_at: string;
   applictaion_id: string;
   application_status: {
-    name: ApplicationStatus;
+    name: ApplicationStatusName;
     foreground_color: string;
     background_color: string;
   };

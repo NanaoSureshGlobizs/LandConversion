@@ -25,16 +25,17 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
 import { uploadFile, submitSurveyReport } from '@/app/actions';
-import type { FullApplicationResponse } from '@/lib/definitions';
+import type { FullApplicationResponse, ApplicationStatusOption } from '@/lib/definitions';
 import { Loader2 } from 'lucide-react';
 
 interface SurveyReportDialogProps {
     children: React.ReactNode;
     application: FullApplicationResponse;
+    statuses: ApplicationStatusOption[];
     accessToken: string;
 }
 
-export function SurveyReportDialog({ children, application, accessToken }: SurveyReportDialogProps) {
+export function SurveyReportDialog({ children, application, statuses, accessToken }: SurveyReportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -157,9 +158,9 @@ export function SurveyReportDialog({ children, application, accessToken }: Surve
                         <SelectValue placeholder="Select Status" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="1">Approved</SelectItem>
-                        <SelectItem value="2">Rejected</SelectItem>
-                        <SelectItem value="3">Pending</SelectItem>
+                        {statuses.map((s) => (
+                           <SelectItem key={s.id} value={s.id.toString()}>{s.status_name}</SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             </div>

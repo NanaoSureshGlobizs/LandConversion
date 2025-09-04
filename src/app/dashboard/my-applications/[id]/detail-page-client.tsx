@@ -15,7 +15,7 @@ import { ArrowLeft, Download, FileText, Printer } from 'lucide-react';
 import { getApplicationById } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
-import type { FullApplicationResponse } from '@/lib/definitions';
+import type { FullApplicationResponse, ApplicationStatusOption } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -41,13 +41,13 @@ function DetailItem({
 }
 
 // This is the Client Component that handles rendering and interactivity.
-export function DetailPageClient({ id, accessToken, initialApplication, initialLog }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: string | undefined }) {
+export function DetailPageClient({ id, accessToken, initialApplication, initialLog, statuses }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: (string | undefined)[], statuses: ApplicationStatusOption[] }) {
   const { role } = useAuth();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
 
   const [application, setApplication] = useState<FullApplicationResponse | null>(initialApplication);
-  const [log, setLog] = useState<string | undefined>(initialLog);
+  const [log, setLog] = useState<(string|undefined)[]>(initialLog);
   const [isLoading, setIsLoading] = useState(!initialApplication);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
             setIsLoading(true);
             const { data, log } = await getApplicationById(accessToken, id);
             setApplication(data as FullApplicationResponse | null);
-            setLog(log);
+            setLog([log]);
             setIsLoading(false);
         }
         fetchData();
@@ -81,7 +81,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   if (!application) {
     return (
         <>
-            <ServerLogHandler logs={[log]} />
+            <ServerLogHandler logs={log} />
             <div className="flex-1 space-y-6 px-4 md:px-8">
                  <h1 className="text-3xl font-bold tracking-tight font-headline">
                     Application Not Found
@@ -95,7 +95,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
 
   return (
     <>
-      <ServerLogHandler logs={[log]} />
+      <ServerLogHandler logs={log} />
       <div className="flex-1 space-y-6 px-4 md:px-8">
           <div className="flex items-center gap-4">
               <Button variant="outline" size="icon" asChild>
@@ -224,7 +224,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                             Print Application
                           </Button>
                           {canShowSurveyButton && (
-                            <SurveyReportDialog application={application} accessToken={accessToken}>
+                            <SurveyReportDialog application={application} statuses={statuses} accessToken={accessToken}>
                                <Button variant="default">
                                   <FileText className="mr-2"/>
                                   Survey Report
