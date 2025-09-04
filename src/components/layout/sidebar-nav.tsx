@@ -116,7 +116,10 @@ export function SidebarNav() {
   };
   
   const visibleMenuItems = useMemo(() => {
-    return allMenuItems.filter(item => access.includes(item.accessKey));
+    const menuItemMap = new Map(allMenuItems.map(item => [item.accessKey, item]));
+    return access
+        .map(key => menuItemMap.get(key))
+        .filter((item): item is typeof allMenuItems[0] => !!item);
   }, [access]);
 
 
