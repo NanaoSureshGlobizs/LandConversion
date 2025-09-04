@@ -56,11 +56,6 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
     return responseData;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    toast({
-        title: 'Error',
-        description: 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
     addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
     return { success: false, message: 'An unexpected error occurred.', data: null, debugLog: `Error: ${error}\n-------------------` };
   }
@@ -111,7 +106,8 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------';
-    console.error('verifyOtp error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
     return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
@@ -343,10 +339,16 @@ export async function getApplications(accessToken: string, page = 1, limit = 10)
     return { data, log: debugLog };
 }
 
-export async function getApplicationById(token: string, application_id: string) {
-    const { data, debugLog } = await fetchFromApi(`/applications/view?application_id=${application_id}`, token);
-    // The API now returns a nested object.
+export async function getApplicationById(token: string, id: string) {
+    const { data, debugLog } = await fetchFromApi(`/applications/${id}`, token);
     return { data, log: debugLog };
 }
+
+function addLog(log: string) {
+  // This is a placeholder for a real logging implementation.
+  // In a real app, this would send logs to a logging service.
+  console.log(log);
+}
+    
 
     
