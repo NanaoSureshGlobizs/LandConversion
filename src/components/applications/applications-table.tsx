@@ -20,6 +20,7 @@ import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface ApplicationsTableProps {
   initialData: PaginatedApplications | null;
@@ -78,11 +79,6 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     );
   }, [applications, searchTerm]);
 
-  const handleRowClick = (appId: number) => {
-    if(!appId) return;
-    router.push(`/dashboard/my-applications/${appId}`);
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex items-center">
@@ -102,16 +98,13 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
               <TableHead>Area Unit</TableHead>
               <TableHead>Date Submitted</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow 
-                    key={app.id}
-                    onClick={() => handleRowClick(app.id)}
-                    className={cn(app.id && "cursor-pointer")}
-                >
+                <TableRow key={app.id}>
                   <TableCell className="font-medium font-mono">{app.applictaion_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
@@ -121,11 +114,21 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
                   <TableCell>
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={`/dashboard/my-applications/${app.id}`}>View</Link>
+                        </Button>
+                        <Button variant="default" size="sm" asChild>
+                           <Link href={`/dashboard/my-applications/${app.id}/track`}>Track</Link>
+                        </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
@@ -155,5 +158,3 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     </div>
   );
 }
-
-    
