@@ -4,11 +4,14 @@
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
 
-interface SendOtpResponse {
+interface BaseApiResponse {
   success: boolean;
   message?: string;
-  data: null;
   debugLog?: string;
+}
+
+interface SendOtpResponse extends BaseApiResponse {
+  data: null;
 }
 
 interface VerifyOtpData {
@@ -18,19 +21,99 @@ interface VerifyOtpData {
   access: string[];
 }
 
-interface VerifyOtpResponse {
-  success: boolean;
+interface VerifyOtpResponse extends BaseApiResponse {
   data: VerifyOtpData | null;
-  message?: any;
-  debugLog?: string;
 }
 
+interface SignUpResponse extends BaseApiResponse {
+    data: null;
+}
+
+
 const API_BASE_URL = 'https://conversionapi.globizsapp.com/api';
+
+// --- CITIZEN ACTIONS ---
+
+export async function citizenSignUp(username: string, email: string): Promise<SignUpResponse> {
+  const url = `${API_BASE_URL}/citizen/sign-up`;
+  const payload = { username, email };
+  let debugLog = '--- Citizen Sign Up ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+    debugLog += '-------------------';
+
+    if (!response.ok) {
+      return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
+    }
+    
+    return { ...data, debugLog };
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog: `Error: ${error}\n-------------------` };
+  }
+}
+
+export async function citizenSendOtp(username: string): Promise<SendOtpResponse> {
+  const url = `${API_BASE_URL}/citizen/send-otp`;
+  const payload = { username };
+  let debugLog = '--- Citizen Sending OTP ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+    debugLog += '-------------------';
+
+    if (!response.ok) {
+      return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
+    }
+
+    return { ...data, debugLog };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog: `Error: ${error}\n-------------------` };
+  }
+}
+
+export async function citizenVerifyOtp(username: string, otp: string): Promise<VerifyOtpResponse> {
+  const url = `${API_BASE_URL}/citizen/verify-otp`;
+  const payload = { username, otp_code: otp };
+  return await handleOtpVerification(url, payload, 'Citizen');
+}
+
+
+// --- ADMIN/STAFF ACTIONS ---
 
 export async function sendOtp(username: string): Promise<SendOtpResponse> {
   const url = `${API_BASE_URL}/auth/send-otp`;
   const payload = { username };
-  let debugLog = '--- Sending OTP ---\n';
+  let debugLog = '--- Admin/Staff Sending OTP ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
 
@@ -65,59 +148,67 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
 export async function verifyOtp(username: string, otp: string): Promise<VerifyOtpResponse> {
   const url = `${API_BASE_URL}/auth/verify-otp`;
   const payload = { username, otp_code: otp };
-  let debugLog = '--- Verifying OTP ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
-    debugLog += '---------------------';
-
-
-    if (!response.ok) {
-       return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
-    }
-
-    if (data.success && data.data?.accessToken) {
-      const decodedToken = jose.decodeJwt(data.data.accessToken);
-      debugLog += `Decoded JWT: ${JSON.stringify(decodedToken, null, 2)}\n`;
-
-      const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' as const,
-        path: '/',
-      };
-      cookies().set('accessToken', data.data.accessToken, cookieOptions);
-      cookies().set('userRole', data.data.role, cookieOptions);
-      cookies().set('userAccess', JSON.stringify(data.data.access), cookieOptions);
-      if (decodedToken.sub) {
-        cookies().set('userId', decodedToken.sub, cookieOptions);
-      }
-    }
-    
-    const responseData = data as VerifyOtpResponse;
-    responseData.debugLog = debugLog;
-    return responseData;
-
-  } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '---------------------';
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
-    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
-  }
+  return await handleOtpVerification(url, payload, 'Admin/Staff');
 }
+
+
+// --- SHARED & GENERIC ACTIONS ---
+
+async function handleOtpVerification(url: string, payload: { username: string; otp_code: string }, userType: 'Admin/Staff' | 'Citizen'): Promise<VerifyOtpResponse> {
+    let debugLog = `--- Verifying OTP (${userType}) ---\n`;
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+        debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+        
+        if (!response.ok) {
+            debugLog += '---------------------\n';
+            return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
+        }
+
+        if (data.success && data.data?.accessToken) {
+            const decodedToken = jose.decodeJwt(data.data.accessToken);
+            debugLog += `Decoded JWT: ${JSON.stringify(decodedToken, null, 2)}\n`;
+
+            const cookieOptions = {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax' as const,
+                path: '/',
+            };
+            cookies().set('accessToken', data.data.accessToken, cookieOptions);
+            cookies().set('userRole', data.data.role, cookieOptions);
+            cookies().set('userAccess', JSON.stringify(data.data.access), cookieOptions);
+            if (decodedToken.sub) {
+                cookies().set('userId', decodedToken.sub.toString(), cookieOptions);
+            }
+        }
+        
+        debugLog += '---------------------\n';
+        const responseData = data as VerifyOtpResponse;
+        responseData.debugLog = debugLog;
+        return responseData;
+
+    } catch (error) {
+        debugLog += `Error: ${error}\n`;
+        debugLog += '---------------------\n';
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
+        return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
+    }
+}
+
 
 export async function logout() {
   cookies().delete('accessToken');
@@ -413,3 +504,4 @@ function addLog(log: string) {
     
 
     
+
