@@ -107,8 +107,8 @@ export function SidebarNav() {
     if (exact) {
       return pathname === href;
     }
-    // Ensure that a more specific path does not activate a less specific one.
-    // e.g., /dashboard/reports-from-dlc should not activate /dashboard/report
+    // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
+    // This prevents /dashboard/report from matching /dashboard/reports-from-dlc
     return pathname.startsWith(href) && (pathname.length === href.length || pathname[href.length] === '/');
   };
   

@@ -147,7 +147,7 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
                   <TableCell>{mockAreas[index % mockAreas.length]}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View</Link>
+                        <Link href={`/dashboard/my-applications/${app.id}`}>View</Link>
                     </Button>
                   </TableCell>
                 </TableRow>
