@@ -23,7 +23,18 @@ export default function DashboardLayout({
 
   const allowedRoutes = useMemo(() => {
     const routeMap = new Map(allMenuItems.map(item => [item.accessKey, item.href]));
-    return access.map(key => routeMap.get(key)).filter((route): route is string => !!route);
+    // Ensure dashboard is always a potential route if other routes exist, but check access for it.
+    const routes = access.map(key => routeMap.get(key)).filter((route): route is string => !!route);
+    
+    // The dashboard is a special case, it should be added if the user has any access at all.
+    // We will check for the specific 'dashboard' access key. If not present, we will rely on other keys.
+    const hasDashboardAccess = access.includes('dashboard');
+    if (hasDashboardAccess && !routes.includes('/dashboard')) {
+        // Add to the beginning if not already present
+        routes.unshift('/dashboard');
+    }
+    return routes;
+
   }, [access]);
 
   useEffect(() => {
@@ -36,56 +47,67 @@ export default function DashboardLayout({
       return;
     }
     
-    // Once authenticated, check if the user has access to any routes.
-    if (allowedRoutes.length > 0) {
-      const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
-      
-      const isAllowed = isRootDashboard || allowedRoutes.some(route => {
-          const menuItem = allMenuItems.find(item => item.href === route);
-          if (menuItem?.exact) return pathname === route;
-          // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
-          return pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/');
-      });
+    const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
+    const firstAllowedRoute = allowedRoutes.length > 0 ? allowedRoutes[0] : '/dashboard';
 
-      
-      // If user is on a page they don't have access to, redirect.
-      if (!isAllowed) {
-        const destination = allowedRoutes[0];
-        // Only redirect if they are not already at the destination
-        if (pathname !== destination) {
-          router.replace(destination);
-        }
-      }
-    } else if (isAuthenticated && pathname !== '/dashboard' && pathname !== '/dashboard/') {
-        // If logged in user has no allowed routes, but isn't on the dashboard, send them to the dashboard.
+    // If on the root dashboard, redirect to the first allowed route if it's not the dashboard itself.
+    if (isRootDashboard && firstAllowedRoute !== '/dashboard') {
+        router.replace(firstAllowedRoute);
+        return;
+    }
+
+    // Check if the current route is allowed
+    const isAllowed = allowedRoutes.some(route => {
+        const menuItem = allMenuItems.find(item => item.href === route);
+        if (menuItem?.exact) return pathname === route;
+        // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
+        return pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/');
+    });
+
+    // If not on an allowed route, redirect to the first one.
+    if (allowedRoutes.length > 0 && !isAllowed) {
+        // Exception: If the user lands on the dashboard but doesn't have explicit access, but has other routes, let them stay.
+        if(isRootDashboard) return;
+
+        router.replace(firstAllowedRoute);
+        return;
+    }
+    
+    // If the user is authenticated but has no allowed routes, keep them on the dashboard page.
+    if (allowedRoutes.length === 0 && !isRootDashboard) {
         router.replace('/dashboard');
     }
 
-  }, [isAuthenticated, isLoading, access, router, pathname, allowedRoutes]);
 
-  // Show a loader while verifying auth or if we are about to redirect.
+  }, [isAuthenticated, isLoading, router, pathname, allowedRoutes]);
+
   const isAuthenticating = isLoading;
-  const isRedirecting = !isLoading && isAuthenticated && allowedRoutes.length > 0 && !allowedRoutes.some(route => (pathname === '/dashboard' || pathname === '/dashboard/') || pathname.startsWith(route));
+  // Determine if we are about to redirect. Show loader to prevent content flash.
+  const isRedirecting = !isLoading && isAuthenticated && (
+    (pathname === '/dashboard' && allowedRoutes.length > 0 && allowedRoutes[0] !== '/dashboard') ||
+    (allowedRoutes.length > 0 && !allowedRoutes.some(route => pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/')))
+  );
 
-  if (isAuthenticating || isRedirecting) {
+  if (isAuthenticating) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
+  
+  if (isRedirecting) {
+       return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
-  // If authenticated but no allowed routes, maybe show a message
-  // Also check if they are on the root dashboard page itself.
-  if (isAuthenticated && allowedRoutes.length === 0 && (pathname !== '/dashboard' && pathname !== '/dashboard/')) {
-      return (
-          <div className="flex min-h-screen items-center justify-center bg-background">
-              <div className='text-center'>
-                  <h2 className='text-xl font-semibold'>No Access</h2>
-                  <p className='text-muted-foreground'>You do not have permission to view any pages.</p>
-              </div>
-          </div>
-      )
+  // If authenticated but no allowed routes, show a message on the dashboard page.
+  if (isAuthenticated && allowedRoutes.length === 0 && pathname === '/dashboard') {
+     // Children will render the dashboard page, we can show a special message there or here.
+     // For now, let the dashboard page render its "0 stats" view.
   }
 
 
