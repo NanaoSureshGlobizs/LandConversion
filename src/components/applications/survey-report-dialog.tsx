@@ -94,7 +94,7 @@ export function SurveyReportDialog({ children, application, accessToken }: Surve
     const payload = {
         application_details_id: application.id,
         survey_details_id: 1, // This seems to be a fixed value from the API example
-        survey_status: notHomestead && notAffected && notForest ? '1' : '0',
+        survey_status: noHomestead && notAffected && notForest ? '1' : '0',
         department_review_status_id: parseInt(status, 10),
         review_number: `RV-${application.application_no}`,
         upload_survey_record: uploadResult.data.filename,
