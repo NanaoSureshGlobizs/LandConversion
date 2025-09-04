@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, FileText, Printer, Send } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Printer } from 'lucide-react';
 import { getApplicationById } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
@@ -226,8 +226,8 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                           {showSdoButton && (
                             <SurveyReportDialog>
                                <Button variant="default">
-                                  <Send className="mr-2"/>
-                                  Send to SDO
+                                  <FileText className="mr-2"/>
+                                  Survey Report
                                </Button>
                             </SurveyReportDialog>
                            )}
