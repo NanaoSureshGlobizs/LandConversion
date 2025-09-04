@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
   const { addLog } = useDebug();
 
   const [step, setStep] = useState<AuthStep>('signIn');
-  const [username, setUsername] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,13 +34,14 @@ export default function AdminLoginPage() {
 
   const handleSendOtp = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!username) {
-        toast({ title: 'Username required', description: 'Please enter your username.', variant: 'destructive'})
+    if (!/^\d{10}$/.test(phoneNumber)) {
+        toast({ title: 'Invalid Phone Number', description: 'Please enter a valid 10-digit phone number.', variant: 'destructive'})
         return;
     }
     setIsSubmitting(true);
     try {
-      const result = await sendOtp(username);
+      // Use the 'sendOtp' action for officials
+      const result = await sendOtp(phoneNumber);
       if (result.debugLog) addLog(result.debugLog);
 
       if (result.success) {
@@ -66,7 +67,8 @@ export default function AdminLoginPage() {
     }
     setIsSubmitting(true);
     try {
-      const result = await verifyOtp(username, otp);
+      // Use the 'verifyOtp' action for officials
+      const result = await verifyOtp(phoneNumber, otp);
       if (result.debugLog) addLog(result.debugLog);
 
       if (result.success && result.data) {
@@ -99,17 +101,18 @@ export default function AdminLoginPage() {
         return (
           <form onSubmit={handleSendOtp} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="phone">Phone Number</Label>
                <div className="flex items-center">
                   <Input
-                    id="username"
-                    type="text"
-                    placeholder="Enter your username"
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
                     required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
                     disabled={isSubmitting}
                     className="rounded-r-none"
+                    maxLength={10}
                   />
                   <Button type="submit" className="rounded-l-none" disabled={isSubmitting} style={{ minWidth: '120px' }}>
                     {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send OTP'}
@@ -123,7 +126,7 @@ export default function AdminLoginPage() {
            <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div className="space-y-2">
                 <p className="text-center text-sm text-muted-foreground">
-                  An OTP has been sent to the mobile number associated with {username}.
+                  An OTP has been sent to the mobile number associated with {phoneNumber}.
                 </p>
                 <Label htmlFor="otp">Enter OTP</Label>
                  <Input
@@ -151,7 +154,7 @@ export default function AdminLoginPage() {
                 }}
                 disabled={isSubmitting}
               >
-                Use a different username
+                Use a different phone number
               </Button>
             </form>
         );
