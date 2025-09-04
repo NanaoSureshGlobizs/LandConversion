@@ -9,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   role: string | null;
   access: string[];
+  userId: string | null;
   login: (role: string, access: string[]) => void;
   logout: () => void;
   refetchAuth: () => void;
@@ -21,6 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [role, setRole] = useState<string | null>(null);
   const [access, setAccess] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const verifyAuth = useCallback(async () => {
     setIsLoading(true);
@@ -29,11 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(authStatus.isAuthenticated);
       setRole(authStatus.role);
       setAccess(authStatus.access);
+      setUserId(authStatus.userId);
     } catch (error) {
       console.error('Failed to check auth status', error);
       setIsAuthenticated(false);
       setRole(null);
       setAccess([]);
+      setUserId(null);
     } finally {
       setIsLoading(false);
     }
@@ -44,12 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [verifyAuth]);
 
   const login = (role: string, access: string[]) => {
-    // Directly update the state upon login instead of re-fetching.
-    // The cookies are already set by the server action.
-    setIsAuthenticated(true);
-    setRole(role);
-    setAccess(access);
-    setIsLoading(false);
+    // This function is now primarily for client-side state updates after the server action
+    // has set the cookies. We call verifyAuth to re-sync the state from cookies.
+    verifyAuth();
   };
   
   const logout = async () => {
@@ -57,9 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(false);
     setRole(null);
     setAccess([]);
+    setUserId(null);
   }
 
-  const value = { isAuthenticated, isLoading, role, access, login, logout, refetchAuth: verifyAuth };
+  const value = { isAuthenticated, isLoading, role, access, userId, login, logout, refetchAuth: verifyAuth };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

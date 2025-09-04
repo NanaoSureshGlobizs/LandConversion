@@ -2,6 +2,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import * as jose from 'jose';
 
 interface SendOtpResponse {
   success: boolean;
@@ -88,6 +89,9 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
     }
 
     if (data.success && data.data?.accessToken) {
+      const decodedToken = jose.decodeJwt(data.data.accessToken);
+      debugLog += `Decoded JWT: ${JSON.stringify(decodedToken, null, 2)}\n`;
+
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -97,6 +101,9 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
       cookies().set('accessToken', data.data.accessToken, cookieOptions);
       cookies().set('userRole', data.data.role, cookieOptions);
       cookies().set('userAccess', JSON.stringify(data.data.access), cookieOptions);
+      if (decodedToken.sub) {
+        cookies().set('userId', decodedToken.sub, cookieOptions);
+      }
     }
     
     const responseData = data as VerifyOtpResponse;
@@ -116,6 +123,7 @@ export async function logout() {
   cookies().delete('accessToken');
   cookies().delete('userRole');
   cookies().delete('userAccess');
+  cookies().delete('userId');
 }
 
 export async function checkAuth() {
@@ -123,9 +131,10 @@ export async function checkAuth() {
   const accessToken = cookieStore.get('accessToken');
   const role = cookieStore.get('userRole');
   const access = cookieStore.get('userAccess');
+  const userId = cookieStore.get('userId');
   
   if (!accessToken?.value) {
-    return { isAuthenticated: false, role: null, access: [] };
+    return { isAuthenticated: false, role: null, access: [], userId: null };
   }
   
   try {
@@ -133,11 +142,12 @@ export async function checkAuth() {
     return { 
       isAuthenticated: true, 
       role: role?.value || null, 
-      access: accessArray 
+      access: accessArray,
+      userId: userId?.value || null
     };
   } catch (error) {
     console.error("Failed to parse user access cookie:", error);
-    return { isAuthenticated: true, role: role?.value || null, access: [] };
+    return { isAuthenticated: true, role: role?.value || null, access: [], userId: userId?.value || null };
   }
 }
 
