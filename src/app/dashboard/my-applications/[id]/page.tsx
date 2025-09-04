@@ -1,5 +1,7 @@
 
-import { notFound, redirect } from 'next/navigation';
+'use client';
+
+import { notFound, redirect, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, FileText, Printer } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Printer, Send } from 'lucide-react';
 import { getApplicationById } from '@/app/actions';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
@@ -17,6 +19,9 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 import type { FullApplicationResponse } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { useEffect, useState } from 'react';
+import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
 
 
 function DetailItem({
@@ -36,7 +41,12 @@ function DetailItem({
   );
 }
 
-export default async function ApplicationDetailPage({ params }: { params: { id: string } }) {
+// This is a client component, but we are fetching data on the server side
+// and passing it down. To achieve that while using hooks like `useAuth`,
+// we can wrap the main content in a client component.
+export default function ApplicationDetailPage({ params }: { params: { id: string } }) {
+  // Since this is a server component, we cannot use hooks directly here.
+  // We'll fetch data and pass it to a client component that can use hooks.
   const { id } = params;
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
@@ -44,9 +54,45 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
   if (!accessToken) {
     redirect('/');
   }
-
-  const { data: application, log } = await getApplicationById(accessToken, id) as { data: FullApplicationResponse | null, log: string | undefined };
   
+  // We will pass the token to a client component that will fetch and render.
+  return <DetailPageClient id={id} accessToken={accessToken} />;
+}
+
+
+function DetailPageClient({ id, accessToken }: { id: string, accessToken: string }) {
+  const { role } = useAuth();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
+
+  const [application, setApplication] = useState<FullApplicationResponse | null>(null);
+  const [log, setLog] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+        setIsLoading(true);
+        const { data, log } = await getApplicationById(accessToken, id);
+        setApplication(data as FullApplicationResponse | null);
+        setLog(log);
+        setIsLoading(false);
+    }
+    fetchData();
+  }, [id, accessToken]);
+
+  const showSdoButton = role === 'Admin' || role === 'SDAO';
+  const backHref = from || '/dashboard/my-applications';
+
+  if (isLoading) {
+    return (
+        <div className="flex-1 space-y-6 px-4 md:px-8">
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+                Loading Application...
+            </h1>
+        </div>
+    )
+  }
+
   if (!application) {
     return (
         <>
@@ -68,7 +114,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
       <div className="flex-1 space-y-6 px-4 md:px-8">
           <div className="flex items-center gap-4">
               <Button variant="outline" size="icon" asChild>
-                  <Link href="/dashboard/my-applications">
+                  <Link href={backHref}>
                       <ArrowLeft />
                       <span className="sr-only">Back to applications</span>
                   </Link>
@@ -192,6 +238,14 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             <Printer className="mr-2"/>
                             Print Application
                           </Button>
+                          {showSdoButton && (
+                            <SurveyReportDialog>
+                               <Button variant="default">
+                                  <Send className="mr-2"/>
+                                  Send to SDO
+                               </Button>
+                            </SurveyReportDialog>
+                           )}
                       </CardContent>
                   </Card>
               </div>
@@ -200,5 +254,3 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     </>
   );
 }
-
-    
