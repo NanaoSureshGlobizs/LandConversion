@@ -60,19 +60,17 @@ export function Step2DocumentRequirements({ documentType }: Step2Props) {
   }
 
   const isDiversion = documentType === 'land_diversion';
+  const title = `Required Documents for ${isDiversion ? 'Land Diversion' : 'Land Conversion'}`;
 
   return (
     <div className="space-y-8">
       <CardHeader className="p-0">
-        <CardTitle className="font-headline">Required Documents</CardTitle>
+        <CardTitle className="font-headline">{title}</CardTitle>
         <CardDescription>
           Based on your selection, you will need to upload the following documents in a later step.
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-0">
-        <h3 className="font-semibold mb-4 text-lg">
-          Application for {isDiversion ? 'Land Diversion' : 'Land Conversion'}
-        </h3>
+      <CardContent className="p-0 pt-4">
         <DocumentList items={isDiversion ? landDiversionDocs : landConversionDocs} />
       </CardContent>
     </div>
