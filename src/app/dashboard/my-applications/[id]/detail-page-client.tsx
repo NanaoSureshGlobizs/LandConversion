@@ -224,7 +224,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                             Print Application
                           </Button>
                           {canShowSurveyButton && (
-                            <SurveyReportDialog>
+                            <SurveyReportDialog application={application} accessToken={accessToken}>
                                <Button variant="default">
                                   <FileText className="mr-2"/>
                                   Survey Report

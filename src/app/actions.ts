@@ -283,6 +283,46 @@ export async function uploadFile(
   }
 }
 
+
+export async function submitSurveyReport(payload: any, token: string | undefined) {
+  if (!token) {
+    return { success: false, message: 'Authentication token not found.', debugLog: 'submitSurveyReport Error: No auth token provided.' };
+  }
+
+  const url = `${API_BASE_URL}/department-survey-record`;
+  let debugLog = '--- Submitting Survey Report ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '----------------------------\n';
+    
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+    }
+
+    return { ...result, debugLog };
+  } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '----------------------------\n';
+    console.error('submitSurveyReport error:', error);
+    return { success: false, message: 'An unexpected error occurred.', debugLog };
+  }
+}
+
+
 // Functions to be called from Server Components
 async function fetchDataWithLog(fetcher: (token: string) => Promise<any>, token: string) {
     const { data, debugLog } = await fetcher(token);
