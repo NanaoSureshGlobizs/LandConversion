@@ -129,49 +129,55 @@ export default function LoginPage() {
     switch(step) {
       case 'signIn':
         return (
-          <form onSubmit={handleSendOtp} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-               <div className="flex items-center">
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="10-digit mobile number"
-                    required
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    disabled={isSubmitting}
-                    maxLength={10}
-                    className="rounded-r-none"
-                  />
-                  <Button type="submit" className="rounded-l-none" disabled={isSubmitting} style={{ minWidth: '120px' }}>
-                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send OTP'}
-                  </Button>
-                </div>
-            </div>
-            <Button variant="link" size="sm" className="w-full text-muted-foreground" onClick={() => setStep('signUp')}>
-                Don't have an account? Sign Up
-            </Button>
-          </form>
+          <>
+            <h2 className="text-center text-lg font-semibold mb-4">Citizen Login</h2>
+            <form onSubmit={handleSendOtp} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="flex items-center">
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="10-digit mobile number"
+                      required
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      disabled={isSubmitting}
+                      maxLength={10}
+                      className="rounded-r-none"
+                    />
+                    <Button type="submit" className="rounded-l-none" disabled={isSubmitting} style={{ minWidth: '120px' }}>
+                      {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send OTP'}
+                    </Button>
+                  </div>
+              </div>
+              <Button variant="link" size="sm" className="w-full text-muted-foreground" onClick={() => setStep('signUp')}>
+                  Don't have an account? Sign Up
+              </Button>
+            </form>
+          </>
         );
       case 'signUp':
         return (
-          <form onSubmit={handleSignUp} className="space-y-6">
-             <div className="space-y-2">
-                <Label htmlFor="phone-signup">Phone Number</Label>
-                <Input id="phone-signup" type="tel" placeholder="10-digit mobile number" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isSubmitting} maxLength={10} />
-             </div>
+          <>
+            <h2 className="text-center text-lg font-semibold mb-4">Citizen Sign Up</h2>
+            <form onSubmit={handleSignUp} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email-signup">Email Address</Label>
-                <Input id="email-signup" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
-             </div>
-             <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign Up'}
-            </Button>
-            <Button variant="link" size="sm" className="w-full text-muted-foreground" onClick={() => setStep('signIn')}>
-                Already have an account? Sign In
-            </Button>
-          </form>
+                  <Label htmlFor="phone-signup">Phone Number</Label>
+                  <Input id="phone-signup" type="tel" placeholder="10-digit mobile number" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isSubmitting} maxLength={10} />
+              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email-signup">Email Address</Label>
+                  <Input id="email-signup" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
+              </div>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign Up & Send OTP'}
+              </Button>
+              <Button variant="link" size="sm" className="w-full text-muted-foreground" onClick={() => setStep('signIn')}>
+                  Already have an account? Sign In
+              </Button>
+            </form>
+          </>
         );
       case 'verifyOtp':
         return (
@@ -222,12 +228,12 @@ export default function LoginPage() {
             <div className="mx-auto mb-4 flex justify-center">
               <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
             </div>
-            <h1 className="text-2xl font-bold font-headline text-foreground">
-              Citizen Login
-            </h1>
             <p className="text-muted-foreground">
               Revenue Department, Government of Manipur
             </p>
+            <h1 className="text-2xl font-bold font-headline text-foreground mt-1">
+              Change of Land Use
+            </h1>
           </div>
             {renderFormContent()}
         </div>
