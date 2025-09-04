@@ -166,7 +166,7 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm">Enquiry Report</Button>
                        <Button variant="default" size="sm" asChild>
-                         <Link href={`/dashboard/my-applications/${app.id}`}>View Details</Link>
+                         <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/pending-enquiries`}>View Details</Link>
                        </Button>
                     </div>
                   </TableCell>

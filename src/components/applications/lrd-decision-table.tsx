@@ -114,7 +114,7 @@ export function LrdDecisionTable({ initialData, accessToken }: LrdDecisionTableP
                   <TableCell>
                     <div className='flex justify-end items-center gap-2'>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/my-applications/${app.id}`}>View</Link>
+                            <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/lrd-decision`}>View</Link>
                         </Button>
                         <Button variant="default" size="sm">Update status</Button>
                     </div>

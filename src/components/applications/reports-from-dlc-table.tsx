@@ -150,7 +150,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
                   </TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/my-applications/${app.applictaion_id}`}>View</Link>
+                      <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/reports-from-dlc`}>View</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

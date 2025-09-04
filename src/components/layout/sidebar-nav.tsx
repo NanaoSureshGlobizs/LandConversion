@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel } from 'lucide-react';
 import {
   Sidebar,
@@ -94,6 +94,7 @@ export const allMenuItems = [
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { logout, access } = useAuth();
   const { isDebugMode, setIsDebugMode } = useDebug();
@@ -104,12 +105,14 @@ export function SidebarNav() {
   };
   
   const isLinkActive = (href: string, exact: boolean = false) => {
+    const fromPath = searchParams.get('from');
+    const currentPath = fromPath || pathname;
+
     if (exact) {
-      return pathname === href;
+      return currentPath === href;
     }
-    // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
-    // This prevents /dashboard/report from matching /dashboard/reports-from-dlc
-    return pathname.startsWith(href) && (pathname.length === href.length || pathname[href.length] === '/');
+    
+    return currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/');
   };
   
   const visibleMenuItems = useMemo(() => {
