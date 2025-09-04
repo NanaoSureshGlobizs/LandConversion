@@ -133,10 +133,10 @@ export default function LoginPage() {
             <div className="mx-auto mb-4 flex justify-center">
               <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Revenue Department
             </p>
-            <p className="mb-2 text-muted-foreground">
+            <p className="mb-2 text-sm text-muted-foreground">
               Government of Manipur
             </p>
             <h1 className="text-3xl font-bold font-headline text-foreground">
