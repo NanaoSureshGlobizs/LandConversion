@@ -384,6 +384,11 @@ export async function getApplicationById(token: string, id: string) {
     return { data, log: debugLog };
 }
 
+export async function getDashboardStats(token: string) {
+    const { data, debugLog } = await fetchFromApi('/workflow/pending-with-me', token);
+    return { data, log: debugLog };
+}
+
 function addLog(log: string) {
   // This is a placeholder for a real logging implementation.
   // In a real app, this would send logs to a logging service.
