@@ -223,13 +223,10 @@ export default function LoginPage() {
               <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
             </div>
             <h1 className="text-2xl font-bold font-headline text-foreground">
-              Revenue Department
+              Citizen Login
             </h1>
-            <h2 className="text-xl font-semibold font-headline text-foreground mb-2">
-              Government of Manipur
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Change of Land Use
+            <p className="text-muted-foreground">
+              Revenue Department, Government of Manipur
             </p>
           </div>
             {renderFormContent()}
