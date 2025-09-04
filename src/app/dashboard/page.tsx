@@ -8,14 +8,34 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { cookies } from "next/headers";
+import { getDashboardStats } from "@/app/actions";
+import { ServerLogHandler } from "@/components/debug/server-log-handler";
 
-export default function DashboardPage() {
-  const newCount = 0;
-  const pendingCount = 0;
-  const rejectedCount = 0;
+
+export default async function DashboardPage() {
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  let newCount = 0;
+  let pendingCount = 0;
+  let rejectedCount = 0;
+  let log;
+
+  if (accessToken) {
+      const { data, log: apiLog } = await getDashboardStats(accessToken);
+      log = apiLog;
+      if (data) {
+          newCount = data.new_count || 0;
+          pendingCount = data.pending_count || 0;
+          rejectedCount = data.rejected_count || 0;
+      }
+  }
+
 
   return (
     <>
+      <ServerLogHandler logs={[log]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Dashboard
@@ -62,5 +82,3 @@ export default function DashboardPage() {
     </>
   );
 }
-
-    
