@@ -285,7 +285,7 @@ export function MultiStepForm({
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
 
@@ -332,12 +332,6 @@ export function MultiStepForm({
 
     if(!payload.relatives || payload.relatives.length === 0) {
         delete payload.relatives;
-    } else {
-        // The backend doesn't need the string 'relationship' name, only the ID.
-        payload.relatives = payload.relatives.map((relative: any) => {
-            const { relationship, ...rest } = relative;
-            return rest;
-        });
     }
 
     const otherPurpose = purposes.find(p => p.name === 'Other');
