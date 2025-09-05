@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
+import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import {
   Table,
   TableHeader,
@@ -19,13 +19,15 @@ import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
+import { UpdateStatusForm } from './update-status-form';
 
 interface ReportTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
+  statuses: ApplicationStatusOption[];
 }
 
-export function ReportTable({ initialData, accessToken }: ReportTableProps) {
+export function ReportTable({ initialData, accessToken, statuses }: ReportTableProps) {
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -70,15 +72,18 @@ export function ReportTable({ initialData, accessToken }: ReportTableProps) {
     return applications;
   }, [applications]);
 
-  const renderAction = (status: string) => {
-    const lowerStatus = status.toLowerCase();
-    if (lowerStatus === 'approved') {
-        return <Button variant="outline" size="sm">Download Report</Button>;
-    }
-    if (lowerStatus === 'rejected' || lowerStatus === 'pending') {
-        return <Button variant="default" size="sm">Request Report</Button>;
-    }
-    return null;
+  const renderAction = (app: ApplicationListItem) => {
+    const lowerStatus = app.application_status.name.toLowerCase();
+    
+    return (
+        <UpdateStatusForm 
+            applicationId={app.id.toString()}
+            accessToken={accessToken}
+            statuses={statuses}
+        >
+            <Button variant="default" size="sm">Update Status</Button>
+        </UpdateStatusForm>
+    )
   }
 
   return (
@@ -103,7 +108,7 @@ export function ReportTable({ initialData, accessToken }: ReportTableProps) {
               <TableHead>Owner</TableHead>
               <TableHead>Area (Ha)</TableHead>
               <TableHead>SDAO Status</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -116,8 +121,8 @@ export function ReportTable({ initialData, accessToken }: ReportTableProps) {
                   <TableCell>
                      <Badge variant={app.application_status.name.toLowerCase() === 'approved' ? 'default' : 'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell>
-                    {renderAction(app.application_status.name)}
+                  <TableCell className="text-right">
+                    {renderAction(app)}
                   </TableCell>
                 </TableRow>
               ))
