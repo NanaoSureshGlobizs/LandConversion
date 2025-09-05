@@ -352,7 +352,7 @@ export async function uploadFile(
   token: string | undefined
 ) {
   if (!token) {
-    return { success: false, message: "Authentication token not found.", data: null };
+    return { success: false, message: "Authentication token not found.", data: null, debugLog: 'No auth token provided for upload.' };
   }
 
   const url = `${API_BASE_URL}/upload-file`;
@@ -370,19 +370,29 @@ export async function uploadFile(
       body: formData,
     });
     
-    const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += "----------------------\n";
+    const responseText = await response.text();
+    debugLog += `Raw API Response: ${responseText}\n`;
 
     if (!response.ok) {
-      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog, data: null };
+      const message = `File upload failed with status: ${response.status}. Response: ${responseText}`;
+      debugLog += `Error: ${message}\n----------------------\n`;
+      return { success: false, message, data: null, debugLog };
     }
-    
-    return { ...result, debugLog };
+
+    try {
+      const result = JSON.parse(responseText);
+      debugLog += `Parsed API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += "----------------------\n";
+      return { ...result, debugLog };
+    } catch (error) {
+        const message = `Failed to parse JSON response from file upload. Raw response: ${responseText}`;
+        debugLog += `Error: ${message}\n----------------------\n`;
+        return { success: false, message, data: null, debugLog };
+    }
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    debugLog += `File Upload Error: ${errorMessage}\n`;
+    debugLog += `File Upload Catch Block Error: ${errorMessage}\n`;
     debugLog += "----------------------\n";
     console.error("uploadFile error:", error);
     return { success: false, message: "An unexpected error occurred during file upload.", debugLog, data: null };
@@ -552,6 +562,7 @@ function addLog(log: string) {
     
 
     
+
 
 
 
