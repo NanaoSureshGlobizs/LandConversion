@@ -13,6 +13,7 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
 import { ForwardForm } from '@/components/applications/forward-form';
+import { RejectForm } from '@/components/applications/reject-form';
 
 type AuthStep = 'signIn' | 'signUp' | 'verifyOtp';
 
@@ -238,14 +239,19 @@ export default function LoginPage() {
             </h1>
           </div>
             {renderFormContent()}
-            <div className="mt-4 text-center">
+            <div className="mt-4 text-center flex justify-center gap-2">
               <ForwardForm 
-                applicationId="TEST-APP-123" 
-                statuses={[{id: '1', status_name: 'Forwarded'}, {id: '2', status_name: 'Escalated'}]} 
+                applicationId="TEST-APP-123"
                 accessToken="test-token"
               >
-                <Button variant="secondary">Testing</Button>
+                <Button variant="secondary">Forward (Test)</Button>
               </ForwardForm>
+              <RejectForm
+                applicationId="TEST-APP-123"
+                accessToken="test-token"
+              >
+                 <Button variant="destructive">Reject (Test)</Button>
+              </RejectForm>
             </div>
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
