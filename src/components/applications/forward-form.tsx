@@ -52,23 +52,21 @@ export function ForwardForm({ children, applicationId, statuses, accessToken }: 
   const { toast } = useToast();
   const { addLog } = useDebug();
 
-  const [title, setTitle] = useState('');
   const [remark, setRemark] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [status, setStatus] = useState('');
   
   const resetForm = () => {
-    setTitle('');
     setRemark('');
     setImageFile(null);
     setStatus('');
   }
 
   const handleSubmit = async () => {
-    if (!title || !status) {
+    if (!status) {
         toast({
             title: 'Missing Information',
-            description: 'Please provide a title and select a status.',
+            description: 'Please select a status.',
             variant: 'destructive',
         });
         return;
@@ -100,7 +98,6 @@ export function ForwardForm({ children, applicationId, statuses, accessToken }: 
     // Step 2: Submit the forward details
     const payload = {
         application_id: applicationId,
-        title,
         remark,
         status_id: parseInt(status, 10),
         image: uploadedFileName,
@@ -138,15 +135,6 @@ export function ForwardForm({ children, applicationId, statuses, accessToken }: 
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-            <div className='space-y-2'>
-                <Label htmlFor="title">Title</Label>
-                <Input 
-                    id="title" 
-                    placeholder="Enter a title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-            </div>
             <div className='space-y-2'>
                 <Label htmlFor="remark">Remark</Label>
                 <Textarea 
