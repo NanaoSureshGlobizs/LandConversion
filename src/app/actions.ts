@@ -310,7 +310,7 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
 
 export async function submitApplication(formData: any, token: string | undefined) {
   if (!token) {
-    return { success: false, message: 'Authentication token not found.', debugLog: 'submitApplication Error: No auth token provided.' };
+    return { success: false, message: 'Authentication token not found.', data: null, debugLog: 'submitApplication Error: No auth token provided.' };
   }
 
   const url = `${API_BASE_URL}/applications`;
@@ -334,7 +334,7 @@ export async function submitApplication(formData: any, token: string | undefined
     debugLog += '---------------------------\n';
     
     if (!response.ok) {
-      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
     }
 
     return { ...result, debugLog };
@@ -342,7 +342,7 @@ export async function submitApplication(formData: any, token: string | undefined
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
     console.error('submitApplication error:', error);
-    return { success: false, message: 'An unexpected error occurred.', debugLog };
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
 
@@ -406,7 +406,7 @@ export async function uploadFile(
     debugLog += `File Upload Catch Block Error: ${errorMessage}\n`;
     debugLog += "----------------------\n";
     console.error("uploadFile error:", error);
-    return { success: false, message: "An unexpected error occurred during file upload.", debugLog, data: null };
+    return { success: false, message: "An unexpected error occurred during file upload.", data: null, debugLog };
   }
 }
 
@@ -582,3 +582,6 @@ function addLog(log: string) {
 
 
 
+
+
+    

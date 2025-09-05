@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -241,6 +243,7 @@ export function MultiStepForm({
   relationships,
   accessToken,
 }: MultiStepFormProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const { addLog } = useDebug();
   const [currentStep, setCurrentStep] = useState(0);
@@ -360,10 +363,18 @@ export function MultiStepForm({
         title: existingApplication ? 'Application Updated!' : 'Application Submitted!',
         description: result.message || `Your application has been ${existingApplication ? 'updated' : 'received'}.`,
       });
-      if (!existingApplication) {
+
+      if (!existingApplication && result.data?.id) {
+        // Redirect to the detail page for the new application
+        router.push(`/dashboard/my-applications/${result.data.id}`);
+      } else if (existingApplication) {
+        // Potentially refresh data or router if needed for an update
+      } else {
+        // Fallback for new application if no ID is returned
         methods.reset(getInitialValues(null, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes));
         setCurrentStep(0);
       }
+
     } else {
        toast({
         title: 'Submission Failed',
@@ -452,3 +463,5 @@ export function MultiStepForm({
     </div>
   );
 }
+
+    
