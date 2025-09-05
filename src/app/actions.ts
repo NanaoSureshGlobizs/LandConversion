@@ -435,7 +435,7 @@ export async function forwardApplication(payload: any, token: string | undefined
   }
 
   // Assuming a new endpoint for forwarding, this may need to be adjusted
-  const url = `${API_BASE_URL}/workflow/forward`;
+  const url = `${API_BASE_URL}/workflow`;
   let debugLog = '--- Forwarding Application ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
@@ -554,6 +554,7 @@ function addLog(log: string) {
     
 
     
+
 
 
 
