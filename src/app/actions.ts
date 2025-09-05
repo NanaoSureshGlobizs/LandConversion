@@ -351,16 +351,16 @@ export async function uploadFile(
   formData: FormData,
   token: string | undefined
 ) {
-  if (!token) {
-    return { success: false, message: "Authentication token not found.", data: null, debugLog: 'No auth token provided for upload.' };
-  }
-
-  const url = `${API_BASE_URL}/upload-file`;
   let debugLog = "--- Uploading File ---\n";
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload (FormData keys): ${JSON.stringify(Array.from(formData.keys()), null, 2)}\n`;
-
   try {
+    if (!token) {
+      throw new Error("Authentication token not found.");
+    }
+
+    const url = `${API_BASE_URL}/upload-file`;
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload (FormData keys): ${JSON.stringify(Array.from(formData.keys()), null, 2)}\n`;
+
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -376,7 +376,7 @@ export async function uploadFile(
     if (!response.ok) {
       const message = `File upload failed with status: ${response.status}. Response: ${responseText}`;
       debugLog += `Error: ${message}\n----------------------\n`;
-      // Try to parse error message from API if it's JSON
+      // Try to parse error message from API if it's JSON, otherwise use the raw text.
       try {
         const errorJson = JSON.parse(responseText);
         return { success: false, message: errorJson.message || message, data: null, debugLog };
@@ -389,6 +389,11 @@ export async function uploadFile(
       const result = JSON.parse(responseText);
       debugLog += `Parsed API Response: ${JSON.stringify(result, null, 2)}\n`;
       debugLog += "----------------------\n";
+      // Ensure the returned object has the 'success' property.
+      if (typeof result.success === 'undefined') {
+          // If 'success' is missing, we assume it failed to prevent downstream errors.
+          return { success: false, message: 'API response is missing the "success" field.', data: result.data || null, debugLog };
+      }
       return { ...result, debugLog };
     } catch (error) {
         const message = `Failed to parse JSON response from file upload. Raw response: ${responseText}`;
@@ -568,6 +573,7 @@ function addLog(log: string) {
     
 
     
+
 
 
 
