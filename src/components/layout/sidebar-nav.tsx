@@ -131,7 +131,7 @@ export function SidebarNav() {
           <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={40} height={40} />
           <div className='flex flex-col'>
             <span className="text-xl font-bold font-headline">Change of Land Use</span>
-            <span className="text-sm text-muted-foreground">Governement of Manipur</span>
+            <span className="text-sm text-muted-foreground">Government of Manipur</span>
           </div>
           <div className="flex-1" />
         </div>
