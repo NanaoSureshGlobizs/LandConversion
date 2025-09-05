@@ -145,7 +145,7 @@ export function FeeReportForm({ children, applicationId, accessToken, statuses }
                 <Input 
                     id="api-amount" 
                     type="text" 
-                    value="₹ 1,250.00 (placeholder)"
+                    value="Rs. 1,250.00 (placeholder)"
                     readOnly
                     className="bg-muted"
                 />
