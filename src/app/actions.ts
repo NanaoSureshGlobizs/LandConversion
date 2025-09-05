@@ -376,7 +376,13 @@ export async function uploadFile(
     if (!response.ok) {
       const message = `File upload failed with status: ${response.status}. Response: ${responseText}`;
       debugLog += `Error: ${message}\n----------------------\n`;
-      return { success: false, message, data: null, debugLog };
+      // Try to parse error message from API if it's JSON
+      try {
+        const errorJson = JSON.parse(responseText);
+        return { success: false, message: errorJson.message || message, data: null, debugLog };
+      } catch {
+        return { success: false, message, data: null, debugLog };
+      }
     }
 
     try {
@@ -562,6 +568,7 @@ function addLog(log: string) {
     
 
     
+
 
 
 
