@@ -165,12 +165,10 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
                   <TableCell>{''}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
-                        {app.can_forward ? (
+                        {app.can_forward && (
                             <ForwardForm applicationId={app.id.toString()} accessToken={accessToken}>
                                 <Button variant="default" size="sm">Forward</Button>
                             </ForwardForm>
-                        ) : (
-                            <Button variant="outline" size="sm">Enquiry Report</Button>
                         )}
                        <Button variant="default" size="sm" asChild>
                          <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries`}>View Details</Link>
