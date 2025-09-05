@@ -241,7 +241,7 @@ export default function LoginPage() {
             </h1>
           </div>
             {renderFormContent()}
-            <div className="mt-4 text-center flex justify-center gap-2">
+            {/* <div className="mt-4 text-center flex justify-center gap-2">
               <ForwardForm 
                 applicationId="TEST-APP-123"
                 accessToken="test-token"
@@ -268,7 +268,7 @@ export default function LoginPage() {
               >
                  <Button variant="outline">Fee Report (Test)</Button>
               </FeeReportForm>
-            </div>
+            </div> */}
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
             <p>An initiative by the Government of Manipur.</p>
