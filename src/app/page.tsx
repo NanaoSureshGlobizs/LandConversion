@@ -15,6 +15,7 @@ import { useDebug } from '@/context/DebugContext';
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
 import { UpdateStatusForm } from '@/components/applications/update-status-form';
+import { FeeReportForm } from '@/components/applications/fee-report-form';
 
 type AuthStep = 'signIn' | 'signUp' | 'verifyOtp';
 
@@ -260,6 +261,13 @@ export default function LoginPage() {
               >
                  <Button variant="outline">Report</Button>
               </UpdateStatusForm>
+               <FeeReportForm
+                applicationId="TEST-APP-123"
+                accessToken="test-token"
+                statuses={[{id: "1", status_name: "In Progress"}, {id: "2", status_name: "Completed"}]}
+              >
+                 <Button variant="outline">Fee Report (Test)</Button>
+              </FeeReportForm>
             </div>
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
