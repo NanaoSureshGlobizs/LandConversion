@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel } from 'lucide-react';
 import {
@@ -127,6 +128,7 @@ export function SidebarNav() {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <div className="flex items-center gap-2">
+          <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={40} height={40} />
           <div className='flex flex-col'>
             <span className="text-xl font-bold font-headline">Change of Land Use</span>
             <span className="text-sm text-muted-foreground">Governement of Manipur</span>
