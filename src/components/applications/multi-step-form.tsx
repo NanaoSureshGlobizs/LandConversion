@@ -318,7 +318,7 @@ export function MultiStepForm({
         }
     });
 
-    // For multiple file fields, ensure they are arrays.
+    // For multiple file fields, ensure they are arrays of strings.
     const multiFileFields = ['patta'];
     multiFileFields.forEach(field => {
         if (!Array.isArray(payload[field]) || payload[field].length === 0) {
@@ -326,18 +326,17 @@ export function MultiStepForm({
         }
     });
 
-    // Handle 'others_relevant_document' - needs to be an array of objects
+    // Handle 'others_relevant_document' - API expects an array of objects.
     if (Array.isArray(payload.others_relevant_document) && payload.others_relevant_document.length > 0) {
       // The field already has the correct structure from the form state, so we just ensure it's not empty.
     } else {
         delete payload.others_relevant_document;
     }
 
-
     if(!payload.relatives || payload.relatives.length === 0) {
         delete payload.relatives;
     } else {
-        // Ensure the relationship is sent, not just the ID.
+        // Ensure the relationship_id is removed and relationship (string) is kept.
         payload.relatives = payload.relatives.map((relative: any) => {
             const { relationship_id, ...rest } = relative;
             return { ...rest };
