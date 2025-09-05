@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import Link from 'next/link';
 import { ForwardForm } from './forward-form';
+import { RejectForm } from './reject-form';
 
 interface PendingEnquiriesTableProps {
   initialData: PaginatedApplications | null;
@@ -168,7 +169,10 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
                       <ForwardForm applicationId={app.id.toString()} accessToken={accessToken}>
                           <Button variant="default" size="sm">Forward</Button>
                       </ForwardForm>
-                       <Button variant="default" size="sm" asChild>
+                      <RejectForm applicationId={app.id.toString()} accessToken={accessToken}>
+                        <Button variant="destructive" size="sm">Reject</Button>
+                      </RejectForm>
+                       <Button variant="outline" size="sm" asChild>
                          <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries`}>View Details</Link>
                        </Button>
                     </div>
