@@ -352,14 +352,12 @@ export async function uploadFile(
   token: string | undefined
 ) {
   if (!token) {
-    return { success: false, message: "Authentication token not found." };
+    return { success: false, message: "Authentication token not found.", data: null };
   }
 
   const url = `${API_BASE_URL}/upload-file`;
   let debugLog = "--- Uploading File ---\n";
   debugLog += `Request URL: ${url}\n`;
-  // FormData objects are complex and cannot be directly stringified.
-  // We log the keys to give an idea of what's being sent.
   debugLog += `Request Payload (FormData keys): ${JSON.stringify(Array.from(formData.keys()), null, 2)}\n`;
 
   try {
@@ -377,16 +375,17 @@ export async function uploadFile(
     debugLog += "----------------------\n";
 
     if (!response.ok) {
-      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog, data: null };
     }
     
     return { ...result, debugLog };
 
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    debugLog += `File Upload Error: ${errorMessage}\n`;
     debugLog += "----------------------\n";
     console.error("uploadFile error:", error);
-    return { success: false, message: "An unexpected error occurred.", debugLog };
+    return { success: false, message: "An unexpected error occurred during file upload.", debugLog, data: null };
   }
 }
 
@@ -434,7 +433,6 @@ export async function forwardApplication(payload: any, token: string | undefined
     return { success: false, message: 'Authentication token not found.', debugLog: 'forwardApplication Error: No auth token provided.' };
   }
 
-  // Assuming a new endpoint for forwarding, this may need to be adjusted
   const url = `${API_BASE_URL}/workflow`;
   let debugLog = '--- Forwarding Application ---\n';
   debugLog += `Request URL: ${url}\n`;
@@ -554,6 +552,7 @@ function addLog(log: string) {
     
 
     
+
 
 
 
