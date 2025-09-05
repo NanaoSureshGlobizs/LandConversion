@@ -16,23 +16,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
 import { uploadFile } from '@/app/actions';
-import type { ApplicationStatusOption } from '@/lib/definitions';
 import { Loader2 } from 'lucide-react';
 
 interface ForwardFormProps {
     children: React.ReactNode;
     applicationId: string;
-    statuses: ApplicationStatusOption[];
     accessToken: string;
 }
 
@@ -45,7 +36,7 @@ async function forwardApplication(payload: any, token: string) {
 }
 
 
-export function ForwardForm({ children, applicationId, statuses, accessToken }: ForwardFormProps) {
+export function ForwardForm({ children, applicationId, accessToken }: ForwardFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -90,6 +81,7 @@ export function ForwardForm({ children, applicationId, statuses, accessToken }: 
         application_id: applicationId,
         remark,
         image: uploadedFileName,
+        status: 4,
     };
 
     const submitResult = await forwardApplication(payload, accessToken);
