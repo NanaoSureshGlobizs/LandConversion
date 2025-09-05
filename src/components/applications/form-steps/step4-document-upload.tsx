@@ -148,7 +148,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
           const currentFiles = getValues('others_relevant_document') || [];
           const newFileEntry = {
               file_name: uploadedFile.originalName,
-              others_relevant_document: uploadedFile.serverFileName
+              file_path: uploadedFile.serverFileName
           };
           setValue('others_relevant_document', [...currentFiles, newFileEntry]);
       } else {
@@ -163,7 +163,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
   const onRemove = (categoryId: string, fileToRemove: UploadedFile) => {
     if (categoryId === 'others_relevant_document') {
         const currentFiles = getValues('others_relevant_document') || [];
-        setValue('others_relevant_document', currentFiles.filter(f => f.others_relevant_document !== fileToRemove.serverFileName));
+        setValue('others_relevant_document', currentFiles.filter(f => f.file_path !== fileToRemove.serverFileName));
     } else {
         const currentFiles = getValues(categoryId as keyof FormValues) as string[] || [];
         setValue(categoryId as keyof FormValues, currentFiles.filter(f => f !== fileToRemove.serverFileName) as any);

@@ -22,7 +22,7 @@ import { Step4DocumentUpload } from './form-steps/step4-document-upload';
 const fileUploadSchema = z.array(z.string()).optional();
 const otherDocumentSchema = z.array(z.object({
   file_name: z.string(),
-  others_relevant_document: z.string(),
+  file_path: z.string(),
 })).optional();
 
 const formSchema = z.object({
@@ -326,9 +326,9 @@ export function MultiStepForm({
         }
     });
 
-    // Handle 'others_relevant_document' - needs to be an array of strings
+    // Handle 'others_relevant_document' - needs to be an array of objects
     if (Array.isArray(payload.others_relevant_document) && payload.others_relevant_document.length > 0) {
-        payload.others_relevant_document = payload.others_relevant_document.map((doc: any) => doc.others_relevant_document);
+      // The field already has the correct structure from the form state, so we just ensure it's not empty.
     } else {
         delete payload.others_relevant_document;
     }
@@ -340,8 +340,7 @@ export function MultiStepForm({
         // Ensure the relationship is sent, not just the ID.
         payload.relatives = payload.relatives.map((relative: any) => {
             const { relationship_id, ...rest } = relative;
-            const relationshipObj = relationships.find(r => r.id === relationship_id);
-            return { ...rest, relationship: relationshipObj?.name || 'Unknown' };
+            return { ...rest };
         });
     }
 
@@ -455,5 +454,3 @@ export function MultiStepForm({
     </div>
   );
 }
-
-    
