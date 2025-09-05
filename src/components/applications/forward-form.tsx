@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { uploadFile } from '@/app/actions';
+import { uploadFile, forwardApplication } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
 
 interface ForwardFormProps {
@@ -26,15 +26,6 @@ interface ForwardFormProps {
     applicationId: string;
     accessToken: string;
 }
-
-// Placeholder for the new server action
-async function forwardApplication(payload: any, token: string) {
-    console.log('Forwarding application with payload:', payload);
-    // In a real scenario, this would make an API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { success: true, message: 'Application forwarded successfully.', debugLog: `--- Forwarding Application ---\nPayload: ${JSON.stringify(payload, null, 2)}\n--------------------------` };
-}
-
 
 export function ForwardForm({ children, applicationId, accessToken }: ForwardFormProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +50,8 @@ export function ForwardForm({ children, applicationId, accessToken }: ForwardFor
     // Step 1: Upload the file if it exists
     if (imageFile) {
         const formData = new FormData();
-        formData.append('forward_image', imageFile);
+        // The API expects the key to be 'attachment'
+        formData.append('attachment', imageFile);
         const uploadResult = await uploadFile(formData, accessToken);
 
         if(uploadResult.debugLog) addLog(uploadResult.debugLog);
@@ -78,10 +70,11 @@ export function ForwardForm({ children, applicationId, accessToken }: ForwardFor
 
     // Step 2: Submit the forward details
     const payload = {
-        application_id: applicationId,
+        application_details_id: parseInt(applicationId),
+        verification_status_id: 6, // This seems to be a fixed value from the API example
         remark,
-        image: uploadedFileName,
-        status: 1,
+        attachment: uploadedFileName,
+        status: 1, // 1 for forward
     };
 
     const submitResult = await forwardApplication(payload, accessToken);
@@ -90,7 +83,7 @@ export function ForwardForm({ children, applicationId, accessToken }: ForwardFor
     if (submitResult.success) {
         toast({
             title: 'Action Successful',
-            description: submitResult.message
+            description: submitResult.message || 'Application has been forwarded.'
         });
         resetForm();
         setIsOpen(false);
@@ -126,12 +119,12 @@ export function ForwardForm({ children, applicationId, accessToken }: ForwardFor
                 />
             </div>
              <div className='space-y-2'>
-                <Label htmlFor="upload-image">Upload Image (Optional)</Label>
+                <Label htmlFor="upload-image">Upload Attachment (Optional)</Label>
                 <Input 
                     id="upload-image" 
                     type="file" 
                     onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                    accept="image/*"
+                    accept="image/*,application/pdf"
                 />
             </div>
         </div>
