@@ -174,8 +174,9 @@ export default function AdminLoginPage() {
                 Revenue Department, Government of Manipur
             </p>
             <h1 className="text-2xl font-bold font-headline text-foreground mt-1">
-                Official Login
+                Change of Land Use
             </h1>
+             <h2 className="text-center text-lg font-semibold mt-4">Official Login</h2>
           </div>
             {renderFormContent()}
         </div>
