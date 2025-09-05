@@ -131,9 +131,9 @@ export function UpdateStatusForm({ children, applicationId, accessToken, statuse
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">Update Status</DialogTitle>
+          <DialogTitle className="font-headline">Report</DialogTitle>
            <DialogDescription>
-            Update the status of this application.
+            Update the status of this application by filing a report.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -209,4 +209,3 @@ export function UpdateStatusForm({ children, applicationId, accessToken, statuse
     </Dialog>
   );
 }
-

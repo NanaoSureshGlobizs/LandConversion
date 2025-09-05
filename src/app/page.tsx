@@ -258,7 +258,7 @@ export default function LoginPage() {
                 accessToken="test-token"
                 statuses={[{id: "1", status_name: "In Progress"}, {id: "2", status_name: "Completed"}]}
               >
-                 <Button variant="outline">Update (Test)</Button>
+                 <Button variant="outline">Report</Button>
               </UpdateStatusForm>
             </div>
         </div>
