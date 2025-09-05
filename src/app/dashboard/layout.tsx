@@ -55,6 +55,10 @@ export default function DashboardLayout({
         router.replace(firstAllowedRoute);
         return;
     }
+    
+    // Whitelist generic detail pages that any logged-in user should be able to see
+    const isGenericViewerPage = pathname.startsWith('/dashboard/application/');
+    if(isGenericViewerPage) return;
 
     // Check if the current route is allowed
     const isAllowed = allowedRoutes.some(route => {
@@ -85,7 +89,7 @@ export default function DashboardLayout({
   // Determine if we are about to redirect. Show loader to prevent content flash.
   const isRedirecting = !isLoading && isAuthenticated && (
     (pathname === '/dashboard' && allowedRoutes.length > 0 && allowedRoutes[0] !== '/dashboard') ||
-    (allowedRoutes.length > 0 && !allowedRoutes.some(route => pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/')))
+    (allowedRoutes.length > 0 && !pathname.startsWith('/dashboard/application/') && !allowedRoutes.some(route => pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/')))
   );
 
   if (isAuthenticating) {
