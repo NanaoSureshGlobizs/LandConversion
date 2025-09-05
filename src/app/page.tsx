@@ -12,6 +12,7 @@ import { citizenSignUp, citizenSendOtp, citizenVerifyOtp } from './actions';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
+import { ForwardForm } from '@/components/applications/forward-form';
 
 type AuthStep = 'signIn' | 'signUp' | 'verifyOtp';
 
@@ -237,6 +238,15 @@ export default function LoginPage() {
             </h1>
           </div>
             {renderFormContent()}
+            <div className="mt-4 text-center">
+              <ForwardForm 
+                applicationId="TEST-APP-123" 
+                statuses={[{id: '1', status_name: 'Forwarded'}, {id: '2', status_name: 'Escalated'}]} 
+                accessToken="test-token"
+              >
+                <Button variant="secondary">Testing</Button>
+              </ForwardForm>
+            </div>
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
             <p>An initiative by the Government of Manipur.</p>
