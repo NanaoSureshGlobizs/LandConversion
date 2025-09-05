@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
+import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -19,10 +19,12 @@ import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
+import { FeeReportForm } from './fee-report-form';
 
 interface LrdDecisionTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
+  statuses: ApplicationStatusOption[];
 }
 
 const mockOwners = [
@@ -31,7 +33,7 @@ const mockOwners = [
     "Rohan Mishra", "Kavita Reddy", "Suresh Patel", "Meena Kumari"
 ];
 
-export function LrdDecisionTable({ initialData, accessToken }: LrdDecisionTableProps) {
+export function LrdDecisionTable({ initialData, accessToken, statuses }: LrdDecisionTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -114,9 +116,15 @@ export function LrdDecisionTable({ initialData, accessToken }: LrdDecisionTableP
                   <TableCell>
                     <div className='flex justify-end items-center gap-2'>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/lrd-decision`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/lrd-decision`}>View</Link>
                         </Button>
-                        <Button variant="default" size="sm">Update status</Button>
+                        <FeeReportForm
+                          applicationId={app.id.toString()}
+                          accessToken={accessToken}
+                          statuses={statuses}
+                        >
+                          <Button variant="default" size="sm">Update Fees</Button>
+                        </FeeReportForm>
                     </div>
                   </TableCell>
                 </TableRow>
