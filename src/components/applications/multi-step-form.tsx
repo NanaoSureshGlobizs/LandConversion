@@ -68,6 +68,7 @@ const formSchema = z.object({
     relative_name: z.string(),
     relative_date_of_birth: z.string(),
     relationship: z.string(),
+    relationship_id: z.number(),
     relative_aadhar: z.string(),
   })).optional(),
 }).superRefine((data, ctx) => {
@@ -108,6 +109,7 @@ export interface AreaUnit extends Option {}
 export interface LandClassification extends Option {}
 export interface ChangeOfLandUseDate extends Option {}
 export interface Purpose extends Option {}
+export interface Relationship extends Option {}
 
 
 interface MultiStepFormProps {
@@ -122,6 +124,7 @@ interface MultiStepFormProps {
   landClassifications: LandClassification[];
   changeOfLandUseDates: ChangeOfLandUseDate[];
   purposes: Purpose[];
+  relationships: Relationship[];
   accessToken: string;
 }
 
@@ -236,6 +239,7 @@ export function MultiStepForm({
   landClassifications,
   changeOfLandUseDates,
   purposes,
+  relationships,
   accessToken,
 }: MultiStepFormProps) {
   const { toast } = useToast();
@@ -328,6 +332,12 @@ export function MultiStepForm({
 
     if(!payload.relatives || payload.relatives.length === 0) {
         delete payload.relatives;
+    } else {
+        // The backend doesn't need the string 'relationship' name, only the ID.
+        payload.relatives = payload.relatives.map((relative: any) => {
+            const { relationship, ...rest } = relative;
+            return rest;
+        });
     }
 
     const otherPurpose = purposes.find(p => p.name === 'Other');
@@ -389,7 +399,7 @@ export function MultiStepForm({
                 />
               )}
               {currentStep === 3 && (
-                <Step4DocumentUpload documentType={documentType} accessToken={accessToken} />
+                <Step4DocumentUpload documentType={documentType} accessToken={accessToken} relationships={relationships} />
               )}
             </CardContent>
           </Card>

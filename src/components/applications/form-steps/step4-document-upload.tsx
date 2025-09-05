@@ -15,11 +15,12 @@ import { CalendarIcon, Loader2, FileText, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { FormValues } from "../multi-step-form";
+import { FormValues, Relationship } from "../multi-step-form";
 import { useToast } from "@/hooks/use-toast";
 import { uploadFile } from "@/app/actions";
 import { useDebug } from "@/context/DebugContext";
 import Image from "next/image";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const documentCategories = {
     land_diversion: [
@@ -49,9 +50,10 @@ const documentCategories = {
 interface Step4Props {
   documentType: 'land_diversion' | 'land_conversion';
   accessToken: string;
+  relationships: Relationship[];
 }
 
-export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
+export function Step4DocumentUpload({ documentType, accessToken, relationships }: Step4Props) {
   const { getValues, setValue } = useFormContext<FormValues>();
   const { toast } = useToast();
   const { addLog } = useDebug();
@@ -95,11 +97,13 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
     
 
     if (result.success && result.data.filename) {
+        const selectedRelationship = relationships.find(r => r.id.toString() === newRelation);
         const newMember = {
             relative_name: newName,
             relative_date_of_birth: format(newDob, 'yyyy-MM-dd'),
-            relationship: newRelation,
-            relative_aadhar: result.data.filename
+            relationship: selectedRelationship?.name || '',
+            relative_aadhar: result.data.filename,
+            relationship_id: parseInt(newRelation)
         };
         setValue('relatives', [...familyMembers, newMember]);
         
@@ -200,8 +204,8 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
       </div>
       <div>
         <CardHeader className="p-0 mt-8">
-          <CardTitle className="font-headline">Family Members</CardTitle>
-          <CardDescription>Add family members if applicable for the application.</CardDescription>
+          <CardTitle className="font-headline">Family/Co-owner</CardTitle>
+          <CardDescription>Add family members or co-owners if applicable for the application.</CardDescription>
         </CardHeader>
         <CardContent className="p-0 mt-4">
             <div className="border rounded-md">
@@ -236,13 +240,13 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="default" className="mt-4">Add Family Member</Button>
+                <Button variant="default" className="mt-4">Add Family/Co-owner</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>Add Family Member</DialogTitle>
+                  <DialogTitle>Add Family/Co-owner</DialogTitle>
                   <DialogDescription>
-                    Enter the details of the new family member. Click save when you're done.
+                    Enter the details of the new family member or co-owner. Click save when you're done.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -289,7 +293,18 @@ export function Step4DocumentUpload({ documentType, accessToken }: Step4Props) {
                     <Label htmlFor="relation" className="text-right">
                       Relation
                     </Label>
-                    <Input id="relation" value={newRelation} onChange={(e) => setNewRelation(e.target.value)} className="col-span-3" />
+                    <Select onValueChange={setNewRelation} value={newRelation}>
+                        <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select Relation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {relationships.map((rel) => (
+                                <SelectItem key={rel.id} value={rel.id.toString()}>
+                                    {rel.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                   </div>
                   <div className="grid grid-cols-4 items-start gap-4">
                     <Label htmlFor="aadhar" className="text-right pt-2">

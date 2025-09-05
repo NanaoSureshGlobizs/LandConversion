@@ -11,6 +11,7 @@ import {
   getLandClassifications,
   getChangeOfLandUseDates,
   getPurposes,
+  getRelationships,
 } from "@/app/actions";
 import { cookies } from "next/headers";
 import { redirect } from 'next/navigation';
@@ -35,6 +36,7 @@ export default async function NewApplicationPage() {
     landClassificationsResult, 
     changeOfLandUseDatesResult,
     purposesResult,
+    relationshipsResult,
   ] = await Promise.all([
     getDistricts(accessToken),
     getCircles(accessToken),
@@ -46,6 +48,7 @@ export default async function NewApplicationPage() {
     getLandClassifications(accessToken),
     getChangeOfLandUseDates(accessToken),
     getPurposes(accessToken),
+    getRelationships(accessToken),
   ]);
   
   const allLogs = [
@@ -59,6 +62,7 @@ export default async function NewApplicationPage() {
     landClassificationsResult.log,
     changeOfLandUseDatesResult.log,
     purposesResult.log,
+    relationshipsResult.log,
   ];
 
   return (
@@ -79,6 +83,7 @@ export default async function NewApplicationPage() {
           landClassifications={landClassificationsResult.data}
           changeOfLandUseDates={changeOfLandUseDatesResult.data}
           purposes={purposesResult.data}
+          relationships={relationshipsResult.data}
           accessToken={accessToken}
         />
       </div>

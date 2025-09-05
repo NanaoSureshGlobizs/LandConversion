@@ -1,6 +1,6 @@
 
 import { MultiStepForm } from "@/components/applications/multi-step-form";
-import { getApplicationById, getDistricts, getCircles, getSubDivisions, getVillages, getLandPurposes, getLocationTypes, getAreaUnits, getLandClassifications, getChangeOfLandUseDates, getPurposes } from "@/app/actions";
+import { getApplicationById, getDistricts, getCircles, getSubDivisions, getVillages, getLandPurposes, getLocationTypes, getAreaUnits, getLandClassifications, getChangeOfLandUseDates, getPurposes, getRelationships } from "@/app/actions";
 import { cookies } from "next/headers";
 import { notFound, redirect } from 'next/navigation';
 import { ServerLogHandler } from "@/components/debug/server-log-handler";
@@ -73,6 +73,7 @@ export default async function EditApplicationPage({ params }: { params: { id: st
     landClassificationsResult, 
     changeOfLandUseDatesResult,
     purposesResult,
+    relationshipsResult,
   ] = await Promise.all([
     getDistricts(accessToken),
     getCircles(accessToken),
@@ -84,6 +85,7 @@ export default async function EditApplicationPage({ params }: { params: { id: st
     getLandClassifications(accessToken),
     getChangeOfLandUseDates(accessToken),
     getPurposes(accessToken),
+    getRelationships(accessToken),
   ]);
   
   const allLogs = [
@@ -98,6 +100,7 @@ export default async function EditApplicationPage({ params }: { params: { id: st
     landClassificationsResult.log,
     changeOfLandUseDatesResult.log,
     purposesResult.log,
+    relationshipsResult.log,
   ];
 
   return (
@@ -124,6 +127,7 @@ export default async function EditApplicationPage({ params }: { params: { id: st
           landClassifications={landClassificationsResult.data}
           changeOfLandUseDates={changeOfLandUseDatesResult.data}
           purposes={purposesResult.data}
+          relationships={relationshipsResult.data}
           accessToken={accessToken}
         />
       </div>

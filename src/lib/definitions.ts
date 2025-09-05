@@ -22,6 +22,11 @@ export interface ApplicationStatusOption {
   status_name: string;
 }
 
+export interface Relationship {
+  id: number;
+  name: string;
+}
+
 // This is based on the `data` object in the API response for a single application
 export interface Application {
   id: number;

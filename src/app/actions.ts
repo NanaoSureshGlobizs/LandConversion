@@ -476,6 +476,11 @@ export async function getApplicationStatuses(token: string) {
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 
+export async function getRelationships(token: string) {
+    const { data, debugLog } = await fetchFromApi('/relationship', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
+}
+
 export async function getApplications(accessToken: string, page = 1, limit = 10) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
@@ -504,4 +509,5 @@ function addLog(log: string) {
     
 
     
+
 
