@@ -50,8 +50,8 @@ export function ForwardForm({ children, applicationId, accessToken }: ForwardFor
     // Step 1: Upload the file if it exists
     if (imageFile) {
         const formData = new FormData();
-        // The API expects the key to be 'attachment'
-        formData.append('attachment', imageFile);
+        // The API expects the key to be 'forward_attachment'
+        formData.append('forward_attachment', imageFile);
         const uploadResult = await uploadFile(formData, accessToken);
 
         if(uploadResult.debugLog) addLog(uploadResult.debugLog);
