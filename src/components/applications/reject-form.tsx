@@ -81,7 +81,7 @@ export function RejectForm({ children, applicationId, accessToken }: RejectFormP
         application_id: applicationId,
         remark,
         image: uploadedFileName,
-        status: 3,
+        status: 0,
     };
 
     const submitResult = await rejectApplication(payload, accessToken);

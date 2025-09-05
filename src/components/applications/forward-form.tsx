@@ -81,7 +81,7 @@ export function ForwardForm({ children, applicationId, accessToken }: ForwardFor
         application_id: applicationId,
         remark,
         image: uploadedFileName,
-        status: 4,
+        status: 1,
     };
 
     const submitResult = await forwardApplication(payload, accessToken);
