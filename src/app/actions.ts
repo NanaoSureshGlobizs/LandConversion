@@ -273,6 +273,12 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
       return { data: null, debugLog };
     }
 
+    if (!responseText) {
+        debugLog += 'API returned an empty response.\n';
+        debugLog += '---------------------------\n';
+        return { data: null, debugLog };
+    }
+
     try {
         const result = JSON.parse(responseText);
         debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
@@ -509,5 +515,6 @@ function addLog(log: string) {
     
 
     
+
 
 
