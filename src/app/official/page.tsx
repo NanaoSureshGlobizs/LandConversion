@@ -15,7 +15,7 @@ import { useDebug } from '@/context/DebugContext';
 
 type AuthStep = 'signIn' | 'verifyOtp';
 
-export default function AdminLoginPage() {
+export default function OfficialLoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { isAuthenticated, isLoading: isAuthLoading, login } = useAuth();
@@ -40,7 +40,6 @@ export default function AdminLoginPage() {
     }
     setIsSubmitting(true);
     try {
-      // Use the 'sendOtp' action for officials
       const result = await sendOtp(phoneNumber);
       if (result.debugLog) addLog(result.debugLog);
 
@@ -67,7 +66,6 @@ export default function AdminLoginPage() {
     }
     setIsSubmitting(true);
     try {
-      // Use the 'verifyOtp' action for officials
       const result = await verifyOtp(phoneNumber, otp);
       if (result.debugLog) addLog(result.debugLog);
 
