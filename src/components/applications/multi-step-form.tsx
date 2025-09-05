@@ -326,12 +326,23 @@ export function MultiStepForm({
         }
     });
 
-    if(!payload.others_relevant_document || payload.others_relevant_document.length === 0) {
+    // Handle 'others_relevant_document' - needs to be an array of strings
+    if (Array.isArray(payload.others_relevant_document) && payload.others_relevant_document.length > 0) {
+        payload.others_relevant_document = payload.others_relevant_document.map((doc: any) => doc.others_relevant_document);
+    } else {
         delete payload.others_relevant_document;
     }
 
+
     if(!payload.relatives || payload.relatives.length === 0) {
         delete payload.relatives;
+    } else {
+        // Ensure the relationship is sent, not just the ID.
+        payload.relatives = payload.relatives.map((relative: any) => {
+            const { relationship_id, ...rest } = relative;
+            const relationshipObj = relationships.find(r => r.id === relationship_id);
+            return { ...rest, relationship: relationshipObj?.name || 'Unknown' };
+        });
     }
 
     const otherPurpose = purposes.find(p => p.name === 'Other');
@@ -444,3 +455,5 @@ export function MultiStepForm({
     </div>
   );
 }
+
+    
