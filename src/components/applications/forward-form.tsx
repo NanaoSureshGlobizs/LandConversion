@@ -54,23 +54,13 @@ export function ForwardForm({ children, applicationId, statuses, accessToken }: 
 
   const [remark, setRemark] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [status, setStatus] = useState('');
   
   const resetForm = () => {
     setRemark('');
     setImageFile(null);
-    setStatus('');
   }
 
   const handleSubmit = async () => {
-    if (!status) {
-        toast({
-            title: 'Missing Information',
-            description: 'Please select a status.',
-            variant: 'destructive',
-        });
-        return;
-    }
     
     setIsLoading(true);
 
@@ -99,7 +89,6 @@ export function ForwardForm({ children, applicationId, statuses, accessToken }: 
     const payload = {
         application_id: applicationId,
         remark,
-        status_id: parseInt(status, 10),
         image: uploadedFileName,
     };
 
@@ -143,19 +132,6 @@ export function ForwardForm({ children, applicationId, statuses, accessToken }: 
                     value={remark}
                     onChange={(e) => setRemark(e.target.value)}
                 />
-            </div>
-            <div className='space-y-2'>
-                <Label htmlFor="status">Status</Label>
-                <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger id="status">
-                        <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {statuses.map((s) => (
-                           <SelectItem key={s.id} value={s.id.toString()}>{s.status_name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
             </div>
              <div className='space-y-2'>
                 <Label htmlFor="upload-image">Upload Image (Optional)</Label>
