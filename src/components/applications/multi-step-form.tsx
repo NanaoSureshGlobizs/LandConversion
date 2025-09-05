@@ -285,7 +285,7 @@ export function MultiStepForm({
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
