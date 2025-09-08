@@ -228,16 +228,17 @@ export function SidebarNav() {
 
       if (item.subItems) {
         const visibleSubItems = item.subItems.filter(sub => {
-            return userAccessSet.has(sub.accessKey);
+            // For final_orders, check for that specific key. For others, check parent access key (conversion/diversion).
+            if (sub.accessKey === 'final_orders') {
+                return userAccessSet.has('final_orders');
+            }
+            return userAccessSet.has(item.accessKey);
         });
-
-        if (visibleSubItems.length > 0) {
-          return { ...item, subItems: visibleSubItems };
-        }
         
-        // Special case for DC role which might have 'conversion' but no sub-items yet
-        if ( (item.accessKey === 'conversion' || item.accessKey === 'diversion') && userAccessSet.has(item.accessKey) ) {
-            return { ...item, subItems: visibleSubItems };
+        // This makes sure that parent items like "Conversion" and "Diversion" are included
+        // if the user has access to them, even if no sub-items are visible by default sub-item access keys.
+        if (userAccessSet.has(item.accessKey)) {
+             return { ...item, subItems: visibleSubItems };
         }
 
         return null;
@@ -265,7 +266,7 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              {item.subItems && item.subItems.length > 0 ? (
+              {item.subItems ? (
                  <Collapsible defaultOpen={isParentActive(item)}>
                     <CollapsibleTrigger asChild>
                          <SidebarMenuButton
