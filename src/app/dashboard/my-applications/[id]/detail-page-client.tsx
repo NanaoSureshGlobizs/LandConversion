@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, FileText, Printer, Edit } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Printer, Edit, Loader2 } from 'lucide-react';
 import { getApplicationById } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
@@ -19,7 +19,7 @@ import type { FullApplicationResponse, ApplicationStatusOption } from '@/lib/def
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
@@ -52,19 +52,21 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   const [log, setLog] = useState<(string|undefined)[]>(initialLog);
   const [isLoading, setIsLoading] = useState(!initialApplication);
 
+  const refreshApplicationData = useCallback(async () => {
+    setIsLoading(true);
+    const { data, log } = await getApplicationById(accessToken, id);
+    setApplication(data as FullApplicationResponse | null);
+    setLog(prev => [...prev, log]); // Append new log
+    setIsLoading(false);
+  },[accessToken, id]);
+
+
   useEffect(() => {
     // If data wasn't passed from server, fetch it on the client
     if (!initialApplication) {
-        const fetchData = async () => {
-            setIsLoading(true);
-            const { data, log } = await getApplicationById(accessToken, id);
-            setApplication(data as FullApplicationResponse | null);
-            setLog([log]);
-            setIsLoading(false);
-        }
-        fetchData();
+        refreshApplicationData();
     }
-  }, [id, accessToken, initialApplication]);
+  }, [id, accessToken, initialApplication, refreshApplicationData]);
 
   const canShowSurveyButton = (role === 'Admin' || role === 'SDAO') && from === '/dashboard/pending-enquiries';
   const backHref = from ? `${from}?from=${from}` : '/dashboard/my-applications';
@@ -72,8 +74,9 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
 
   if (isLoading) {
     return (
-        <div className="flex-1 space-y-6 px-4 md:px-8">
-            <h1 className="text-3xl font-bold tracking-tight font-headline">
+        <div className="flex-1 space-y-6 px-4 md:px-8 flex items-center justify-center min-h-[50vh]">
+            <Loader2 className='h-8 w-8 animate-spin' />
+            <h1 className="text-xl font-bold tracking-tight font-headline ml-4">
                 Loading Application...
             </h1>
         </div>
@@ -235,18 +238,18 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                           )}
                           {application.can_forward && application.form_type === 'Forward' && (
                             <div className='flex gap-2'>
-                                <ForwardForm applicationId={id} accessToken={accessToken}>
+                                <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshApplicationData}>
                                     <Button variant="default" className="flex-1">
                                         {application.button_name || 'Forward'}
                                     </Button>
                                 </ForwardForm>
-                                <RejectForm applicationId={id} accessToken={accessToken}>
+                                <RejectForm applicationId={id} accessToken={accessToken} onSuccess={refreshApplicationData}>
                                     <Button variant="destructive">Reject</Button>
                                 </RejectForm>
                             </div>
                           )}
                           {canShowSurveyButton && (
-                            <SurveyReportDialog application={application} statuses={statuses} accessToken={accessToken}>
+                            <SurveyReportDialog application={application} statuses={statuses} accessToken={accessToken} onSuccess={refreshApplicationData}>
                                <Button variant="default">
                                   <FileText className="mr-2"/>
                                   Survey Report

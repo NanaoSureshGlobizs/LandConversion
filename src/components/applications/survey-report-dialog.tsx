@@ -33,9 +33,10 @@ interface SurveyReportDialogProps {
     application: FullApplicationResponse;
     statuses: ApplicationStatusOption[];
     accessToken: string;
+    onSuccess?: () => void;
 }
 
-export function SurveyReportDialog({ children, application, statuses, accessToken }: SurveyReportDialogProps) {
+export function SurveyReportDialog({ children, application, statuses, accessToken, onSuccess }: SurveyReportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -112,6 +113,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         });
         resetForm();
         setIsOpen(false);
+        onSuccess?.();
     } else {
         toast({
             title: 'Submission Failed',

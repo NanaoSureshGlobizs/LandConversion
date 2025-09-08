@@ -25,9 +25,10 @@ interface ForwardFormProps {
     children: React.ReactNode;
     applicationId: string;
     accessToken: string;
+    onSuccess?: () => void;
 }
 
-export function ForwardForm({ children, applicationId, accessToken }: ForwardFormProps) {
+export function ForwardForm({ children, applicationId, accessToken, onSuccess }: ForwardFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -87,6 +88,7 @@ export function ForwardForm({ children, applicationId, accessToken }: ForwardFor
         });
         resetForm();
         setIsOpen(false);
+        onSuccess?.(); // Trigger refresh
     } else {
         toast({
             title: 'Submission Failed',

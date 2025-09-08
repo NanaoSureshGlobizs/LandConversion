@@ -25,6 +25,7 @@ interface RejectFormProps {
     children: React.ReactNode;
     applicationId: string;
     accessToken: string;
+    onSuccess?: () => void;
 }
 
 // Placeholder for the new server action
@@ -36,7 +37,7 @@ async function rejectApplication(payload: any, token: string) {
 }
 
 
-export function RejectForm({ children, applicationId, accessToken }: RejectFormProps) {
+export function RejectForm({ children, applicationId, accessToken, onSuccess }: RejectFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -94,6 +95,7 @@ export function RejectForm({ children, applicationId, accessToken }: RejectFormP
         });
         resetForm();
         setIsOpen(false);
+        onSuccess?.();
     } else {
         toast({
             title: 'Submission Failed',
