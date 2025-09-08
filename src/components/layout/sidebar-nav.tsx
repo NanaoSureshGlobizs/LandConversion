@@ -45,7 +45,6 @@ export const allMenuItems = [
     label: 'Enquiries',
     icon: FileSearch,
     accessKey: 'enquiries',
-    type: 'enquiries',
     subItems: [
         {
             href: '/dashboard/enquiries',
@@ -65,7 +64,6 @@ export const allMenuItems = [
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
-    type: 'conversion',
     subItems: [
         {
             href: '/dashboard/pending-enquiries',
@@ -91,7 +89,6 @@ export const allMenuItems = [
     label: 'Diversion',
     icon: FileText,
     accessKey: 'diversion',
-    type: 'diversion',
     subItems: [
          {
             href: '/dashboard/pending-enquiries',
@@ -123,7 +120,6 @@ export const allMenuItems = [
     label: 'SDAO Enquiries',
     icon: FileSearch,
     accessKey: 'SDAO_enquiries',
-    type: 'sdao',
      subItems: [
         {
             href: '/dashboard/sdao-enquiries',
@@ -189,36 +185,30 @@ export function SidebarNav() {
     router.push('/');
   };
 
-  const isParentActive = (itemType?: string) => {
-    if (!itemType) return false;
+  const isParentActive = (item: typeof allMenuItems[number]) => {
     const currentPath = pathname;
-
-    if(itemType === 'enquiries') {
-        return currentPath === '/dashboard/enquiries';
-    }
-    if (itemType === 'sdao') {
-        return currentPath === '/dashboard/sdao-enquiries';
-    }
+    const currentType = searchParams.get('type');
+    if (!item.subItems) return false;
     
-    // For Conversion/Diversion, check if any sub-item is active with the correct type
-    const parentItem = allMenuItems.find(i => i.type === itemType);
-    if(parentItem && parentItem.subItems) {
-        return parentItem.subItems.some(sub => isLinkActive(sub.href, sub.type));
-    }
-
-    return false;
-  }
+    return item.subItems.some(sub => {
+      if (sub.type) {
+        return currentPath === sub.href && currentType === sub.type;
+      }
+      return currentPath.startsWith(sub.href!);
+    });
+  };
+  
 
   const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
     
-    if (href && itemType) {
-        return currentPath === href && currentType === itemType;
-    }
-    
     if (exact) {
       return currentPath === href;
+    }
+
+    if (href && itemType) {
+        return currentPath === href && currentType === itemType;
     }
     
     if (href) {
@@ -232,36 +222,29 @@ export function SidebarNav() {
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
-      // Handle parent menu items with sub-items
-      if (item.subItems) {
-        // Parent must have access key
-        if (!userAccessSet.has(item.accessKey)) return null;
+      if (!userAccessSet.has(item.accessKey)) {
+        return null;
+      }
 
-        let visibleSubItems = item.subItems.filter(sub => {
-           // Special case for final_orders, it requires its own key AND diversion key on parent
-           if (sub.accessKey === 'final_orders') {
-               return userAccessSet.has('final_orders');
-           }
-           // For SDAO and Enquiries, the sub-items depend on conversion/diversion keys
-           if (item.accessKey === 'SDAO_enquiries' || item.accessKey === 'enquiries') {
-                return userAccessSet.has(sub.accessKey);
-           }
-           // For main Conversion/Diversion menus, sub-items need their own keys
-           return userAccessSet.has(sub.accessKey);
+      if (item.subItems) {
+        const visibleSubItems = item.subItems.filter(sub => {
+            return userAccessSet.has(sub.accessKey);
         });
         
+        // If it's a main collapsible menu like Conversion/Diversion, show it if the parent key is present,
+        // even if sub-items are empty, as other logic might populate them.
+        // For Enquiries/SDAO, only show if there are visible sub-items.
+        if (item.accessKey === 'conversion' || item.accessKey === 'diversion') {
+             return { ...item, subItems: visibleSubItems };
+        }
+
         if (visibleSubItems.length > 0) {
           return { ...item, subItems: visibleSubItems };
         }
-        return null; // Hide parent if no sub-items are visible
+        return null;
       }
 
-      // Handle regular, non-parent menu items
-      if (userAccessSet.has(item.accessKey)) {
-        return item;
-      }
-
-      return null;
+      return item;
     }).filter(Boolean) as typeof allMenuItems;
 
   }, [access]);
@@ -283,11 +266,11 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              {item.subItems && item.subItems.length > 0 ? (
-                 <Collapsible defaultOpen={isParentActive(item.type)}>
+              {item.subItems ? (
+                 <Collapsible defaultOpen={isParentActive(item)}>
                     <CollapsibleTrigger asChild>
                          <SidebarMenuButton
-                            isActive={isParentActive(item.type)}
+                            isActive={isParentActive(item)}
                             className="w-full"
                         >
                             <item.icon />
@@ -298,7 +281,7 @@ export function SidebarNav() {
                     <CollapsibleContent>
                         <SidebarMenuSub>
                            {item.subItems.map((subItem) => (
-                                <SidebarMenuSubItem key={`${item.type}-${subItem.label}`}>
+                                <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
                                     <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
                                         <Link href={`${subItem.href}?type=${subItem.type}`}>
                                             <span>{subItem.label}</span>
