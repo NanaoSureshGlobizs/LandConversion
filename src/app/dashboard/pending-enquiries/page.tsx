@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { FilePlus2 } from 'lucide-react';
 
-export default async function PendingEnquiriesPage() {
+export default async function PendingEnquiriesPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const type = searchParams.type || 'conversion';
 
   if (!accessToken) {
     redirect('/');
@@ -24,7 +25,7 @@ export default async function PendingEnquiriesPage() {
       <ServerLogHandler logs={[log]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Pending Enquiries</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Pending Enquiries ({type === 'conversion' ? 'Conversion' : 'Diversion'})</h1>
         </div>
         <p className="text-muted-foreground">
           View and manage all pending enquiries.

@@ -42,11 +42,10 @@ export const allMenuItems = [
     accessKey: 'unprocessed_applications',
   },
   {
-    href: '/dashboard/pending-enquiries',
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
-    // subItems are kept for access control but won't be rendered as a collapsible menu
+    type: 'conversion',
     subItems: [
         {
             href: '/dashboard/pending-enquiries',
@@ -66,11 +65,10 @@ export const allMenuItems = [
     ]
   },
   {
-    href: '/dashboard/pending-enquiries',
     label: 'Diversion',
     icon: FileText,
     accessKey: 'diversion',
-     // subItems are kept for access control but won't be rendered as a collapsible menu
+    type: 'diversion',
     subItems: [
          {
             href: '/dashboard/pending-enquiries',
@@ -144,17 +142,25 @@ export function SidebarNav() {
     await logout();
     router.push('/');
   };
-  
-  const isLinkActive = (href?: string, exact: boolean = false) => {
-    if (!href) return false;
-    const fromPath = searchParams.get('from');
-    const currentPath = fromPath || pathname;
 
-    if (exact) {
-      return currentPath === href;
+  const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
+    if (!href) return false;
+    const fromPath = searchParams.get('from') || pathname;
+    const typeParam = searchParams.get('type');
+
+    // For parent items with sub-menus (Conversion/Diversion)
+    if (itemType) {
+        return typeParam === itemType && (itemType === 'conversion' || itemType === 'diversion');
     }
+
+    const pathIsActive = exact ? fromPath === href : fromPath.startsWith(href);
     
-    return currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/');
+    // For sub-menu items, we also need to check the type param
+    if (href.includes('/pending-enquiries') || href.includes('/llmc-recommendations') || href.includes('/report')) {
+       return pathIsActive && typeParam === searchParams.get('type');
+    }
+
+    return pathIsActive;
   };
   
  const visibleMenuItems = useMemo(() => {
@@ -162,8 +168,6 @@ export function SidebarNav() {
 
     return allMenuItems.filter(item => {
         if (item.accessKey && userAccessSet.has(item.accessKey)) {
-            // This logic is now simplified. If the parent has access, show it.
-            // Sub-item access is implicitly handled by the API response which grants access to the parent key.
             return true;
         }
         return false;
@@ -186,14 +190,41 @@ export function SidebarNav() {
       <SidebarContent>
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
-             <SidebarMenuItem key={item.label}>
-                {/* Simplified: No more collapsible menus for Conversion/Diversion */}
-                <SidebarMenuButton asChild isActive={isLinkActive(item.href, !!item.exact)}>
+            <SidebarMenuItem key={item.label}>
+              {item.subItems ? (
+                 <Collapsible defaultOpen={isLinkActive(undefined, item.type)}>
+                    <CollapsibleTrigger asChild>
+                         <SidebarMenuButton
+                            isActive={isLinkActive(undefined, item.type)}
+                            className="w-full"
+                        >
+                            <item.icon />
+                            <span>{item.label}</span>
+                            <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                        <SidebarMenuSub>
+                           {item.subItems.map((subItem) => (
+                                <SidebarMenuSubItem key={subItem.label}>
+                                    <SidebarMenuSubButton asChild isActive={isLinkActive(`${subItem.href}?type=${item.type}`)}>
+                                        <Link href={`${subItem.href}?type=${item.type}`}>
+                                            <span>{subItem.label}</span>
+                                        </Link>
+                                    </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                            ))}
+                        </SidebarMenuSub>
+                    </CollapsibleContent>
+                 </Collapsible>
+              ) : (
+                <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, !!item.exact)}>
                     <Link href={item.href!}>
                         <item.icon />
                         <span>{item.label}</span>
                     </Link>
                 </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -216,4 +247,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-

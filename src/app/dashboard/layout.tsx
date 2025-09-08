@@ -2,7 +2,7 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import {
@@ -20,17 +20,25 @@ export default function DashboardLayout({
   const { isAuthenticated, isLoading, access } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const allowedRoutes = useMemo(() => {
     const getAllowedRoutesRecursive = (items: typeof allMenuItems): string[] => {
       let routes: string[] = [];
       items.forEach(item => {
+        // Check if user has access to the parent item
         if (access.includes(item.accessKey)) {
           if (item.href) {
             routes.push(item.href);
           }
+          // If there are sub-items, user has access to the parent, so recurse
           if (item.subItems) {
-            routes = routes.concat(getAllowedRoutesRecursive(item.subItems));
+            // Add the base hrefs of sub-items without query params for the check
+            item.subItems.forEach(sub => {
+                if (access.includes(sub.accessKey)) {
+                     routes.push(sub.href);
+                }
+            });
           }
         }
       });
@@ -72,9 +80,8 @@ export default function DashboardLayout({
     const isGenericViewerPage = pathname.startsWith('/dashboard/application/') || pathname.startsWith('/dashboard/my-applications/');
     if(isGenericViewerPage) return;
 
-    // Check if the current route is allowed
+    // Check if the current route is allowed by checking the pathname against the allowed routes list.
     const isAllowed = allowedRoutes.some(route => {
-        // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
         return pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/');
     });
 
@@ -83,7 +90,10 @@ export default function DashboardLayout({
         // Exception: If the user lands on the dashboard but doesn't have explicit access, but has other routes, let them stay.
         if(isRootDashboard) return;
 
-        router.replace(firstAllowedRoute);
+        // When redirecting, preserve the type query param if it exists for conversion/diversion pages
+        const typeParam = searchParams.get('type');
+        const redirectUrl = typeParam ? `${firstAllowedRoute}?type=${typeParam}` : firstAllowedRoute;
+        router.replace(redirectUrl);
         return;
     }
     
@@ -93,14 +103,15 @@ export default function DashboardLayout({
     }
 
 
-  }, [isAuthenticated, isLoading, router, pathname, allowedRoutes]);
+  }, [isAuthenticated, isLoading, router, pathname, allowedRoutes, searchParams]);
 
   const isAuthenticating = isLoading;
   // Determine if we are about to redirect. Show loader to prevent content flash.
   const isRedirecting = !isLoading && isAuthenticated && (
     (pathname === '/dashboard' && allowedRoutes.length > 0 && allowedRoutes[0] !== '/dashboard') ||
-    (allowedRoutes.length > 0 && !pathname.startsWith('/dashboard/application/') && !pathname.startsWith('/dashboard/my-applications/') && !allowedRoutes.some(route => pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/')))
+    (allowedRoutes.length > 0 && !pathname.startsWith('/dashboard/application/') && !pathname.startsWith('/dashboard/my-applications/') && !allowedRoutes.some(route => pathname.startsWith(route)))
   );
+
 
   if (isAuthenticating) {
     return (
