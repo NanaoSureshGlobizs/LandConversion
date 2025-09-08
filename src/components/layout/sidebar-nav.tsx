@@ -103,6 +103,26 @@ export const allMenuItems = [
     ]
   },
   {
+    label: 'SDAO Enquiries',
+    icon: FileSearch,
+    accessKey: 'SDAO_enquiries',
+    type: 'sdao',
+     subItems: [
+        {
+            href: '/dashboard/sdao-enquiries',
+            label: 'Conversion',
+            accessKey: 'conversion',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/sdao-enquiries',
+            label: 'Diversion',
+            accessKey: 'diversion',
+            type: 'diversion'
+        },
+    ]
+  },
+  {
     href: '/dashboard/dlc-recommendations',
     label: 'DLC Recommendations',
     icon: ThumbsUp,
@@ -157,10 +177,14 @@ export function SidebarNav() {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
 
-    // Check if any sub-item under this parent is active
-    const parentItem = allMenuItems.find(i => i.type === itemType);
+    // Find the parent item that matches the type
+    const parentItem = allMenuItems.find(i => i.type === itemType || (i.subItems && i.subItems.some(sub => sub.href === currentPath)));
+
     if (parentItem && parentItem.subItems) {
       const hasActiveSubItem = parentItem.subItems.some(sub => currentPath === sub.href);
+       if (itemType === 'sdao') {
+         return currentPath === '/dashboard/sdao-enquiries';
+      }
       return hasActiveSubItem && currentType === itemType;
     }
     return false;
@@ -169,44 +193,55 @@ export function SidebarNav() {
   const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
-
-    if (itemType) { // This is for sub-menu items
-      return currentPath === href && currentType === itemType;
+    
+    // For SDAO sub-menu items
+    if(href === '/dashboard/sdao-enquiries') {
+        return currentPath === href && currentType === itemType;
     }
 
-    if (exact) { // For exact routes like /dashboard
+    // For Conversion/Diversion sub-menu items
+    if (itemType && href) {
+        return currentPath === href && currentType === itemType;
+    }
+    
+    // For exact routes like /dashboard
+    if (exact) {
       return currentPath === href;
     }
     
     // For regular, non-exact-match menu items
     if (href) {
-      return currentPath.startsWith(href);
+      // This is to prevent the dashboard from being active for all sub-routes
+      return currentPath.startsWith(href) && href !== '/dashboard';
     }
     
     return false;
   };
-
   
  const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
 
-    const menu = allMenuItems.map(item => {
-      // Return dashboard if user has access
+    return allMenuItems.map(item => {
+      // Always show dashboard if user has access
       if (item.accessKey === 'dashboard' && userAccessSet.has('dashboard')) {
         return item;
       }
       
-      // Handle parent menu items (Conversion, Diversion)
+      // Handle parent menu items (Conversion, Diversion, SDAO Enquiries)
       if (item.subItems) {
         if (!userAccessSet.has(item.accessKey)) return null;
 
-        const visibleSubItems = item.subItems.filter(sub => {
-            // Special case for final_orders
-            if (sub.accessKey === 'final_orders') {
-                return item.type === 'diversion' && userAccessSet.has('final_orders');
-            }
-            return userAccessSet.has(sub.accessKey);
-        });
+        let visibleSubItems = item.subItems.filter(sub => userAccessSet.has(sub.accessKey));
+        
+        // Special handling for final_orders
+        if (item.accessKey === 'diversion') {
+             visibleSubItems = item.subItems.filter(sub => {
+                if (sub.accessKey === 'final_orders') {
+                    return userAccessSet.has('final_orders');
+                }
+                return userAccessSet.has(sub.accessKey);
+            });
+        }
 
         if (visibleSubItems.length > 0) {
           return { ...item, subItems: visibleSubItems };
@@ -220,9 +255,7 @@ export function SidebarNav() {
       }
 
       return null;
-    }).filter(Boolean); // remove nulls
-
-    return menu as typeof allMenuItems;
+    }).filter(Boolean) as typeof allMenuItems;
 
   }, [access]);
 
@@ -259,8 +292,8 @@ export function SidebarNav() {
                         <SidebarMenuSub>
                            {item.subItems.map((subItem) => (
                                 <SidebarMenuSubItem key={`${item.type}-${subItem.label}`}>
-                                    <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, item.type)}>
-                                        <Link href={`${subItem.href}?type=${item.type}`}>
+                                    <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
+                                        <Link href={`${subItem.href}?type=${subItem.type}`}>
                                             <span>{subItem.label}</span>
                                         </Link>
                                     </SidebarMenuSubButton>
@@ -270,7 +303,7 @@ export function SidebarNav() {
                     </CollapsibleContent>
                  </Collapsible>
               ) : (
-                <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, !!item.exact)}>
+                <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
                     <Link href={item.href!}>
                         <item.icon />
                         <span>{item.label}</span>
