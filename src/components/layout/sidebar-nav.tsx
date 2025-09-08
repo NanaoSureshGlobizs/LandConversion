@@ -61,62 +61,6 @@ export const allMenuItems = [
     ]
   },
   {
-    label: 'Conversion',
-    icon: FileText,
-    accessKey: 'conversion',
-    subItems: [
-        {
-            href: '/dashboard/pending-enquiries',
-            label: 'Pending Enquiries',
-            accessKey: 'pending_enquiries',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/llmc-recommendations',
-            label: 'LLMC Recommendations',
-            accessKey: 'llmc_recommendations',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/report',
-            label: 'Report',
-            accessKey: 'report',
-            type: 'conversion'
-        },
-    ]
-  },
-  {
-    label: 'Diversion',
-    icon: FileText,
-    accessKey: 'diversion',
-    subItems: [
-         {
-            href: '/dashboard/pending-enquiries',
-            label: 'Pending Enquiries',
-            accessKey: 'pending_enquiries',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/llmc-recommendations',
-            label: 'LLMC Recommendations',
-            accessKey: 'llmc_recommendations',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/report',
-            label: 'Report',
-            accessKey: 'report',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/final-orders',
-            label: 'Final Orders',
-            accessKey: 'final_orders',
-            type: 'diversion'
-        }
-    ]
-  },
-  {
     label: 'SDAO Enquiries',
     icon: FileSearch,
     accessKey: 'SDAO_enquiries',
@@ -171,13 +115,71 @@ export const allMenuItems = [
     icon: FilePlus2,
     accessKey: 'create_application',
   },
+  {
+    label: 'Conversion',
+    icon: FileText,
+    accessKey: 'conversion',
+    href: '/dashboard/pending-enquiries?type=conversion', // Fallback link for roles like DC
+    subItems: [
+        {
+            href: '/dashboard/pending-enquiries',
+            label: 'Pending Enquiries',
+            accessKey: 'pending_enquiries',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/llmc-recommendations',
+            label: 'LLMC Recommendations',
+            accessKey: 'llmc_recommendations',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/report',
+            label: 'Report',
+            accessKey: 'report',
+            type: 'conversion'
+        },
+    ]
+  },
+  {
+    label: 'Diversion',
+    icon: FileText,
+    accessKey: 'diversion',
+    href: '/dashboard/pending-enquiries?type=diversion', // Fallback link for roles like DC
+    subItems: [
+         {
+            href: '/dashboard/pending-enquiries',
+            label: 'Pending Enquiries',
+            accessKey: 'pending_enquiries',
+            type: 'diversion'
+        },
+        {
+            href: '/dashboard/llmc-recommendations',
+            label: 'LLMC Recommendations',
+            accessKey: 'llmc_recommendations',
+            type: 'diversion'
+        },
+        {
+            href: '/dashboard/report',
+            label: 'Report',
+            accessKey: 'report',
+            type: 'diversion'
+        },
+        {
+            href: '/dashboard/final-orders',
+            label: 'Final Orders',
+            accessKey: 'final_orders',
+            type: 'diversion'
+        }
+    ]
+  },
 ];
 
 export function SidebarNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { logout, access, role } = useAuth();
+  const { logout, access } = useAuth();
   const { isDebugMode, setIsDebugMode } = useDebug();
 
   const handleLogout = async () => {
@@ -212,6 +214,12 @@ export function SidebarNav() {
     }
     
     if (href && !itemType) {
+      // For parent items like "Conversion" that don't have a specific type themselves
+      // check if any of its children are active.
+      const parentItem = allMenuItems.find(i => i.href === href);
+      if (parentItem?.subItems) {
+        return parentItem.subItems.some(sub => currentPath === sub.href && currentType === sub.type);
+      }
       return currentPath.startsWith(href);
     }
     
@@ -228,26 +236,13 @@ export function SidebarNav() {
 
       if (item.subItems) {
         const visibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
-        
-        // For DC role, if they have 'conversion' or 'diversion' access, show the parent menu
-        // even if there are no visible sub-items, because they might navigate to a base page.
-        if (role === 'DC' && (item.accessKey === 'conversion' || item.accessKey === 'diversion')) {
-             return { ...item, subItems: visibleSubItems };
-        }
-        
-        if (visibleSubItems.length === 0) {
-          // If a collapsible item has no visible children, don't show the parent.
-          // Exception for DC role handled above.
-          return null;
-        }
-        
         return { ...item, subItems: visibleSubItems };
       }
 
       return item;
-    }).filter(Boolean) as typeof allMenuItems;
+    }).filter(Boolean) as (typeof allMenuItems[0])[];
 
-  }, [access, role]);
+  }, [access]);
 
 
   return (
@@ -264,48 +259,48 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {visibleMenuItems.map((item) => (
-            <SidebarMenuItem key={item.label}>
-              {item.href ? (
-                 <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
+          {visibleMenuItems.map((item) => {
+            const hasVisibleSubItems = item.subItems && item.subItems.length > 0;
+
+            return (
+              <SidebarMenuItem key={item.label}>
+                {hasVisibleSubItems ? (
+                   <Collapsible defaultOpen={isParentActive(item)}>
+                      <CollapsibleTrigger asChild>
+                           <SidebarMenuButton
+                              isActive={isParentActive(item)}
+                              className="w-full"
+                          >
+                              <item.icon />
+                              <span>{item.label}</span>
+                               <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                          </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                          <SidebarMenuSub>
+                          {item.subItems!.map((subItem) => (
+                                  <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
+                                      <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
+                                          <Link href={`${subItem.href}?type=${subItem.type}`}>
+                                              <span>{subItem.label}</span>
+                                          </Link>
+                                      </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                              ))}
+                          </SidebarMenuSub>
+                      </CollapsibleContent>
+                   </Collapsible>
+                ) : (
+                  <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
                     <Link href={item.href!}>
                         <item.icon />
                         <span>{item.label}</span>
                     </Link>
-                </SidebarMenuButton>
-              ) : (
-                 <Collapsible defaultOpen={isParentActive(item)}>
-                    <CollapsibleTrigger asChild>
-                         <SidebarMenuButton
-                            isActive={isParentActive(item)}
-                            className="w-full"
-                        >
-                            <item.icon />
-                            <span>{item.label}</span>
-                             {item.subItems && item.subItems.length > 0 && (
-                                <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                            )}
-                        </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    {item.subItems && item.subItems.length > 0 && (
-                        <CollapsibleContent>
-                            <SidebarMenuSub>
-                            {item.subItems.map((subItem) => (
-                                    <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
-                                        <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
-                                            <Link href={`${subItem.href}?type=${subItem.type}`}>
-                                                <span>{subItem.label}</span>
-                                            </Link>
-                                        </SidebarMenuSubButton>
-                                    </SidebarMenuSubItem>
-                                ))}
-                            </SidebarMenuSub>
-                        </CollapsibleContent>
-                    )}
-                 </Collapsible>
-              )}
-            </SidebarMenuItem>
-          ))}
+                  </SidebarMenuButton>
+                )}
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
