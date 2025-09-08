@@ -5,14 +5,23 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-export default async function UnprocessedApplicationsPage() {
+const WORKFLOW_MAP = {
+  conversion: 1, // Placeholder - to be updated with correct ID
+  diversion: 1, // Placeholder - to be updated with correct ID
+};
+
+export default async function UnprocessedApplicationsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
+  const pageTitle = `Unprocessed Applications (${type.charAt(0).toUpperCase() + type.slice(1)})`;
 
   if (!accessToken) {
     redirect('/');
   }
 
+  // TODO: Update getApplications to filter by workflowId if the API supports it for this page
+  const workflowId = WORKFLOW_MAP[type] || null;
   const { data: initialApplicationsData, log } = await getApplications(accessToken);
 
   return (
@@ -20,7 +29,7 @@ export default async function UnprocessedApplicationsPage() {
       <ServerLogHandler logs={[log]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Unprocessed Applications</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">{pageTitle}</h1>
         </div>
         <UnprocessedApplicationsTable initialData={initialApplicationsData} accessToken={accessToken} />
       </div>
