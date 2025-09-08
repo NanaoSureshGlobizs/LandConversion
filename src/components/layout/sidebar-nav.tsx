@@ -46,7 +46,6 @@ export const allMenuItems = [
     icon: FileText,
     accessKey: 'conversion',
     type: 'conversion',
-    href: '/dashboard/pending-enquiries?type=conversion', // Default link
     subItems: [
         {
             href: '/dashboard/pending-enquiries',
@@ -75,7 +74,6 @@ export const allMenuItems = [
     icon: FileText,
     accessKey: 'diversion',
     type: 'diversion',
-    href: '/dashboard/pending-enquiries?type=diversion', // Default link
     subItems: [
          {
             href: '/dashboard/pending-enquiries',
@@ -100,7 +98,7 @@ export const allMenuItems = [
         {
             href: '/dashboard/final-orders',
             label: 'Final Orders',
-            accessKey: 'diversion',
+            accessKey: 'diversion', // Special case, only for diversion
         }
     ]
   },
@@ -161,8 +159,8 @@ export function SidebarNav() {
     const currentType = searchParams.get('type');
     
     // For sub-menu items, we need to check both path and type
-    if (href.includes('?')) {
-        const url = new URL(href, 'http://localhost');
+    if (href.includes('?type=')) {
+        const url = new URL(href, 'http://localhost'); // Base URL doesn't matter
         const hrefPath = url.pathname;
         const hrefType = url.searchParams.get('type');
         return currentPath === hrefPath && currentType === hrefType;
@@ -171,11 +169,15 @@ export function SidebarNav() {
     if (exact) {
       return currentPath === href;
     }
-
+    
     // For parent menu items, check if the current path starts with its base path
     // and if the types match. This is important for keeping the parent open.
     if(itemType) {
-        return currentType === itemType;
+        const hasSubItemMatch = allMenuItems
+            .find(item => item.type === itemType)?.subItems
+            ?.some(sub => currentPath === sub.href);
+            
+        return hasSubItemMatch && currentType === itemType;
     }
 
     return currentPath.startsWith(href);
@@ -185,13 +187,31 @@ export function SidebarNav() {
     const userAccessSet = new Set(access);
 
     return allMenuItems.filter(item => {
-        if (item.accessKey && userAccessSet.has(item.accessKey)) {
-            return true;
+        // Always show dashboard if user has access
+        if (item.accessKey === 'dashboard') {
+            return userAccessSet.has('dashboard');
         }
-        return false;
+
+        // Show conversion/diversion menus if user has access to the parent key
+        if (item.accessKey === 'conversion' || item.accessKey === 'diversion') {
+             return userAccessSet.has(item.accessKey);
+        }
+
+        // Hide all other items by default unless they have access
+        // This is to avoid showing items that are now nested
+        if (item.subItems) return false;
+
+        return userAccessSet.has(item.accessKey);
     }).map(item => {
         if (item.subItems) {
-            const accessibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
+            // Filter sub-items based on user access
+            const accessibleSubItems = item.subItems.filter(subItem => {
+                // Special rule for final_orders
+                if (subItem.href === '/dashboard/final-orders') {
+                    return item.type === 'diversion' && userAccessSet.has('diversion');
+                }
+                return userAccessSet.has(subItem.accessKey);
+            });
             return { ...item, subItems: accessibleSubItems };
         }
         return item;
@@ -216,10 +236,10 @@ export function SidebarNav() {
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               {item.subItems && item.subItems.length > 0 ? (
-                 <Collapsible defaultOpen={isLinkActive(item.href, item.type)}>
+                 <Collapsible defaultOpen={isLinkActive(undefined, item.type)}>
                     <CollapsibleTrigger asChild>
                          <SidebarMenuButton
-                            isActive={isLinkActive(item.href, item.type)}
+                            isActive={isLinkActive(undefined, item.type)}
                             className="w-full"
                         >
                             <item.icon />
@@ -242,7 +262,7 @@ export function SidebarNav() {
                     </CollapsibleContent>
                  </Collapsible>
               ) : (
-                <SidebarMenuButton asChild isActive={isLinkActive(item.href, item.type, !!item.exact)}>
+                <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, !!item.exact)}>
                     <Link href={item.href!}>
                         <item.icon />
                         <span>{item.label}</span>
