@@ -222,28 +222,37 @@ export function SidebarNav() {
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
+      // If the user doesn't have the main access key for the item, skip it.
       if (!userAccessSet.has(item.accessKey)) {
         return null;
       }
 
+      // If the item has sub-items, filter them based on access.
       if (item.subItems) {
-        const visibleSubItems = item.subItems.filter(sub => {
-            // For final_orders, check for that specific key. For others, check parent access key (conversion/diversion).
-            if (sub.accessKey === 'final_orders') {
-                return userAccessSet.has('final_orders');
-            }
-            return userAccessSet.has(item.accessKey);
+        const visibleSubItems = item.subItems.filter(subItem => {
+          // A sub-item is visible if the user has access to its specific key.
+          return userAccessSet.has(subItem.accessKey);
         });
-        
-        // This makes sure that parent items like "Conversion" and "Diversion" are included
-        // if the user has access to them, even if no sub-items are visible by default sub-item access keys.
-        if (userAccessSet.has(item.accessKey)) {
-             return { ...item, subItems: visibleSubItems };
-        }
 
-        return null;
+        // Special handling for DC role: If they have 'conversion' or 'diversion' access,
+        // show the parent menu even if there are no visible sub-items.
+        if (visibleSubItems.length === 0) {
+            if (item.accessKey === 'conversion' && userAccessSet.has('conversion')) {
+                 return { ...item, subItems: [] };
+            }
+            if (item.accessKey === 'diversion' && userAccessSet.has('diversion')) {
+                 return { ...item, subItems: [] };
+            }
+            if(item.accessKey === 'enquiries' && userAccessSet.has('enquiries')) {
+                return { ...item, subItems: visibleSubItems };
+            }
+            return null;
+        }
+        
+        return { ...item, subItems: visibleSubItems };
       }
 
+      // If it's a regular item with no sub-items, it's visible.
       return item;
     }).filter(Boolean) as typeof allMenuItems;
 
@@ -275,22 +284,26 @@ export function SidebarNav() {
                         >
                             <item.icon />
                             <span>{item.label}</span>
-                            <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                             {item.subItems && item.subItems.length > 0 && (
+                                <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                            )}
                         </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    <CollapsibleContent>
-                        <SidebarMenuSub>
-                           {item.subItems.map((subItem) => (
-                                <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
-                                    <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
-                                        <Link href={`${subItem.href}?type=${subItem.type}`}>
-                                            <span>{subItem.label}</span>
-                                        </Link>
-                                    </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                            ))}
-                        </SidebarMenuSub>
-                    </CollapsibleContent>
+                    {item.subItems && item.subItems.length > 0 && (
+                        <CollapsibleContent>
+                            <SidebarMenuSub>
+                            {item.subItems.map((subItem) => (
+                                    <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
+                                        <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
+                                            <Link href={`${subItem.href}?type=${subItem.type}`}>
+                                                <span>{subItem.label}</span>
+                                            </Link>
+                                        </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                ))}
+                            </SidebarMenuSub>
+                        </CollapsibleContent>
+                    )}
                  </Collapsible>
               ) : (
                 <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
