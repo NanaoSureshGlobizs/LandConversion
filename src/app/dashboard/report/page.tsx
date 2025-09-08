@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 22,
-  // diversion: ID_FOR_DIVERSION, // Add when available
+  diversion: 18,
 };
 
 export default async function ReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {

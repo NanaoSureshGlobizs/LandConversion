@@ -11,7 +11,7 @@ import { FilePlus2 } from 'lucide-react';
 
 const WORKFLOW_MAP = {
   conversion: 2,
-  // diversion: ID_FOR_DIVERSION, // Add when available
+  diversion: 2, 
 };
 
 

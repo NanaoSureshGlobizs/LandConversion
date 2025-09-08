@@ -85,6 +85,11 @@ export const allMenuItems = [
             label: 'Report',
             accessKey: 'report',
         },
+        {
+            href: '/dashboard/final-orders',
+            label: 'Final Orders',
+            accessKey: 'diversion', // Assuming same access key for now
+        }
     ]
   },
   {
@@ -147,21 +152,24 @@ export function SidebarNav() {
     const currentType = searchParams.get('type');
     
     // Parent menu active state (Conversion/Diversion)
-    if (itemType) {
+    if (itemType && !href) {
         return currentType === itemType;
     }
     
     if (!href) return false;
 
-    // Sub-menu item active state
-    if (href.includes('?type=')) {
-        const [path, typeQuery] = href.split('?');
-        const type = new URLSearchParams(typeQuery).get('type');
-        return pathname === path && currentType === type;
+    // Regular menu item active state
+    if (exact) {
+      return pathname === href;
     }
 
-    // Regular menu item active state
-    return exact ? pathname === href : pathname.startsWith(href);
+    // Sub-menu item active state check
+    const typeFromHref = new URLSearchParams(href.split('?')[1]).get('type');
+    if (typeFromHref) {
+      return pathname === href.split('?')[0] && currentType === typeFromHref;
+    }
+
+    return pathname.startsWith(href);
   };
   
  const visibleMenuItems = useMemo(() => {
