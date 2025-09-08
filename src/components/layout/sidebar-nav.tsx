@@ -98,7 +98,7 @@ export const allMenuItems = [
         {
             href: '/dashboard/final-orders',
             label: 'Final Orders',
-            accessKey: 'diversion', // Special case, only for diversion
+            accessKey: 'final_orders', 
         }
     ]
   },
@@ -159,11 +159,8 @@ export function SidebarNav() {
     const currentType = searchParams.get('type');
     
     // For sub-menu items, we need to check both path and type
-    if (href.includes('?type=')) {
-        const url = new URL(href, 'http://localhost'); // Base URL doesn't matter
-        const hrefPath = url.pathname;
-        const hrefType = url.searchParams.get('type');
-        return currentPath === hrefPath && currentType === hrefType;
+    if (itemType) {
+        return currentPath === href && currentType === itemType;
     }
     
     if (exact) {
@@ -172,12 +169,12 @@ export function SidebarNav() {
     
     // For parent menu items, check if the current path starts with its base path
     // and if the types match. This is important for keeping the parent open.
-    if(itemType) {
+    if(item.type) {
         const hasSubItemMatch = allMenuItems
-            .find(item => item.type === itemType)?.subItems
+            .find(item => item.type === item.type)?.subItems
             ?.some(sub => currentPath === sub.href);
             
-        return hasSubItemMatch && currentType === itemType;
+        return hasSubItemMatch && currentType === item.type;
     }
 
     return currentPath.startsWith(href);
@@ -186,35 +183,31 @@ export function SidebarNav() {
  const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
 
-    return allMenuItems.filter(item => {
-        // Always show dashboard if user has access
-        if (item.accessKey === 'dashboard') {
-            return userAccessSet.has('dashboard');
-        }
+    return allMenuItems.map(item => {
+      // Create a mutable copy of the item to modify subItems
+      const newItem = { ...item };
 
-        // Show conversion/diversion menus if user has access to the parent key
-        if (item.accessKey === 'conversion' || item.accessKey === 'diversion') {
-             return userAccessSet.has(item.accessKey);
-        }
-
-        // Hide all other items by default unless they have access
-        // This is to avoid showing items that are now nested
-        if (item.subItems) return false;
-
+      if (newItem.subItems) {
+        // Filter sub-items based on user access
+        newItem.subItems = newItem.subItems.filter(subItem => 
+          userAccessSet.has(subItem.accessKey)
+        );
+      }
+      return newItem;
+    }).filter(item => {
+      // Keep the item if it's a dashboard and user has access
+      if (item.accessKey === 'dashboard') {
+        return userAccessSet.has('dashboard');
+      }
+      // Keep the item if it has its own access key and it's not a parent container
+      if (userAccessSet.has(item.accessKey) && !item.subItems) {
+        return true;
+      }
+      // Keep the item if it's a parent container and has visible sub-items
+      if (item.subItems && item.subItems.length > 0) {
         return userAccessSet.has(item.accessKey);
-    }).map(item => {
-        if (item.subItems) {
-            // Filter sub-items based on user access
-            const accessibleSubItems = item.subItems.filter(subItem => {
-                // Special rule for final_orders
-                if (subItem.href === '/dashboard/final-orders') {
-                    return item.type === 'diversion' && userAccessSet.has('diversion');
-                }
-                return userAccessSet.has(subItem.accessKey);
-            });
-            return { ...item, subItems: accessibleSubItems };
-        }
-        return item;
+      }
+      return false;
     });
   }, [access]);
 
@@ -251,7 +244,7 @@ export function SidebarNav() {
                         <SidebarMenuSub>
                            {item.subItems.map((subItem) => (
                                 <SidebarMenuSubItem key={`${item.type}-${subItem.label}`}>
-                                    <SidebarMenuSubButton asChild isActive={isLinkActive(`${subItem.href}?type=${item.type}`)}>
+                                    <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, item.type)}>
                                         <Link href={`${subItem.href}?type=${item.type}`}>
                                             <span>{subItem.label}</span>
                                         </Link>
