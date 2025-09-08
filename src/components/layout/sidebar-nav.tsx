@@ -172,7 +172,7 @@ export const allMenuItems = [
         {
             href: '/dashboard/final-orders',
             label: 'Final Orders',
-            accessKey: 'final_orders',
+            accessKey: 'final_order',
             type: 'diversion'
         },
         {
