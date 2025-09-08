@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
+import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import {
   Table,
   TableHeader,
@@ -18,10 +18,12 @@ import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { UpdateStatusForm } from './update-status-form';
 
 interface DecisionAndFeesTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
+  statuses: ApplicationStatusOption[];
 }
 
 const mockOwners = [
@@ -30,7 +32,7 @@ const mockOwners = [
     "James Wilson", "Charlotte Taylor", "Benjamin Moore", "Amelia Anderson"
 ];
 
-export function DecisionAndFeesTable({ initialData, accessToken }: DecisionAndFeesTableProps) {
+export function DecisionAndFeesTable({ initialData, accessToken, statuses }: DecisionAndFeesTableProps) {
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -48,7 +50,7 @@ export function DecisionAndFeesTable({ initialData, accessToken }: DecisionAndFe
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, 16);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -92,9 +94,18 @@ export function DecisionAndFeesTable({ initialData, accessToken }: DecisionAndFe
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="default" size="sm" asChild>
-                      <Link href="#">Take Decision</Link>
-                    </Button>
+                     <div className='flex justify-end items-center gap-2'>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/decision-and-fees`}>View</Link>
+                        </Button>
+                        <UpdateStatusForm
+                            applicationId={app.id.toString()}
+                            accessToken={accessToken}
+                            statuses={statuses}
+                        >
+                            <Button variant="default" size="sm">Take Decision</Button>
+                        </UpdateStatusForm>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
