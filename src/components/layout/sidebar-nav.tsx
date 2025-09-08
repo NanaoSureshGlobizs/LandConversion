@@ -42,6 +42,26 @@ export const allMenuItems = [
     accessKey: 'unprocessed_applications',
   },
   {
+    label: 'Enquiries',
+    icon: FileSearch,
+    accessKey: 'enquiries',
+    type: 'enquiries',
+    subItems: [
+        {
+            href: '/dashboard/enquiries',
+            label: 'Conversion',
+            accessKey: 'conversion',
+            type: 'conversion',
+        },
+        {
+            href: '/dashboard/enquiries',
+            label: 'Diversion',
+            accessKey: 'diversion',
+            type: 'diversion',
+        },
+    ]
+  },
+  {
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
@@ -51,21 +71,19 @@ export const allMenuItems = [
             href: '/dashboard/pending-enquiries',
             label: 'Pending Enquiries',
             accessKey: 'pending_enquiries',
-        },
-        {
-            href: '/dashboard/enquiries',
-            label: 'Enquiries',
-            accessKey: 'enquiries',
+            type: 'conversion'
         },
         {
             href: '/dashboard/llmc-recommendations',
             label: 'LLMC Recommendations',
             accessKey: 'llmc_recommendations',
+            type: 'conversion'
         },
         {
             href: '/dashboard/report',
             label: 'Report',
             accessKey: 'report',
+            type: 'conversion'
         },
     ]
   },
@@ -79,26 +97,25 @@ export const allMenuItems = [
             href: '/dashboard/pending-enquiries',
             label: 'Pending Enquiries',
             accessKey: 'pending_enquiries',
-        },
-        {
-            href: '/dashboard/enquiries',
-            label: 'Enquiries',
-            accessKey: 'enquiries',
+            type: 'diversion'
         },
         {
             href: '/dashboard/llmc-recommendations',
             label: 'LLMC Recommendations',
             accessKey: 'llmc_recommendations',
+            type: 'diversion'
         },
         {
             href: '/dashboard/report',
             label: 'Report',
             accessKey: 'report',
+            type: 'diversion'
         },
         {
             href: '/dashboard/final-orders',
             label: 'Final Orders',
             accessKey: 'final_orders', 
+            type: 'diversion'
         }
     ]
   },
@@ -175,18 +192,20 @@ export function SidebarNav() {
   const isParentActive = (itemType?: string) => {
     if (!itemType) return false;
     const currentPath = pathname;
-    const currentType = searchParams.get('type');
 
-    // Find the parent item that matches the type
-    const parentItem = allMenuItems.find(i => i.type === itemType || (i.subItems && i.subItems.some(sub => sub.href === currentPath)));
-
-    if (parentItem && parentItem.subItems) {
-      const hasActiveSubItem = parentItem.subItems.some(sub => currentPath === sub.href);
-       if (itemType === 'sdao') {
-         return currentPath === '/dashboard/sdao-enquiries';
-      }
-      return hasActiveSubItem && currentType === itemType;
+    if(itemType === 'enquiries') {
+        return currentPath === '/dashboard/enquiries';
     }
+    if (itemType === 'sdao') {
+        return currentPath === '/dashboard/sdao-enquiries';
+    }
+    
+    // For Conversion/Diversion, check if any sub-item is active with the correct type
+    const parentItem = allMenuItems.find(i => i.type === itemType);
+    if(parentItem && parentItem.subItems) {
+        return parentItem.subItems.some(sub => isLinkActive(sub.href, sub.type));
+    }
+
     return false;
   }
 
@@ -194,24 +213,15 @@ export function SidebarNav() {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
     
-    // For SDAO sub-menu items
-    if(href === '/dashboard/sdao-enquiries') {
-        return currentPath === href && currentType === itemType;
-    }
-
-    // For Conversion/Diversion sub-menu items
-    if (itemType && href) {
+    if (href && itemType) {
         return currentPath === href && currentType === itemType;
     }
     
-    // For exact routes like /dashboard
     if (exact) {
       return currentPath === href;
     }
     
-    // For regular, non-exact-match menu items
     if (href) {
-      // This is to prevent the dashboard from being active for all sub-routes
       return currentPath.startsWith(href) && href !== '/dashboard';
     }
     
@@ -222,34 +232,31 @@ export function SidebarNav() {
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
-      // Always show dashboard if user has access
-      if (item.accessKey === 'dashboard' && userAccessSet.has('dashboard')) {
-        return item;
-      }
-      
-      // Handle parent menu items (Conversion, Diversion, SDAO Enquiries)
+      // Handle parent menu items with sub-items
       if (item.subItems) {
+        // Parent must have access key
         if (!userAccessSet.has(item.accessKey)) return null;
 
-        let visibleSubItems = item.subItems.filter(sub => userAccessSet.has(sub.accessKey));
-        
-        // Special handling for final_orders
-        if (item.accessKey === 'diversion') {
-             visibleSubItems = item.subItems.filter(sub => {
-                if (sub.accessKey === 'final_orders') {
-                    return userAccessSet.has('final_orders');
-                }
+        let visibleSubItems = item.subItems.filter(sub => {
+           // Special case for final_orders, it requires its own key AND diversion key on parent
+           if (sub.accessKey === 'final_orders') {
+               return userAccessSet.has('final_orders');
+           }
+           // For SDAO and Enquiries, the sub-items depend on conversion/diversion keys
+           if (item.accessKey === 'SDAO_enquiries' || item.accessKey === 'enquiries') {
                 return userAccessSet.has(sub.accessKey);
-            });
-        }
-
+           }
+           // For main Conversion/Diversion menus, sub-items need their own keys
+           return userAccessSet.has(sub.accessKey);
+        });
+        
         if (visibleSubItems.length > 0) {
           return { ...item, subItems: visibleSubItems };
         }
         return null; // Hide parent if no sub-items are visible
       }
 
-      // Handle regular menu items
+      // Handle regular, non-parent menu items
       if (userAccessSet.has(item.accessKey)) {
         return item;
       }
