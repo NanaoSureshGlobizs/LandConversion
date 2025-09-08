@@ -6,8 +6,8 @@ import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
-  conversion: 2, // Placeholder, assuming it's the same as pending for now
-  diversion: 2, // Placeholder
+  conversion: 7,
+  diversion: 3,
 };
 
 export default async function EnquiriesPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
