@@ -9,16 +9,23 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { FilePlus2 } from 'lucide-react';
 
+const WORKFLOW_MAP = {
+  conversion: 2,
+  // diversion: ID_FOR_DIVERSION, // Add when available
+};
+
+
 export default async function PendingEnquiriesPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
-  const type = searchParams.type || 'conversion';
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
 
   if (!accessToken) {
     redirect('/');
   }
 
-  const { data: initialApplicationsData, log } = await getApplications(accessToken);
+  const workflowId = WORKFLOW_MAP[type] || null;
+  const { data: initialApplicationsData, log } = await getApplications(accessToken, 1, 10, workflowId);
 
   return (
     <>
@@ -35,3 +42,5 @@ export default async function PendingEnquiriesPage({ searchParams }: { searchPar
     </>
   );
 }
+
+    

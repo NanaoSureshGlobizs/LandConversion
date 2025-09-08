@@ -545,11 +545,15 @@ export async function getRelationships(token: string) {
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 
-export async function getApplications(accessToken: string, page = 1, limit = 10) {
+export async function getApplications(accessToken: string, page = 1, limit = 10, workflow_sequence_id: number | null = null) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
-    const { data, debugLog } = await fetchFromApi(`/applications/lists?page=${page}&limit=${limit}`, accessToken);
+    let url = `/applications/lists?page=${page}&limit=${limit}`;
+    if(workflow_sequence_id) {
+        url += `&workflow_sequence_id=${workflow_sequence_id}`;
+    }
+    const { data, debugLog } = await fetchFromApi(url, accessToken);
     return { data, log: debugLog };
 }
 
@@ -583,5 +587,7 @@ function addLog(log: string) {
 
 
 
+
+    
 
     

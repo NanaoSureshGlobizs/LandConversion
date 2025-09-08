@@ -5,17 +5,24 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
+const WORKFLOW_MAP = {
+  conversion: 9,
+  // diversion: ID_FOR_DIVERSION, // Add when available
+};
+
 export default async function LlmcRecommendationsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
-  const type = searchParams.type || 'conversion';
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
 
   if (!accessToken) {
     redirect('/');
   }
+  
+  const workflowId = WORKFLOW_MAP[type] || null;
 
   const [{ data: initialApplicationsData, log: appLog }, { data: statuses, log: statusesLog }] = await Promise.all([
-    getApplications(accessToken),
+    getApplications(accessToken, 1, 10, workflowId),
     getApplicationStatuses(accessToken)
   ]);
 
@@ -35,3 +42,5 @@ export default async function LlmcRecommendationsPage({ searchParams }: { search
     </>
   );
 }
+
+    
