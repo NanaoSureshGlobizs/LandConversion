@@ -144,23 +144,24 @@ export function SidebarNav() {
   };
 
   const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
-    if (!href) return false;
-    const fromPath = searchParams.get('from') || pathname;
-    const typeParam = searchParams.get('type');
-
-    // For parent items with sub-menus (Conversion/Diversion)
-    if (itemType) {
-        return typeParam === itemType && (itemType === 'conversion' || itemType === 'diversion');
-    }
-
-    const pathIsActive = exact ? fromPath === href : fromPath.startsWith(href);
+    const currentType = searchParams.get('type');
     
-    // For sub-menu items, we also need to check the type param
-    if (href.includes('/pending-enquiries') || href.includes('/llmc-recommendations') || href.includes('/report')) {
-       return pathIsActive && typeParam === searchParams.get('type');
+    // Parent menu active state (Conversion/Diversion)
+    if (itemType) {
+        return currentType === itemType;
+    }
+    
+    if (!href) return false;
+
+    // Sub-menu item active state
+    if (href.includes('?type=')) {
+        const [path, typeQuery] = href.split('?');
+        const type = new URLSearchParams(typeQuery).get('type');
+        return pathname === path && currentType === type;
     }
 
-    return pathIsActive;
+    // Regular menu item active state
+    return exact ? pathname === href : pathname.startsWith(href);
   };
   
  const visibleMenuItems = useMemo(() => {
