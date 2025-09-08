@@ -36,12 +36,6 @@ export const allMenuItems = [
     exact: true,
   },
   {
-    href: '/dashboard/unprocessed-applications',
-    label: 'Unprocessed Applications',
-    icon: FileSearch,
-    accessKey: 'unprocessed_applications',
-  },
-  {
     label: 'Enquiries',
     icon: FileSearch,
     accessKey: 'enquiries',
@@ -80,24 +74,6 @@ export const allMenuItems = [
     ]
   },
   {
-    href: '/dashboard/dlc-recommendations',
-    label: 'DLC Recommendations',
-    icon: ThumbsUp,
-    accessKey: 'dlc_recommendations',
-  },
-  {
-    href: '/dashboard/reports-from-dlc',
-    label: 'Reports from DLC',
-    icon: FileText,
-    accessKey: 'report_from_dlc',
-  },
-  {
-    href: '/dashboard/lrd-decision',
-    label: 'LRD Decision',
-    icon: ShieldCheck,
-    accessKey: 'lrd_decision',
-  },
-  {
     href: '/dashboard/decision-and-fees',
     label: 'Decision & Fees',
     icon: Gavel,
@@ -119,7 +95,6 @@ export const allMenuItems = [
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
-    href: '/dashboard/pending-enquiries?type=conversion', // Fallback link for roles like DC
     subItems: [
         {
             href: '/dashboard/pending-enquiries',
@@ -139,13 +114,40 @@ export const allMenuItems = [
             accessKey: 'report',
             type: 'conversion'
         },
+         {
+            href: '/dashboard/unprocessed-applications',
+            label: 'Unprocessed Applications',
+            icon: FileSearch,
+            accessKey: 'unprocessed_applications',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/dlc-recommendations',
+            label: 'DLC Recommendations',
+            icon: ThumbsUp,
+            accessKey: 'dlc_recommendations',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/reports-from-dlc',
+            label: 'Reports from DLC',
+            icon: FileText,
+            accessKey: 'report_from_dlc',
+             type: 'conversion'
+        },
+        {
+            href: '/dashboard/lrd-decision',
+            label: 'LRD Decision',
+            icon: ShieldCheck,
+            accessKey: 'lrd_decision',
+            type: 'conversion'
+        },
     ]
   },
   {
     label: 'Diversion',
     icon: FileText,
     accessKey: 'diversion',
-    href: '/dashboard/pending-enquiries?type=diversion', // Fallback link for roles like DC
     subItems: [
          {
             href: '/dashboard/pending-enquiries',
@@ -170,7 +172,35 @@ export const allMenuItems = [
             label: 'Final Orders',
             accessKey: 'final_orders',
             type: 'diversion'
-        }
+        },
+         {
+            href: '/dashboard/unprocessed-applications',
+            label: 'Unprocessed Applications',
+            icon: FileSearch,
+            accessKey: 'unprocessed_applications',
+            type: 'diversion'
+        },
+        {
+            href: '/dashboard/dlc-recommendations',
+            label: 'DLC Recommendations',
+            icon: ThumbsUp,
+            accessKey: 'dlc_recommendations',
+            type: 'diversion'
+        },
+        {
+            href: '/dashboard/reports-from-dlc',
+            label: 'Reports from DLC',
+            icon: FileText,
+            accessKey: 'report_from_dlc',
+            type: 'diversion'
+        },
+        {
+            href: '/dashboard/lrd-decision',
+            label: 'LRD Decision',
+            icon: ShieldCheck,
+            accessKey: 'lrd_decision',
+            type: 'diversion'
+        },
     ]
   },
 ];
@@ -208,19 +238,13 @@ export function SidebarNav() {
     if (exact) {
       return currentPath === href;
     }
-
+    
     if (href && itemType) {
         return currentPath === href && currentType === itemType;
     }
     
-    if (href && !itemType) {
-      // For parent items like "Conversion" that don't have a specific type themselves
-      // check if any of its children are active.
-      const parentItem = allMenuItems.find(i => i.href === href);
-      if (parentItem?.subItems) {
-        return parentItem.subItems.some(sub => currentPath === sub.href && currentType === sub.type);
-      }
-      return currentPath.startsWith(href);
+    if(href) {
+        return currentPath.startsWith(href);
     }
     
     return false;
@@ -236,6 +260,7 @@ export function SidebarNav() {
 
       if (item.subItems) {
         const visibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
+        if(visibleSubItems.length === 0 && !item.href) return null;
         return { ...item, subItems: visibleSubItems };
       }
 
@@ -261,6 +286,7 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => {
             const hasVisibleSubItems = item.subItems && item.subItems.length > 0;
+            const Icon = item.icon;
 
             return (
               <SidebarMenuItem key={item.label}>
@@ -271,7 +297,7 @@ export function SidebarNav() {
                               isActive={isParentActive(item)}
                               className="w-full"
                           >
-                              <item.icon />
+                              {Icon && <Icon />}
                               <span>{item.label}</span>
                                <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </SidebarMenuButton>
@@ -281,7 +307,7 @@ export function SidebarNav() {
                           {item.subItems!.map((subItem) => (
                                   <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
                                       <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
-                                          <Link href={`${subItem.href}?type=${subItem.type}`}>
+                                          <Link href={subItem.type ? `${subItem.href}?type=${subItem.type}` : subItem.href!}>
                                               <span>{subItem.label}</span>
                                           </Link>
                                       </SidebarMenuSubButton>
@@ -291,12 +317,14 @@ export function SidebarNav() {
                       </CollapsibleContent>
                    </Collapsible>
                 ) : (
-                  <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
-                    <Link href={item.href!}>
-                        <item.icon />
-                        <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                   item.href && (
+                     <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
+                       <Link href={item.href}>
+                           {Icon && <Icon />}
+                           <span>{item.label}</span>
+                       </Link>
+                     </SidebarMenuButton>
+                   )
                 )}
               </SidebarMenuItem>
             );
