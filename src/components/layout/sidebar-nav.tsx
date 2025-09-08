@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -111,7 +111,7 @@ export const allMenuItems = [
         {
             href: '/dashboard/final-orders',
             label: 'Final Orders',
-            accessKey: 'final_orders', 
+            accessKey: 'final_orders',
             type: 'diversion'
         }
     ]
@@ -177,7 +177,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { logout, access } = useAuth();
+  const { logout, access, role } = useAuth();
   const { isDebugMode, setIsDebugMode } = useDebug();
 
   const handleLogout = async () => {
@@ -211,7 +211,7 @@ export function SidebarNav() {
         return currentPath === href && currentType === itemType;
     }
     
-    if (href && !itemType) { // For links that don't have types like my-applications
+    if (href && !itemType) {
       return currentPath.startsWith(href);
     }
     
@@ -222,41 +222,32 @@ export function SidebarNav() {
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
-      // If the user doesn't have the main access key for the item, skip it.
       if (!userAccessSet.has(item.accessKey)) {
         return null;
       }
 
-      // If the item has sub-items, filter them based on access.
       if (item.subItems) {
-        const visibleSubItems = item.subItems.filter(subItem => {
-          // A sub-item is visible if the user has access to its specific key.
-          return userAccessSet.has(subItem.accessKey);
-        });
-
-        // Special handling for DC role: If they have 'conversion' or 'diversion' access,
-        // show the parent menu even if there are no visible sub-items.
+        const visibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
+        
+        // For DC role, if they have 'conversion' or 'diversion' access, show the parent menu
+        // even if there are no visible sub-items, because they might navigate to a base page.
+        if (role === 'DC' && (item.accessKey === 'conversion' || item.accessKey === 'diversion')) {
+             return { ...item, subItems: visibleSubItems };
+        }
+        
         if (visibleSubItems.length === 0) {
-            if (item.accessKey === 'conversion' && userAccessSet.has('conversion')) {
-                 return { ...item, subItems: [] };
-            }
-            if (item.accessKey === 'diversion' && userAccessSet.has('diversion')) {
-                 return { ...item, subItems: [] };
-            }
-            if(item.accessKey === 'enquiries' && userAccessSet.has('enquiries')) {
-                return { ...item, subItems: visibleSubItems };
-            }
-            return null;
+          // If a collapsible item has no visible children, don't show the parent.
+          // Exception for DC role handled above.
+          return null;
         }
         
         return { ...item, subItems: visibleSubItems };
       }
 
-      // If it's a regular item with no sub-items, it's visible.
       return item;
     }).filter(Boolean) as typeof allMenuItems;
 
-  }, [access]);
+  }, [access, role]);
 
 
   return (
@@ -275,7 +266,14 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              {item.subItems ? (
+              {item.href ? (
+                 <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
+                    <Link href={item.href!}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </Link>
+                </SidebarMenuButton>
+              ) : (
                  <Collapsible defaultOpen={isParentActive(item)}>
                     <CollapsibleTrigger asChild>
                          <SidebarMenuButton
@@ -305,13 +303,6 @@ export function SidebarNav() {
                         </CollapsibleContent>
                     )}
                  </Collapsible>
-              ) : (
-                <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
-                    <Link href={item.href!}>
-                        <item.icon />
-                        <span>{item.label}</span>
-                    </Link>
-                </SidebarMenuButton>
               )}
             </SidebarMenuItem>
           ))}
