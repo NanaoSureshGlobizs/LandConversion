@@ -211,8 +211,8 @@ export function SidebarNav() {
         return currentPath === href && currentType === itemType;
     }
     
-    if (href) {
-      return currentPath.startsWith(href) && href !== '/dashboard';
+    if (href && !itemType) { // For links that don't have types like my-applications
+      return currentPath.startsWith(href);
     }
     
     return false;
@@ -230,17 +230,16 @@ export function SidebarNav() {
         const visibleSubItems = item.subItems.filter(sub => {
             return userAccessSet.has(sub.accessKey);
         });
-        
-        // If it's a main collapsible menu like Conversion/Diversion, show it if the parent key is present,
-        // even if sub-items are empty, as other logic might populate them.
-        // For Enquiries/SDAO, only show if there are visible sub-items.
-        if (item.accessKey === 'conversion' || item.accessKey === 'diversion') {
-             return { ...item, subItems: visibleSubItems };
-        }
 
         if (visibleSubItems.length > 0) {
           return { ...item, subItems: visibleSubItems };
         }
+        
+        // Special case for DC role which might have 'conversion' but no sub-items yet
+        if ( (item.accessKey === 'conversion' || item.accessKey === 'diversion') && userAccessSet.has(item.accessKey) ) {
+            return { ...item, subItems: visibleSubItems };
+        }
+
         return null;
       }
 
@@ -266,7 +265,7 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              {item.subItems ? (
+              {item.subItems && item.subItems.length > 0 ? (
                  <Collapsible defaultOpen={isParentActive(item)}>
                     <CollapsibleTrigger asChild>
                          <SidebarMenuButton
