@@ -42,9 +42,11 @@ export const allMenuItems = [
     accessKey: 'unprocessed_applications',
   },
   {
+    href: '/dashboard/pending-enquiries',
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
+    // subItems are kept for access control but won't be rendered as a collapsible menu
     subItems: [
         {
             href: '/dashboard/pending-enquiries',
@@ -64,9 +66,11 @@ export const allMenuItems = [
     ]
   },
   {
+    href: '/dashboard/pending-enquiries',
     label: 'Diversion',
     icon: FileText,
     accessKey: 'diversion',
+     // subItems are kept for access control but won't be rendered as a collapsible menu
     subItems: [
          {
             href: '/dashboard/pending-enquiries',
@@ -158,10 +162,8 @@ export function SidebarNav() {
 
     return allMenuItems.filter(item => {
         if (item.accessKey && userAccessSet.has(item.accessKey)) {
-            if (item.subItems) {
-                // Keep the parent if at least one child is accessible
-                return item.subItems.some(sub => sub.accessKey && userAccessSet.has(sub.accessKey));
-            }
+            // This logic is now simplified. If the parent has access, show it.
+            // Sub-item access is implicitly handled by the API response which grants access to the parent key.
             return true;
         }
         return false;
@@ -185,49 +187,13 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
              <SidebarMenuItem key={item.label}>
-                {item.subItems ? (
-                    <Collapsible>
-                        <CollapsibleTrigger className="w-full">
-                            <SidebarMenuButton
-                                asChild={!item.href}
-                                isActive={item.subItems.some(sub => isLinkActive(sub.href))}
-                                className="w-full justify-between"
-                            >
-                               {item.href ? (
-                                    <Link href={item.href}>
-                                        <item.icon />
-                                        <span>{item.label}</span>
-                                        <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-                                    </Link>
-                                ) : (
-                                    <div className="flex items-center w-full">
-                                        <item.icon />
-                                        <span>{item.label}</span>
-                                        <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200" />
-                                    </div>
-                                )}
-                            </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                            <SidebarMenuSub>
-                                {item.subItems.filter(sub => access.includes(sub.accessKey)).map(subItem => (
-                                    <SidebarMenuSubItem key={subItem.href}>
-                                        <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, !!subItem.exact)}>
-                                            <Link href={subItem.href}>{subItem.label}</Link>
-                                        </SidebarMenuSubButton>
-                                    </SidebarMenuSubItem>
-                                ))}
-                            </SidebarMenuSub>
-                        </CollapsibleContent>
-                    </Collapsible>
-                ) : (
-                    <SidebarMenuButton asChild isActive={isLinkActive(item.href, !!item.exact)}>
-                        <Link href={item.href!}>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </Link>
-                    </SidebarMenuButton>
-                )}
+                {/* Simplified: No more collapsible menus for Conversion/Diversion */}
+                <SidebarMenuButton asChild isActive={isLinkActive(item.href, !!item.exact)}>
+                    <Link href={item.href!}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </Link>
+                </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -250,3 +216,4 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
+
