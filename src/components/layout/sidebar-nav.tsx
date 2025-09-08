@@ -46,6 +46,7 @@ export const allMenuItems = [
     icon: FileText,
     accessKey: 'conversion',
     type: 'conversion',
+    href: '/dashboard/pending-enquiries?type=conversion', // Default link
     subItems: [
         {
             href: '/dashboard/pending-enquiries',
@@ -69,6 +70,7 @@ export const allMenuItems = [
     icon: FileText,
     accessKey: 'diversion',
     type: 'diversion',
+    href: '/dashboard/pending-enquiries?type=diversion', // Default link
     subItems: [
          {
             href: '/dashboard/pending-enquiries',
@@ -93,10 +95,11 @@ export const allMenuItems = [
     ]
   },
   {
-    href: '/dashboard/enquiries',
     label: 'Enquiries',
     icon: FileSearch,
     accessKey: 'enquiries',
+    href: '/dashboard/enquiries',
+    subItems: []
   },
   {
     href: '/dashboard/dlc-recommendations',
@@ -149,24 +152,22 @@ export function SidebarNav() {
   };
 
   const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
-    const currentType = searchParams.get('type');
-    
-    // Parent menu active state (Conversion/Diversion)
-    if (itemType && !href) {
-        return currentType === itemType;
-    }
-    
     if (!href) return false;
 
-    // Regular menu item active state
+    const currentType = searchParams.get('type');
+    const typeFromHref = new URLSearchParams(href.split('?')[1] || '').get('type');
+
     if (exact) {
       return pathname === href;
     }
 
-    // Sub-menu item active state check
-    const typeFromHref = new URLSearchParams(href.split('?')[1]).get('type');
     if (typeFromHref) {
-      return pathname === href.split('?')[0] && currentType === typeFromHref;
+      return pathname.startsWith(href.split('?')[0]) && currentType === typeFromHref;
+    }
+    
+    // Fallback for parent items that might be active based on current page's type
+    if(itemType && !href.includes('?')) {
+        return currentType === itemType;
     }
 
     return pathname.startsWith(href);
@@ -180,6 +181,13 @@ export function SidebarNav() {
             return true;
         }
         return false;
+    }).map(item => {
+        // If the item has sub-items, filter them based on access
+        if (item.subItems) {
+            const accessibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
+            return { ...item, subItems: accessibleSubItems };
+        }
+        return item;
     });
   }, [access]);
 
@@ -200,11 +208,11 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              {item.subItems ? (
-                 <Collapsible defaultOpen={isLinkActive(undefined, item.type)}>
+              {item.subItems && item.subItems.length > 0 ? (
+                 <Collapsible defaultOpen={isLinkActive(item.href, item.type)}>
                     <CollapsibleTrigger asChild>
                          <SidebarMenuButton
-                            isActive={isLinkActive(undefined, item.type)}
+                            isActive={isLinkActive(item.href, item.type)}
                             className="w-full"
                         >
                             <item.icon />
@@ -227,7 +235,7 @@ export function SidebarNav() {
                     </CollapsibleContent>
                  </Collapsible>
               ) : (
-                <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, !!item.exact)}>
+                <SidebarMenuButton asChild isActive={isLinkActive(item.href, item.type, !!item.exact)}>
                     <Link href={item.href!}>
                         <item.icon />
                         <span>{item.label}</span>
