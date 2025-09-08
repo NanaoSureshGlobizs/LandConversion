@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileClock, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -14,13 +14,17 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarSeparator,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
+import { cn } from '@/lib/utils';
 
 export const allMenuItems = [
   {
@@ -37,10 +41,48 @@ export const allMenuItems = [
     accessKey: 'unprocessed_applications',
   },
   {
-    href: '/dashboard/pending-enquiries',
-    label: 'Pending Enquiries',
-    icon: FileClock,
-    accessKey: 'pending_enquiries',
+    label: 'Conversion',
+    icon: FileText,
+    accessKey: 'conversion',
+    subItems: [
+        {
+            href: '/dashboard/pending-enquiries',
+            label: 'Pending Enquiries',
+            accessKey: 'pending_enquiries',
+        },
+        {
+            href: '/dashboard/llmc-recommendations',
+            label: 'LLMC Recommendations',
+            accessKey: 'llmc_recommendations',
+        },
+        {
+            href: '/dashboard/report',
+            label: 'Report',
+            accessKey: 'report',
+        },
+    ]
+  },
+  {
+    label: 'Diversion',
+    icon: FileText,
+    accessKey: 'diversion',
+    subItems: [
+         {
+            href: '/dashboard/pending-enquiries',
+            label: 'Pending Enquiries',
+            accessKey: 'pending_enquiries',
+        },
+        {
+            href: '/dashboard/llmc-recommendations',
+            label: 'LLMC Recommendations',
+            accessKey: 'llmc_recommendations',
+        },
+        {
+            href: '/dashboard/report',
+            label: 'Report',
+            accessKey: 'report',
+        },
+    ]
   },
   {
     href: '/dashboard/enquiries',
@@ -53,12 +95,6 @@ export const allMenuItems = [
     label: 'DLC Recommendations',
     icon: ThumbsUp,
     accessKey: 'dlc_recommendations',
-  },
-  {
-    href: '/dashboard/llmc-recommendations',
-    label: 'LLMC Recommendations',
-    icon: ThumbsUp,
-    accessKey: 'llmc_recommendations',
   },
   {
     href: '/dashboard/reports-from-dlc',
@@ -77,13 +113,6 @@ export const allMenuItems = [
     label: 'Decision & Fees',
     icon: Gavel,
     accessKey: 'decision_and_fee',
-  },
-  {
-    href: '/dashboard/report',
-    label: 'Report',
-    icon: FileBarChart,
-    accessKey: 'report',
-    exact: true,
   },
   {
     href: '/dashboard/my-applications',
@@ -111,7 +140,8 @@ export function SidebarNav() {
     router.push('/');
   };
   
-  const isLinkActive = (href: string, exact: boolean = false) => {
+  const isLinkActive = (href?: string, exact: boolean = false) => {
+    if (!href) return false;
     const fromPath = searchParams.get('from');
     const currentPath = fromPath || pathname;
 
@@ -122,30 +152,19 @@ export function SidebarNav() {
     return currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/');
   };
   
-  const visibleMenuItems = useMemo(() => {
-    const menuItemMap = new Map(allMenuItems.map(item => [item.accessKey, item]));
-    const orderedAccess = [
-      "dashboard",
-      "unprocessed_applications",
-      "pending_enquiries",
-      "enquiries",
-      "dlc_recommendations",
-      "llmc_recommendations",
-      "reports_from_dlc",
-      "lrd_decision",
-      "decision_and_fee",
-      "report",
-      "view_application",
-      "create_application"
-    ];
-
-    // Create a set of the user's access keys for quick lookups
+ const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
 
-    // Filter and sort the menu items based on the predefined order
-    return orderedAccess
-        .map(key => menuItemMap.get(key))
-        .filter((item): item is typeof allMenuItems[0] => !!item && userAccessSet.has(item.accessKey));
+    return allMenuItems.filter(item => {
+        if (item.accessKey && userAccessSet.has(item.accessKey)) {
+            if (item.subItems) {
+                // Keep the parent if at least one child is accessible
+                return item.subItems.some(sub => sub.accessKey && userAccessSet.has(sub.accessKey));
+            }
+            return true;
+        }
+        return false;
+    });
   }, [access]);
 
 
@@ -164,16 +183,50 @@ export function SidebarNav() {
       <SidebarContent>
         <SidebarMenu>
           {visibleMenuItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={isLinkActive(item.href, !!item.exact)}
-              >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
+             <SidebarMenuItem key={item.label}>
+                {item.subItems ? (
+                    <Collapsible>
+                        <CollapsibleTrigger className="w-full">
+                            <SidebarMenuButton
+                                asChild={!item.href}
+                                isActive={item.subItems.some(sub => isLinkActive(sub.href))}
+                                className="w-full justify-between"
+                            >
+                               {item.href ? (
+                                    <Link href={item.href}>
+                                        <item.icon />
+                                        <span>{item.label}</span>
+                                        <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                                    </Link>
+                                ) : (
+                                    <div className="flex items-center w-full">
+                                        <item.icon />
+                                        <span>{item.label}</span>
+                                        <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200" />
+                                    </div>
+                                )}
+                            </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <SidebarMenuSub>
+                                {item.subItems.filter(sub => access.includes(sub.accessKey)).map(subItem => (
+                                    <SidebarMenuSubItem key={subItem.href}>
+                                        <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, !!subItem.exact)}>
+                                            <Link href={subItem.href}>{subItem.label}</Link>
+                                        </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                ))}
+                            </SidebarMenuSub>
+                        </CollapsibleContent>
+                    </Collapsible>
+                ) : (
+                    <SidebarMenuButton asChild isActive={isLinkActive(item.href, !!item.exact)}>
+                        <Link href={item.href!}>
+                            <item.icon />
+                            <span>{item.label}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
