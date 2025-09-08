@@ -6,8 +6,8 @@ import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
-  conversion: 1, // Placeholder - to be updated with correct ID
-  diversion: 1, // Placeholder - to be updated with correct ID
+  conversion: 15,
+  diversion: 4,
 };
 
 export default async function UnprocessedApplicationsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
@@ -20,9 +20,8 @@ export default async function UnprocessedApplicationsPage({ searchParams }: { se
     redirect('/');
   }
 
-  // TODO: Update getApplications to filter by workflowId if the API supports it for this page
   const workflowId = WORKFLOW_MAP[type] || null;
-  const { data: initialApplicationsData, log } = await getApplications(accessToken);
+  const { data: initialApplicationsData, log } = await getApplications(accessToken, 1, 10, workflowId);
 
   return (
     <>

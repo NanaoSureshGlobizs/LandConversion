@@ -16,7 +16,6 @@ import {
   SidebarSeparator,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
@@ -97,6 +96,12 @@ export const allMenuItems = [
     accessKey: 'conversion',
     subItems: [
         {
+            href: '/dashboard/unprocessed-applications',
+            label: 'Unprocessed Applications',
+            accessKey: 'unprocessed_applications',
+            type: 'conversion'
+        },
+        {
             href: '/dashboard/pending-enquiries',
             label: 'Pending Enquiries',
             accessKey: 'pending_enquiries',
@@ -109,37 +114,27 @@ export const allMenuItems = [
             type: 'conversion'
         },
         {
+            href: '/dashboard/dlc-recommendations',
+            label: 'DLC Recommendations',
+            accessKey: 'dlc_recommendations',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/lrd-decision',
+            label: 'LRD Decision',
+            accessKey: 'lrd_decision',
+            type: 'conversion'
+        },
+        {
             href: '/dashboard/report',
             label: 'Report',
             accessKey: 'report',
             type: 'conversion'
         },
-         {
-            href: '/dashboard/unprocessed-applications',
-            label: 'Unprocessed Applications',
-            icon: FileSearch,
-            accessKey: 'unprocessed_applications',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/dlc-recommendations',
-            label: 'DLC Recommendations',
-            icon: ThumbsUp,
-            accessKey: 'dlc_recommendations',
-            type: 'conversion'
-        },
         {
             href: '/dashboard/reports-from-dlc',
             label: 'Reports from DLC',
-            icon: FileText,
             accessKey: 'report_from_dlc',
-             type: 'conversion'
-        },
-        {
-            href: '/dashboard/lrd-decision',
-            label: 'LRD Decision',
-            icon: ShieldCheck,
-            accessKey: 'lrd_decision',
             type: 'conversion'
         },
     ]
@@ -149,7 +144,13 @@ export const allMenuItems = [
     icon: FileText,
     accessKey: 'diversion',
     subItems: [
-         {
+        {
+            href: '/dashboard/unprocessed-applications',
+            label: 'Unprocessed Applications',
+            accessKey: 'unprocessed_applications',
+            type: 'diversion'
+        },
+        {
             href: '/dashboard/pending-enquiries',
             label: 'Pending Enquiries',
             accessKey: 'pending_enquiries',
@@ -162,9 +163,9 @@ export const allMenuItems = [
             type: 'diversion'
         },
         {
-            href: '/dashboard/report',
-            label: 'Report',
-            accessKey: 'report',
+            href: '/dashboard/dlc-recommendations',
+            label: 'DLC Recommendations',
+            accessKey: 'dlc_recommendations',
             type: 'diversion'
         },
         {
@@ -173,32 +174,16 @@ export const allMenuItems = [
             accessKey: 'final_orders',
             type: 'diversion'
         },
-         {
-            href: '/dashboard/unprocessed-applications',
-            label: 'Unprocessed Applications',
-            icon: FileSearch,
-            accessKey: 'unprocessed_applications',
-            type: 'diversion'
-        },
         {
-            href: '/dashboard/dlc-recommendations',
-            label: 'DLC Recommendations',
-            icon: ThumbsUp,
-            accessKey: 'dlc_recommendations',
+            href: '/dashboard/report',
+            label: 'Report',
+            accessKey: 'report',
             type: 'diversion'
         },
         {
             href: '/dashboard/reports-from-dlc',
             label: 'Reports from DLC',
-            icon: FileText,
             accessKey: 'report_from_dlc',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/lrd-decision',
-            label: 'LRD Decision',
-            icon: ShieldCheck,
-            accessKey: 'lrd_decision',
             type: 'diversion'
         },
     ]
@@ -254,16 +239,23 @@ export function SidebarNav() {
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
+      // If user doesn't have access to the main item, skip it
       if (!userAccessSet.has(item.accessKey)) {
         return null;
       }
-
+      
+      // If item has sub-items, filter them based on user access
       if (item.subItems) {
         const visibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
-        if(visibleSubItems.length === 0 && !item.href) return null;
+        
+        // If no sub-items are visible, don't show the parent menu
+        if (visibleSubItems.length === 0) {
+            return null;
+        }
         return { ...item, subItems: visibleSubItems };
       }
 
+      // If it's a regular item, just return it
       return item;
     }).filter(Boolean) as (typeof allMenuItems[0])[];
 
