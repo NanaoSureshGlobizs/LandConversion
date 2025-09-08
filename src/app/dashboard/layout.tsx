@@ -22,18 +22,30 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const allowedRoutes = useMemo(() => {
-    const routeMap = new Map(allMenuItems.map(item => [item.accessKey, item.href]));
-    // Ensure dashboard is always a potential route if other routes exist, but check access for it.
-    const routes = access.map(key => routeMap.get(key)).filter((route): route is string => !!route);
+    const getAllowedRoutesRecursive = (items: typeof allMenuItems): string[] => {
+      let routes: string[] = [];
+      items.forEach(item => {
+        if (access.includes(item.accessKey)) {
+          if (item.href) {
+            routes.push(item.href);
+          }
+          if (item.subItems) {
+            routes = routes.concat(getAllowedRoutesRecursive(item.subItems));
+          }
+        }
+      });
+      return routes;
+    };
     
-    // The dashboard is a special case, it should be added if the user has any access at all.
-    // We will check for the specific 'dashboard' access key. If not present, we will rely on other keys.
+    let routes = getAllowedRoutesRecursive(allMenuItems);
+    // Ensure dashboard is always a potential route if other routes exist, but check access for it.
     const hasDashboardAccess = access.includes('dashboard');
     if (hasDashboardAccess && !routes.includes('/dashboard')) {
         // Add to the beginning if not already present
         routes.unshift('/dashboard');
     }
-    return routes;
+    // Remove duplicates
+    return [...new Set(routes)];
 
   }, [access]);
 
@@ -57,13 +69,11 @@ export default function DashboardLayout({
     }
     
     // Whitelist generic detail pages that any logged-in user should be able to see
-    const isGenericViewerPage = pathname.startsWith('/dashboard/application/');
+    const isGenericViewerPage = pathname.startsWith('/dashboard/application/') || pathname.startsWith('/dashboard/my-applications/');
     if(isGenericViewerPage) return;
 
     // Check if the current route is allowed
     const isAllowed = allowedRoutes.some(route => {
-        const menuItem = allMenuItems.find(item => item.href === route);
-        if (menuItem?.exact) return pathname === route;
         // Check if the current path starts with the allowed route, and is either an exact match or followed by a '/'
         return pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/');
     });
@@ -89,7 +99,7 @@ export default function DashboardLayout({
   // Determine if we are about to redirect. Show loader to prevent content flash.
   const isRedirecting = !isLoading && isAuthenticated && (
     (pathname === '/dashboard' && allowedRoutes.length > 0 && allowedRoutes[0] !== '/dashboard') ||
-    (allowedRoutes.length > 0 && !pathname.startsWith('/dashboard/application/') && !allowedRoutes.some(route => pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/')))
+    (allowedRoutes.length > 0 && !pathname.startsWith('/dashboard/application/') && !pathname.startsWith('/dashboard/my-applications/') && !allowedRoutes.some(route => pathname.startsWith(route) && (pathname.length === route.length || pathname[route.length] === '/')))
   );
 
   if (isAuthenticating) {
