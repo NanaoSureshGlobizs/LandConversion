@@ -170,15 +170,15 @@ export const allMenuItems = [
             type: 'diversion'
         },
         {
-            href: '/dashboard/final-orders',
-            label: 'Final Orders',
-            accessKey: 'final_order',
-            type: 'diversion'
-        },
-        {
             href: '/dashboard/report',
             label: 'Report',
             accessKey: 'report',
+            type: 'diversion'
+        },
+        {
+            href: '/dashboard/final-orders',
+            label: 'Final Orders',
+            accessKey: 'final_order',
             type: 'diversion'
         },
         {
