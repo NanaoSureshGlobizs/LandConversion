@@ -71,8 +71,8 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
           <TableHeader>
             <TableRow>
               <TableHead>App-ID</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Patta No.</TableHead>
+              <TableHead>Area Unit</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -81,9 +81,9 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
             {applications.length > 0 ? (
               applications.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
-                  <TableCell>Mock Owner</TableCell>
-                  <TableCell>Mock Area</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
+                  <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{app.area_type}</TableCell>
                   <TableCell>
                      <Badge variant={app.application_status.name.toLowerCase() === 'approved' ? 'default' : 'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>

@@ -26,17 +26,6 @@ interface LlmcRecommendationsTableProps {
   statuses: ApplicationStatusOption[];
 }
 
-const mockOwners = [
-    "Rajesh Kumar", "Priya Sharma", "Amit Verma", "Sunita Singh", 
-    "Vikram Patel", "Anjali Gupta", "Arjun Singh", "Divya Joshi",
-    "Rohan Mishra", "Kavita Reddy", "Suresh Mehta", "Meena Kumari"
-];
-
-const mockAreas = [
-    "5 acres", "3 acres", "7 acres", "4 acres", "6 acres",
-    "8 acres", "2 acres", "9 acres", "10 acres", "1 acre"
-];
-
 export function LlmcRecommendationsTable({ initialData, accessToken, statuses }: LlmcRecommendationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
@@ -79,20 +68,13 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
 
 
   const filteredData = useMemo(() => {
-    // This is using mock data for display as the API doesn't provide owner/area yet.
-    // When the API is updated, this can be switched to use real data.
-    return applications.map((app, index) => ({
-      ...app,
-      owner: mockOwners[index % mockOwners.length],
-      area: mockAreas[index % mockAreas.length],
-    })).filter(item => {
-        if (!searchTerm) return true;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return (
-            item.applictaion_id?.toLowerCase().includes(lowercasedFilter) ||
-            item.owner.toLowerCase().includes(lowercasedFilter)
-        );
-    });
+    if (!searchTerm) return applications;
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return applications.filter(
+      (item) =>
+        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
+        item.patta_no.toLowerCase().includes(lowercasedFilter)
+    );
   }, [applications, searchTerm]);
 
   return (
@@ -100,7 +82,7 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
-          placeholder="Search by App ID or Owner"
+          placeholder="Search by App ID or Patta No."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-md pl-10"
@@ -111,18 +93,18 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
           <TableHeader>
             <TableRow>
               <TableHead>App-ID</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Patta No.</TableHead>
+              <TableHead>Area Unit</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
-              filteredData.map((app, index) => (
+              filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || `APP${123 + index}`}</TableCell>
-                  <TableCell>{app.owner}</TableCell>
-                  <TableCell>{app.area}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
+                  <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{app.area_type}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="default" size="sm" asChild>
                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-recommendations`}>Review</Link>

@@ -73,8 +73,6 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
   }, [applications]);
 
   const renderAction = (app: ApplicationListItem) => {
-    const lowerStatus = app.application_status.name.toLowerCase();
-    
     return (
         <UpdateStatusForm 
             applicationId={app.id.toString()}
@@ -105,8 +103,8 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
           <TableHeader>
             <TableRow>
               <TableHead>App-ID</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Patta No.</TableHead>
+              <TableHead>District</TableHead>
               <TableHead>SDAO Status</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -115,9 +113,9 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
-                  <TableCell>Ethan Carter</TableCell>
-                  <TableCell>Downtown</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
+                  <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{app.district.name}</TableCell>
                   <TableCell>
                      <Badge variant={app.application_status.name.toLowerCase() === 'approved' ? 'default' : 'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>

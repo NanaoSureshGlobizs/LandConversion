@@ -26,16 +26,6 @@ interface UnprocessedApplicationsTableProps {
   accessToken: string;
 }
 
-const mockOwners = [
-    "Arjun Verma", "Priya Sharma", "Vikram Singh", "Anjali Kapoor", 
-    "Rohan Mehra", "Divya Patel", "Karan Khanna", "Sneha Reddy",
-    "Rahul Joshi", "Neha Gupta", "Suresh Patel", "Meena Kumari"
-];
-
-const mockAreas = [
-    "10 acres", "5 acres", "8 acres", "12 acres", "7 acres", "9 acres", "6 acres", "11 acres", "4 acres", "15 acres"
-]
-
 export function UnprocessedApplicationsTable({ initialData, accessToken }: UnprocessedApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState('');
@@ -83,10 +73,9 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
     if (!searchTerm) return applications;
     const lowercasedFilter = searchTerm.toLowerCase();
     return applications.filter(
-      (item, index) =>
-        item.applictaion_id?.toLowerCase().includes(lowercasedFilter) ||
-        item.patta_no.toLowerCase().includes(lowercasedFilter) ||
-        (mockOwners[index % mockOwners.length] || '').toLowerCase().includes(lowercasedFilter)
+      (item) =>
+        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
+        item.patta_no.toLowerCase().includes(lowercasedFilter)
     );
   }, [applications, searchTerm]);
 
@@ -96,7 +85,7 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
         <div className="relative flex-grow sm:flex-grow-0 sm:min-w-[300px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-            placeholder="Search by App ID, Owner, Patta No."
+            placeholder="Search by App ID, Patta No."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -131,20 +120,18 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
           <TableHeader>
             <TableRow>
               <TableHead>App ID</TableHead>
-              <TableHead>Owner</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Area Unit</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
-              filteredData.map((app, index) => (
+              filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
-                  <TableCell>{mockOwners[index % mockOwners.length]}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{mockAreas[index % mockAreas.length]}</TableCell>
+                  <TableCell>{app.area_type}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/unprocessed-applications`}>View</Link>
@@ -154,7 +141,7 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={4} className="h-24 text-center">
                   No unprocessed applications found.
                 </TableCell>
               </TableRow>

@@ -30,14 +30,6 @@ interface SdaoEnquiriesTableProps {
   accessToken: string;
 }
 
-const mockData = [
-    { id: 'APP12345', owner: 'Rajesh Kumar', patta: '1234567890', area: '10 acres' },
-    { id: 'APP67890', owner: 'Priya Sharma', patta: '9876543210', area: '5 acres' },
-    { id: 'APP24680', owner: 'Amit Verma', patta: '1122334455', area: '20 acres' },
-    { id: 'APP13579', owner: 'Sunita Singh', patta: '5544332211', area: '15 acres' },
-    { id: 'APP97531', owner: 'Vikram Patel', patta: '9988776655', area: '8 acres' },
-];
-
 export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTableProps) {
   const router = useRouter();
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -144,23 +136,23 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
           <TableHeader>
             <TableRow>
               <TableHead>App-ID</TableHead>
-              <TableHead>Owner</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Area Unit</TableHead>
+              <TableHead>District</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockData.length > 0 ? (
-              mockData.map((app) => (
+            {applications.length > 0 ? (
+              applications.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.id || ''}</TableCell>
-                  <TableCell>{app.owner}</TableCell>
-                  <TableCell>{app.patta}</TableCell>
-                  <TableCell>{app.area}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
+                  <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell>{app.district.name}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/my-applications/${app.id}`}>View Details</Link>
+                        <Link href={`/dashboard/application/${app.id}`}>View Details</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

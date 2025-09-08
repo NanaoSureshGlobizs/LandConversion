@@ -27,12 +27,6 @@ interface DlcRecommendationsTableProps {
   statuses: ApplicationStatusOption[];
 }
 
-const mockOwners = [
-    "Rajesh Kumar", "Priya Sharma", "Amit Verma", "Sneha Kapoor", 
-    "Vikram Singh", "Anjali Gupta", "Arjun Patel", "Divya Joshi",
-    "Rohan Mishra", "Kavita Reddy", "Suresh Patel", "Meena Kumari"
-];
-
 export function DlcRecommendationsTable({ initialData, accessToken, statuses }: DlcRecommendationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
@@ -78,10 +72,9 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
     if (!searchTerm) return applications;
     const lowercasedFilter = searchTerm.toLowerCase();
     return applications.filter(
-      (item, index) =>
-        item.applictaion_id?.toLowerCase().includes(lowercasedFilter) ||
-        item.patta_no.toLowerCase().includes(lowercasedFilter) ||
-        (mockOwners[index % mockOwners.length] || '').toLowerCase().includes(lowercasedFilter)
+      (item) =>
+        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
+        item.patta_no.toLowerCase().includes(lowercasedFilter)
     );
   }, [applications, searchTerm]);
 
@@ -90,7 +83,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
-          placeholder="Search by App ID, Owner, Patta No."
+          placeholder="Search by App ID, Patta No."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-md pl-10"
@@ -101,18 +94,18 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
           <TableHeader>
             <TableRow>
               <TableHead>App-ID</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Patta No.</TableHead>
+              <TableHead>Area Unit</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
-              filteredData.map((app, index) => (
+              filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
-                  <TableCell>{mockOwners[index % mockOwners.length]}</TableCell>
-                  <TableCell>Urban</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
+                  <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{app.area_type}</TableCell>
                   <TableCell>
                     <div className='flex justify-end items-center gap-2'>
                         <Button variant="outline" size="sm" asChild>
