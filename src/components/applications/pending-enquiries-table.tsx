@@ -31,9 +31,10 @@ import { RejectForm } from './reject-form';
 interface PendingEnquiriesTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
+  workflowId: number | null;
 }
 
-export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnquiriesTableProps) {
+export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: PendingEnquiriesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -57,8 +58,7 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
 
     setIsLoading(true);
     const nextPage = page + 1;
-    // This needs to be updated if the workflow ID is different
-    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, 2);
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -70,7 +70,7 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog, accessToken]);
+  }, [page, hasMore, isLoading, addLog, accessToken, workflowId]);
   
   useEffect(() => {
     if (isNearScreen) {

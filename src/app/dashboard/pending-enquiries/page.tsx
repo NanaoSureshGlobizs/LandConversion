@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { FilePlus2 } from 'lucide-react';
 
 const WORKFLOW_MAP = {
-  conversion: 2,
+  conversion: 6,
   diversion: 2, 
 };
 
@@ -37,7 +37,11 @@ export default async function PendingEnquiriesPage({ searchParams }: { searchPar
         <p className="text-muted-foreground">
           View and manage all pending enquiries.
         </p>
-        <PendingEnquiriesTable initialData={initialApplicationsData} accessToken={accessToken}/>
+        <PendingEnquiriesTable 
+            initialData={initialApplicationsData} 
+            accessToken={accessToken}
+            workflowId={workflowId}
+        />
       </div>
     </>
   );
