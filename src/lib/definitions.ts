@@ -89,7 +89,12 @@ export interface ApplicationListItem {
   patta_no: string;
   area_type: string;
   created_at: string;
-  applictaion_id: string;
+  application_id: string; // Corrected from applictaion_id
+  village_name: string;
+  can_forward: boolean;
+  highlight: boolean;
+  can_edit: boolean;
+  form_type: string;
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
@@ -103,7 +108,6 @@ export interface ApplicationListItem {
     id: number;
     name: string;
   };
-  can_forward: boolean;
 }
 
 

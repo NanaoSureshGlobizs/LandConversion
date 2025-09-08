@@ -57,7 +57,8 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage);
+    // This needs to be updated if the workflow ID is different
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, 2);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -83,7 +84,7 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
     const lowercasedFilter = searchTerm.toLowerCase();
     return applications.filter(
       (item) =>
-        item.applictaion_id?.toLowerCase().includes(lowercasedFilter) ||
+        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
         item.patta_no.toLowerCase().includes(lowercasedFilter) ||
         item.application_status.name.toLowerCase().includes(lowercasedFilter)
     );
@@ -150,9 +151,10 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
           <TableHeader>
             <TableRow>
               <TableHead>App-ID</TableHead>
-              <TableHead>Owner</TableHead>
+              <TableHead>Location</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Area (Ha)</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -160,10 +162,16 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
-                  <TableCell>{''}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
+                  <TableCell>
+                    <div className="font-medium">{app.district.name}</div>
+                    <div className="text-sm text-muted-foreground">{app.village_name}</div>
+                  </TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{''}</TableCell>
+                  <TableCell>{app.created_at}</TableCell>
+                  <TableCell>
+                     <Badge variant="secondary">{app.application_status.name}</Badge>
+                  </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
                        {app.can_forward && (
@@ -185,7 +193,7 @@ export function PendingEnquiriesTable({ initialData, accessToken }: PendingEnqui
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No pending enquiries found.
                 </TableCell>
               </TableRow>
