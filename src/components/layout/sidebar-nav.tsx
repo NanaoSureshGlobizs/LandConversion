@@ -152,63 +152,78 @@ export function SidebarNav() {
     router.push('/');
   };
 
-  const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
-    if (!href) return false;
-
+  const isParentActive = (itemType?: string) => {
+    if (!itemType) return false;
     const currentPath = pathname;
     const currentType = searchParams.get('type');
-    
-    // For sub-menu items, we need to check both path and type
-    if (itemType) {
-        return currentPath === href && currentType === itemType;
+
+    // Check if any sub-item under this parent is active
+    const parentItem = allMenuItems.find(i => i.type === itemType);
+    if (parentItem && parentItem.subItems) {
+      const hasActiveSubItem = parentItem.subItems.some(sub => currentPath === sub.href);
+      return hasActiveSubItem && currentType === itemType;
     }
-    
-    if (exact) {
+    return false;
+  }
+
+  const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
+    const currentPath = pathname;
+    const currentType = searchParams.get('type');
+
+    if (itemType) { // This is for sub-menu items
+      return currentPath === href && currentType === itemType;
+    }
+
+    if (exact) { // For exact routes like /dashboard
       return currentPath === href;
     }
     
-    // For parent menu items, check if the current path starts with its base path
-    // and if the types match. This is important for keeping the parent open.
-    if(item.type) {
-        const hasSubItemMatch = allMenuItems
-            .find(item => item.type === item.type)?.subItems
-            ?.some(sub => currentPath === sub.href);
-            
-        return hasSubItemMatch && currentType === item.type;
+    // For regular, non-exact-match menu items
+    if (href) {
+      return currentPath.startsWith(href);
     }
-
-    return currentPath.startsWith(href);
+    
+    return false;
   };
+
   
  const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
 
-    return allMenuItems.map(item => {
-      // Create a mutable copy of the item to modify subItems
-      const newItem = { ...item };
+    const menu = allMenuItems.map(item => {
+      // Return dashboard if user has access
+      if (item.accessKey === 'dashboard' && userAccessSet.has('dashboard')) {
+        return item;
+      }
+      
+      // Handle parent menu items (Conversion, Diversion)
+      if (item.subItems) {
+        if (!userAccessSet.has(item.accessKey)) return null;
 
-      if (newItem.subItems) {
-        // Filter sub-items based on user access
-        newItem.subItems = newItem.subItems.filter(subItem => 
-          userAccessSet.has(subItem.accessKey)
-        );
+        const visibleSubItems = item.subItems.filter(sub => {
+            // Special case for final_orders
+            if (sub.accessKey === 'final_orders') {
+                return item.type === 'diversion' && userAccessSet.has('final_orders');
+            }
+            return userAccessSet.has(sub.accessKey);
+        });
+
+        if (visibleSubItems.length > 0) {
+          return { ...item, subItems: visibleSubItems };
+        }
+        return null; // Hide parent if no sub-items are visible
       }
-      return newItem;
-    }).filter(item => {
-      // Keep the item if it's a dashboard and user has access
-      if (item.accessKey === 'dashboard') {
-        return userAccessSet.has('dashboard');
+
+      // Handle regular menu items
+      if (userAccessSet.has(item.accessKey)) {
+        return item;
       }
-      // Keep the item if it has its own access key and it's not a parent container
-      if (userAccessSet.has(item.accessKey) && !item.subItems) {
-        return true;
-      }
-      // Keep the item if it's a parent container and has visible sub-items
-      if (item.subItems && item.subItems.length > 0) {
-        return userAccessSet.has(item.accessKey);
-      }
-      return false;
-    });
+
+      return null;
+    }).filter(Boolean); // remove nulls
+
+    return menu as typeof allMenuItems;
+
   }, [access]);
 
 
@@ -229,10 +244,10 @@ export function SidebarNav() {
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               {item.subItems && item.subItems.length > 0 ? (
-                 <Collapsible defaultOpen={isLinkActive(undefined, item.type)}>
+                 <Collapsible defaultOpen={isParentActive(item.type)}>
                     <CollapsibleTrigger asChild>
                          <SidebarMenuButton
-                            isActive={isLinkActive(undefined, item.type)}
+                            isActive={isParentActive(item.type)}
                             className="w-full"
                         >
                             <item.icon />
