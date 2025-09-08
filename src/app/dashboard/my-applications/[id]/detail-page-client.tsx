@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, FileText, Printer } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Printer, Edit } from 'lucide-react';
 import { getApplicationById } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
+import { ForwardForm } from '@/components/applications/forward-form';
+import { RejectForm } from '@/components/applications/reject-form';
 
 
 function DetailItem({
@@ -223,6 +225,26 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                             <Printer className="mr-2"/>
                             Print Application
                           </Button>
+                          {application.can_edit && (
+                             <Button variant="default" asChild>
+                                <Link href={`/dashboard/my-applications/${id}/edit`}>
+                                   <Edit className="mr-2" />
+                                   Edit Application
+                                </Link>
+                             </Button>
+                          )}
+                          {application.can_forward && application.form_type === 'Forward' && (
+                            <div className='flex gap-2'>
+                                <ForwardForm applicationId={id} accessToken={accessToken}>
+                                    <Button variant="default" className="flex-1">
+                                        {application.button_name || 'Forward'}
+                                    </Button>
+                                </ForwardForm>
+                                <RejectForm applicationId={id} accessToken={accessToken}>
+                                    <Button variant="destructive">Reject</Button>
+                                </RejectForm>
+                            </div>
+                          )}
                           {canShowSurveyButton && (
                             <SurveyReportDialog application={application} statuses={statuses} accessToken={accessToken}>
                                <Button variant="default">

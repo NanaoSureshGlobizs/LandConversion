@@ -59,6 +59,8 @@ export interface Application {
   circle_name: string;
   village_id: number;
   village_name: string;
+  form_type: string | null;
+  button_name: string | null;
   can_forward: boolean;
   highlight: boolean;
   can_edit: boolean;
@@ -101,6 +103,7 @@ export interface ApplicationListItem {
     id: number;
     name: string;
   };
+  can_forward: boolean;
 }
 
 
