@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-  serverActions: {
-    bodySizeLimit: '50mb',
+  output: "standalone", // Required for production/Docker deployments
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
   },
   typescript: {
     ignoreBuildErrors: true,

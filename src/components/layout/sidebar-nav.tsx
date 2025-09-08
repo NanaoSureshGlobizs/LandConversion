@@ -55,6 +55,12 @@ export const allMenuItems = [
     accessKey: 'dlc_recommendations',
   },
   {
+    href: '/dashboard/llmc-recommendations',
+    label: 'LLMC Recommendations',
+    icon: ThumbsUp,
+    accessKey: 'llmc_recommendations',
+  },
+  {
     href: '/dashboard/reports-from-dlc',
     label: 'Reports from DLC',
     icon: FileText,
@@ -118,9 +124,28 @@ export function SidebarNav() {
   
   const visibleMenuItems = useMemo(() => {
     const menuItemMap = new Map(allMenuItems.map(item => [item.accessKey, item]));
-    return access
+    const orderedAccess = [
+      "dashboard",
+      "unprocessed_applications",
+      "pending_enquiries",
+      "enquiries",
+      "dlc_recommendations",
+      "llmc_recommendations",
+      "reports_from_dlc",
+      "lrd_decision",
+      "decision_and_fee",
+      "report",
+      "view_application",
+      "create_application"
+    ];
+
+    // Create a set of the user's access keys for quick lookups
+    const userAccessSet = new Set(access);
+
+    // Filter and sort the menu items based on the predefined order
+    return orderedAccess
         .map(key => menuItemMap.get(key))
-        .filter((item): item is typeof allMenuItems[0] => !!item);
+        .filter((item): item is typeof allMenuItems[0] => !!item && userAccessSet.has(item.accessKey));
   }, [access]);
 
 
