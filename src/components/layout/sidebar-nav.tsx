@@ -54,6 +54,11 @@ export const allMenuItems = [
             accessKey: 'pending_enquiries',
         },
         {
+            href: '/dashboard/enquiries',
+            label: 'Enquiries',
+            accessKey: 'enquiries',
+        },
+        {
             href: '/dashboard/llmc-recommendations',
             label: 'LLMC Recommendations',
             accessKey: 'llmc_recommendations',
@@ -78,6 +83,11 @@ export const allMenuItems = [
             accessKey: 'pending_enquiries',
         },
         {
+            href: '/dashboard/enquiries',
+            label: 'Enquiries',
+            accessKey: 'enquiries',
+        },
+        {
             href: '/dashboard/llmc-recommendations',
             label: 'LLMC Recommendations',
             accessKey: 'llmc_recommendations',
@@ -90,16 +100,9 @@ export const allMenuItems = [
         {
             href: '/dashboard/final-orders',
             label: 'Final Orders',
-            accessKey: 'diversion', // Assuming same access key for now
+            accessKey: 'diversion',
         }
     ]
-  },
-  {
-    label: 'Enquiries',
-    icon: FileSearch,
-    accessKey: 'enquiries',
-    href: '/dashboard/enquiries',
-    subItems: []
   },
   {
     href: '/dashboard/dlc-recommendations',
@@ -154,23 +157,28 @@ export function SidebarNav() {
   const isLinkActive = (href?: string, itemType?: string, exact: boolean = false) => {
     if (!href) return false;
 
+    const currentPath = pathname;
     const currentType = searchParams.get('type');
-    const typeFromHref = new URLSearchParams(href.split('?')[1] || '').get('type');
-
-    if (exact) {
-      return pathname === href;
-    }
-
-    if (typeFromHref) {
-      return pathname.startsWith(href.split('?')[0]) && currentType === typeFromHref;
+    
+    // For sub-menu items, we need to check both path and type
+    if (href.includes('?')) {
+        const url = new URL(href, 'http://localhost');
+        const hrefPath = url.pathname;
+        const hrefType = url.searchParams.get('type');
+        return currentPath === hrefPath && currentType === hrefType;
     }
     
-    // Fallback for parent items that might be active based on current page's type
-    if(itemType && !href.includes('?')) {
+    if (exact) {
+      return currentPath === href;
+    }
+
+    // For parent menu items, check if the current path starts with its base path
+    // and if the types match. This is important for keeping the parent open.
+    if(itemType) {
         return currentType === itemType;
     }
 
-    return pathname.startsWith(href);
+    return currentPath.startsWith(href);
   };
   
  const visibleMenuItems = useMemo(() => {
@@ -182,7 +190,6 @@ export function SidebarNav() {
         }
         return false;
     }).map(item => {
-        // If the item has sub-items, filter them based on access
         if (item.subItems) {
             const accessibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
             return { ...item, subItems: accessibleSubItems };
@@ -223,7 +230,7 @@ export function SidebarNav() {
                     <CollapsibleContent>
                         <SidebarMenuSub>
                            {item.subItems.map((subItem) => (
-                                <SidebarMenuSubItem key={subItem.label}>
+                                <SidebarMenuSubItem key={`${item.type}-${subItem.label}`}>
                                     <SidebarMenuSubButton asChild isActive={isLinkActive(`${subItem.href}?type=${item.type}`)}>
                                         <Link href={`${subItem.href}?type=${item.type}`}>
                                             <span>{subItem.label}</span>
