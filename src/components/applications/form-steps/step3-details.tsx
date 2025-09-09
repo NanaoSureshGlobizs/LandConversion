@@ -7,12 +7,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, HelpCircle } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { LocationType, AreaUnit, LandClassification, LandPurpose, Purpose, FormValues } from '../multi-step-form';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Step3Props {
     locationTypes: LocationType[];
@@ -98,7 +99,22 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
               name="aadhar_no"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aadhaar Number</FormLabel>
+                   <div className="flex items-center gap-2">
+                    <FormLabel>Aadhaar Number</FormLabel>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-bold mb-2">Aadhaar Privacy Notice</p>
+                          <p className="text-xs">
+                            We collect your Aadhaar number for identity verification and KYC compliance as required for this service. Providing Aadhaar is mandatory for this application. Your information will be used only for authentication through UIDAI's system. We will not store your biometric information.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -280,5 +296,3 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
     </div>
   );
 }
-
-    

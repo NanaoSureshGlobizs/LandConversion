@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2, FileText, X } from "lucide-react";
+import { CalendarIcon, Loader2, FileText, X, HelpCircle } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -21,6 +21,7 @@ import { uploadFile } from "@/app/actions";
 import { useDebug } from "@/context/DebugContext";
 import Image from "next/image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const documentCategories = {
     land_diversion: [
@@ -307,9 +308,24 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
                     </Select>
                   </div>
                   <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="aadhar" className="text-right pt-2">
-                      Aadhaar
-                    </Label>
+                    <div className="text-right pt-2 flex items-center gap-1">
+                      <Label htmlFor="aadhar">
+                        Aadhaar
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                            <p className="font-bold mb-2">Aadhaar Privacy Notice</p>
+                            <p className="text-xs">
+                                We collect your Aadhaar number for identity verification and KYC compliance as required for this service. Providing Aadhaar is mandatory for this application. Your information will be used only for authentication through UIDAI's system. We will not store your biometric information.
+                            </p>
+                            </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <div className="col-span-3">
                       {!newAadharPreview ? (
                           <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="image/*,application/pdf" />
@@ -359,5 +375,3 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
     </div>
   );
 }
-
-    
