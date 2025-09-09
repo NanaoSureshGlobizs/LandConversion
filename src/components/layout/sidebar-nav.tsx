@@ -96,7 +96,7 @@ export const allMenuItems = [
     href: '/dashboard/legacy-data',
     label: 'Legacy Data',
     icon: History,
-    accessKey: 'legacy_data',
+    // accessKey: 'legacy_data', // Temporarily remove access key for testing
   },
   {
     label: 'Conversion',
@@ -210,7 +210,7 @@ export function SidebarNav() {
     router.push('/');
   };
 
-  const isParentActive = (item: typeof allMenuItems[number]) => {
+  const isParentActive = (item: typeof allMenuItems[0]) => {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
     if (!item.subItems) return false;
@@ -247,6 +247,11 @@ export function SidebarNav() {
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
+      // If the item has no access key, always show it (for testing purposes)
+      if (!item.accessKey) {
+          return item;
+      }
+      
       // If user doesn't have access to the main item, skip it
       if (!userAccessSet.has(item.accessKey)) {
         return null;
