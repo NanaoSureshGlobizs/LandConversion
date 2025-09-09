@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -90,6 +91,12 @@ export const allMenuItems = [
     label: 'New Application',
     icon: FilePlus2,
     accessKey: 'create_application',
+  },
+   {
+    href: '/dashboard/legacy-data',
+    label: 'Legacy Data',
+    icon: History,
+    accessKey: 'legacy_data',
   },
   {
     label: 'Conversion',

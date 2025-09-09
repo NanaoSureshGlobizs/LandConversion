@@ -89,7 +89,6 @@ export interface ApplicationListItem {
   patta_no: string;
   area_type: string;
   created_at: string;
-  applictaion_id: string; // This seems to be a typo in the API, should be application_id
   village_name: string;
   can_forward: boolean;
   highlight: boolean;
@@ -122,4 +121,20 @@ export interface PaginatedApplications {
   };
 }
 
+export interface LegacyDataItem {
+  id: number;
+  order_no: string;
+  order_date: string; // "Sep 10, 2025"
+  legacy_type: 'Approve' | 'Reject';
+}
+
+export interface PaginatedLegacyData {
+  legacy_data: LegacyDataItem[];
+  pagination: {
+    totalCount: number;
+    pageCount: number;
+    currentPage: number;
+    perPage: number;
+  };
+}
     
