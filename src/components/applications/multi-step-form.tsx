@@ -419,18 +419,7 @@ export function MultiStepForm({
 
           {/* Navigation */}
           <div className="mt-8 pt-5">
-            <div className="flex justify-between">
-              <div>
-                {currentStep < steps.length - 1 && (
-                  <Button
-                    type="button"
-                    disabled={isSubmitting}
-                    variant="outline"
-                  >
-                    Save Draft
-                  </Button>
-                )}
-              </div>
+            <div className="flex justify-end">
               <div className='flex gap-2'>
                 <Button
                   type="button"
@@ -463,5 +452,3 @@ export function MultiStepForm({
     </div>
   );
 }
-
-    
