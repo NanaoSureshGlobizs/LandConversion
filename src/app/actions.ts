@@ -494,7 +494,7 @@ export async function getLegacyData(accessToken: string, page = 1, limit = 10) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
-    let url = `/legacy-data?page=${page}&limit=${limit}`;
+    let url = `/legacy/list?page=${page}&limit=${limit}`;
     const { data, debugLog } = await fetchFromApi(url, accessToken);
     return { data, log: debugLog };
 }
@@ -642,3 +642,6 @@ function addLog(log: string) {
 
     
 
+
+
+    

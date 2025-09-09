@@ -32,7 +32,7 @@ interface LegacyDataTableProps {
 
 export function LegacyDataTable({ initialData, accessToken }: LegacyDataTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [data, setData] = useState<LegacyDataItem[]>(initialData?.legacy_data || []);
+  const [data, setData] = useState<LegacyDataItem[]>(initialData?.legacies || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
@@ -56,8 +56,8 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     const { data: newData, log } = await getLegacyData(accessToken, nextPage);
     addLog(log || "Log for getLegacyData");
 
-    if (newData && Array.isArray(newData.legacy_data)) {
-      setData(prev => [...prev, ...newData.legacy_data]);
+    if (newData && Array.isArray(newData.legacies)) {
+      setData(prev => [...prev, ...newData.legacies]);
       setPage(newData.pagination.currentPage);
       setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
     } else {
@@ -77,11 +77,21 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   const filteredData = useMemo(() => {
     return data.filter(item => {
         const searchTermMatch = item.order_no.toLowerCase().includes(searchTerm.toLowerCase());
-        const typeMatch = legacyType === 'all' || item.legacy_type === legacyType;
+        const typeMatch = legacyType === 'all' || item.status_name === legacyType;
         // Add date filtering logic if needed
         return searchTermMatch && typeMatch;
     });
   }, [data, searchTerm, legacyType]);
+
+  const getStatusVariant = (status: 'Review' | 'Approve' | 'Reject'): 'default' | 'destructive' | 'secondary' => {
+      switch(status) {
+          case 'Approve': return 'default';
+          case 'Reject': return 'destructive';
+          case 'Review':
+          default:
+            return 'secondary';
+      }
+  }
 
   return (
     <div className="space-y-4">
@@ -103,6 +113,7 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="Approve">Approve</SelectItem>
                 <SelectItem value="Reject">Reject</SelectItem>
+                <SelectItem value="Review">Review</SelectItem>
             </SelectContent>
         </Select>
         <Popover>
@@ -144,7 +155,7 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
                   <TableCell className="font-medium font-mono">{item.order_no}</TableCell>
                   <TableCell>{item.order_date}</TableCell>
                   <TableCell>
-                    <Badge variant={item.legacy_type === 'Approve' ? 'default' : 'destructive'}>{item.legacy_type}</Badge>
+                    <Badge variant={getStatusVariant(item.status_name)}>{item.status_name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -187,3 +198,5 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     </div>
   );
 }
+
+    

@@ -124,12 +124,15 @@ export interface PaginatedApplications {
 export interface LegacyDataItem {
   id: number;
   order_no: string;
-  order_date: string; // "Sep 10, 2025"
-  legacy_type: 'Approve' | 'Reject';
+  order_date: string;
+  legacy_status: number;
+  status_name: 'Review' | 'Approve' | 'Reject';
+  file_name: string | null;
+  file_path: string | null;
 }
 
 export interface PaginatedLegacyData {
-  legacy_data: LegacyDataItem[];
+  legacies: LegacyDataItem[];
   pagination: {
     totalCount: number;
     pageCount: number;
@@ -137,3 +140,5 @@ export interface PaginatedLegacyData {
     perPage: number;
   };
 }
+
+    
