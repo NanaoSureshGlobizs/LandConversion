@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -56,7 +55,7 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
     }
   });
 
-  const { handleSubmit, control, setValue, trigger } = form;
+  const { handleSubmit, control, setValue, trigger, formState: { errors } } = form;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -85,7 +84,7 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
     // Update react-hook-form value
     const currentFiles = form.getValues('order_upload') || [];
     const updatedFiles = currentFiles.filter(file => file.name !== fileToRemove.name || file.size !== fileToRemove.size);
-    setValue('order_upload', updatedFiles);
+    setValue('order_upload', updatedFiles, { shouldValidate: true });
     trigger('order_upload');
   };
 
@@ -263,37 +262,31 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
                             )}
                         />
                         <div className="md:col-span-2">
-                            <FormField
-                                control={control}
-                                name="order_upload"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Order Upload</FormLabel>
-                                    <FormControl>
-                                        <div
-                                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                                            onClick={() => document.getElementById('order-upload-input')?.click()}
-                                        >
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <UploadCloud className="w-8 h-8 mb-2 text-gray-500" />
-                                                <p className="mb-2 text-sm text-gray-500">
-                                                    <span className="font-semibold">Click to upload</span> or drag and drop
-                                                </p>
-                                            </div>
-                                            <Input 
-                                                id="order-upload-input"
-                                                type="file" 
-                                                className="hidden"
-                                                accept="application/pdf,image/*"
-                                                multiple
-                                                onChange={handleFileChange}
-                                            />
+                            <FormItem>
+                                <FormLabel>Order Upload</FormLabel>
+                                <FormControl>
+                                    <div
+                                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                                        onClick={() => document.getElementById('order-upload-input')?.click()}
+                                    >
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <UploadCloud className="w-8 h-8 mb-2 text-gray-500" />
+                                            <p className="mb-2 text-sm text-gray-500">
+                                                <span className="font-semibold">Click to upload</span> or drag and drop
+                                            </p>
                                         </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
+                                        <Input 
+                                            id="order-upload-input"
+                                            type="file" 
+                                            className="hidden"
+                                            accept="application/pdf,image/*"
+                                            multiple
+                                            onChange={handleFileChange}
+                                        />
+                                    </div>
+                                </FormControl>
+                                <FormMessage>{errors.order_upload?.message}</FormMessage>
+                            </FormItem>
                              {previews.length > 0 && (
                                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                                     {previews.map((file, index) => (
