@@ -47,7 +47,7 @@ export default async function EditApplicationPage({ params }: { params: { id: st
       status: applicationResult.data.application_status.name,
       
       // Pass through IDs needed for the form's initial state
-      applictaion_id: id,
+      application_id: id,
       district_id: applicationResult.data.district.id,
       circle_id: applicationResult.data.circle_id,
       sub_division_id: applicationResult.data.sub_division.id,
@@ -134,5 +134,3 @@ export default async function EditApplicationPage({ params }: { params: { id: st
     </>
   );
 }
-
-    

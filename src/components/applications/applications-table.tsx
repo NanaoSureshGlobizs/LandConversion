@@ -73,7 +73,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     const lowercasedFilter = searchTerm.toLowerCase();
     return applications.filter(
       (item) =>
-        item.applictaion_id?.toLowerCase().includes(lowercasedFilter) ||
+        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
         item.patta_no.toLowerCase().includes(lowercasedFilter) ||
         item.application_status.name.toLowerCase().includes(lowercasedFilter)
     );
@@ -105,7 +105,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || 'N/A'}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
                   <TableCell>

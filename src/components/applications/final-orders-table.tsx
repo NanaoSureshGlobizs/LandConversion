@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -146,5 +147,3 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
     </div>
   );
 }
-
-    

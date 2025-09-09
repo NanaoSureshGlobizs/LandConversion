@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -233,5 +234,3 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: 
     </div>
   );
 }
-
-    

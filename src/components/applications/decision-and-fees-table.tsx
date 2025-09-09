@@ -87,7 +87,7 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
             {applications.length > 0 ? (
               applications.map((app, index) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || 'N/A'}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{mockOwners[index % mockOwners.length]}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
                   <TableCell>

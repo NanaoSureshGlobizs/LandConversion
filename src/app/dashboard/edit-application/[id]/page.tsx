@@ -22,10 +22,10 @@ export default async function EditApplicationPage({ params }: { params: { id: st
     notFound();
   }
   
-  // Add applictaion_id to the owner_details object to pass to the form
+  // Add application_id to the owner_details object to pass to the form
   const application: Application = {
       ...applicationResult.data.owner_details,
-      applictaion_id: id,
+      application_id: id,
   }
 
   const [

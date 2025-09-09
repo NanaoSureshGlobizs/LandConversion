@@ -191,5 +191,3 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
     </div>
   );
 }
-
-    
