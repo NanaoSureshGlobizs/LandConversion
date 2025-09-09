@@ -199,5 +199,3 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     </div>
   );
 }
-
-    
