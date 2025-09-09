@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -38,6 +37,14 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
     externalRef: isLoading ? null : externalRef,
     once: false,
   });
+
+  // This effect resets the state when the initial data prop changes.
+  // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
+  useEffect(() => {
+    setApplications(initialData?.applications || []);
+    setPage(initialData?.pagination.currentPage || 1);
+    setHasMore((initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1));
+  }, [initialData]);
 
   const loadMoreApplications = useCallback(async () => {
     if (isLoading || !hasMore) return;
