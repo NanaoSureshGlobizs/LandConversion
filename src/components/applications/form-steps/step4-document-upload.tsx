@@ -25,7 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const documentCategories = {
     land_diversion: [
       { id: 'patta', title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
-      { id: 'applicant_aadhar', title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
+      { id: 'applicant_aadhar', title: 'Aadhaar', description: 'Upload a copy of your Aadhaar card' },
       { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
       { id: 'marsac_report', title: 'MARSAC Imagery Report', description: 'Upload the MARSAC report' },
       { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
@@ -36,7 +36,7 @@ const documentCategories = {
     ],
     land_conversion: [
       { id: 'patta', title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
-      { id: 'applicant_aadhar', title: 'Aadhar', description: 'Upload a copy of your Aadhar card' },
+      { id: 'applicant_aadhar', title: 'Aadhaar', description: 'Upload a copy of your Aadhaar card' },
       { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
       { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
       { id: 'deed_certificate', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
@@ -84,7 +84,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
 
   const handleAddMember = async () => {
     if (!newName || !newDob || !newRelation || !newAadharFile) {
-        toast({ title: "Missing Information", description: "Please fill out all fields and upload an Aadhar file.", variant: "destructive" });
+        toast({ title: "Missing Information", description: "Please fill out all fields and upload an Aadhaar file.", variant: "destructive" });
         return;
     }
     
@@ -111,7 +111,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
         setIsDialogOpen(false);
         toast({ title: "Family Member Added", description: "The new family member has been added to the list." });
     } else {
-        toast({ title: "Upload Failed", description: result.message || "Could not upload the Aadhar file.", variant: "destructive" });
+        toast({ title: "Upload Failed", description: result.message || "Could not upload the Aadhaar file.", variant: "destructive" });
     }
     setIsUploading(false);
   };
@@ -122,7 +122,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
           if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
             toast({
                 title: 'Invalid File Type',
-                description: 'Please upload only images or PDFs for the Aadhar.',
+                description: 'Please upload only images or PDFs for the Aadhaar.',
                 variant: 'destructive',
             });
             return;
@@ -215,7 +215,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
                             <TableHead>Name</TableHead>
                             <TableHead>Date of Birth</TableHead>
                             <TableHead>Relation</TableHead>
-                            <TableHead>Aadhar Uploaded</TableHead>
+                            <TableHead>Aadhaar Uploaded</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -308,7 +308,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
                   </div>
                   <div className="grid grid-cols-4 items-start gap-4">
                     <Label htmlFor="aadhar" className="text-right pt-2">
-                      Aadhar
+                      Aadhaar
                     </Label>
                     <div className="col-span-3">
                       {!newAadharPreview ? (
@@ -318,7 +318,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
                              {newAadharFile?.type.startsWith('image/') ? (
                                 <Image
                                     src={newAadharPreview}
-                                    alt="Aadhar Preview"
+                                    alt="Aadhaar Preview"
                                     fill
                                     className="object-cover rounded-md border"
                                 />
@@ -359,3 +359,5 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
     </div>
   );
 }
+
+    

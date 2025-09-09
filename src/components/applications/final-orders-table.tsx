@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import {
   Table,
@@ -26,6 +27,9 @@ interface FinalOrdersTableProps {
 }
 
 export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOrdersTableProps) {
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'diversion';
+
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -97,7 +101,7 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                          <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/final-orders&type=diversion`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/final-orders&type=${type}`}>View</Link>
                         </Button>
                         <UpdateStatusForm 
                             applicationId={app.id.toString()}
@@ -142,3 +146,5 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
     </div>
   );
 }
+
+    

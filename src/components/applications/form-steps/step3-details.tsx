@@ -98,8 +98,8 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
               name="aadhar_no"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aadhar Number</FormLabel>
-                  <FormControl><Input placeholder="Enter 12-digit Aadhar" {...field} maxLength={12} /></FormControl>
+                  <FormLabel>Aadhaar Number</FormLabel>
+                  <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -280,3 +280,5 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
     </div>
   );
 }
+
+    

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
 import {
   Table,
@@ -32,6 +32,9 @@ interface EnquiriesTableProps {
 
 export function EnquiriesTable({ initialData, accessToken, workflowId }: EnquiriesTableProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'conversion';
+
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -161,7 +164,7 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/application/${app.id}?from=/dashboard/enquiries`}>View Details</Link>
+                        <Link href={`/dashboard/application/${app.id}?from=/dashboard/enquiries&type=${type}`}>View Details</Link>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -198,3 +201,5 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
     </div>
   );
 }
+
+    

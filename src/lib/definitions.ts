@@ -89,12 +89,13 @@ export interface ApplicationListItem {
   patta_no: string;
   area_type: string;
   created_at: string;
-  application_id: string; // Corrected from applictaion_id
+  applictaion_id: string; // This seems to be a typo in the API, should be application_id
   village_name: string;
   can_forward: boolean;
   highlight: boolean;
   can_edit: boolean;
   form_type: string;
+  application_id: string;
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
@@ -120,3 +121,5 @@ export interface PaginatedApplications {
     perPage: number;
   };
 }
+
+    

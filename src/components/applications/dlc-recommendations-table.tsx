@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
@@ -29,6 +29,9 @@ interface DlcRecommendationsTableProps {
 export function DlcRecommendationsTable({ initialData, accessToken, statuses }: DlcRecommendationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'conversion';
+
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -116,7 +119,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
                   <TableCell>
                     <div className='flex justify-end items-center gap-2'>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/dlc-recommendations`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/dlc-recommendations&type=${type}`}>View</Link>
                         </Button>
                         <UpdateStatusForm
                             applicationId={app.id.toString()}
@@ -161,3 +164,5 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
     </div>
   );
 }
+
+    

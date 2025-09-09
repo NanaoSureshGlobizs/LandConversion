@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
 
 interface ReportsFromDlcTableProps {
   initialData: PaginatedApplications | null;
@@ -31,6 +32,9 @@ interface ReportsFromDlcTableProps {
 }
 
 export function ReportsFromDlcTable({ initialData, districts, accessToken }: ReportsFromDlcTableProps) {
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'conversion';
+
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -142,7 +146,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium font-mono">{app.applictaion_id || ''}</TableCell>
+                  <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
                   <TableCell>
@@ -150,7 +154,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
                   </TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/reports-from-dlc`}>View</Link>
+                      <Link href={`/dashboard/application/${app.id}?from=/dashboard/reports-from-dlc&type=${type}`}>View</Link>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -187,3 +191,5 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
     </div>
   );
 }
+
+    

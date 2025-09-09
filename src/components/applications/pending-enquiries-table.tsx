@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
@@ -36,6 +36,9 @@ interface PendingEnquiriesTableProps {
 export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: PendingEnquiriesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'conversion';
+
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -192,7 +195,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: 
                         </>
                       )}
                        <Button variant="outline" size="sm" asChild>
-                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries`}>View Details</Link>
+                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}`}>View Details</Link>
                        </Button>
                     </div>
                   </TableCell>
@@ -230,3 +233,5 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: 
     </div>
   );
 }
+
+    

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
 import {
   Table,
@@ -31,6 +31,9 @@ interface SdaoEnquiriesTableProps {
 
 export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTableProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'conversion';
+
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -159,7 +162,7 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/application/${app.id}`}>View Details</Link>
+                        <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}`}>View Details</Link>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -196,3 +199,5 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
     </div>
   );
 }
+
+    

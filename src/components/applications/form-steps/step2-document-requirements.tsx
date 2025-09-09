@@ -23,7 +23,7 @@ function DocumentList({ items }: DocumentListProps) {
 }
 
 const landDiversionDocs = [
-  'Aadhar',
+  'Aadhaar',
   'Latest Patta Copy (Not more than 10 days from filing)',
   'Passport Photo',
   'MARSAC Imagery Report',
@@ -34,7 +34,7 @@ const landDiversionDocs = [
 ];
 
 const landConversionDocs = [
-  'Aadhar',
+  'Aadhaar',
   'Latest Patta Copy (Not more than 10 days from filing)',
   'Passport Photo',
   'Tax Receipt',
@@ -76,3 +76,5 @@ export function Step2DocumentRequirements({ documentType }: Step2Props) {
     </div>
   );
 }
+
+    

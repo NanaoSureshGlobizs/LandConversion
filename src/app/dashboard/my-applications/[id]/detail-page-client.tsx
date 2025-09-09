@@ -47,6 +47,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   const { role } = useAuth();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
+  const type = searchParams.get('type');
 
   const [application, setApplication] = useState<FullApplicationResponse | null>(initialApplication);
   const [log, setLog] = useState<(string|undefined)[]>(initialLog);
@@ -69,7 +70,14 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   }, [id, accessToken, initialApplication, refreshApplicationData]);
 
   const canShowSurveyButton = (role === 'Admin' || role === 'SDAO') && from === '/dashboard/pending-enquiries';
-  const backHref = from ? `${from}?from=${from}` : '/dashboard/my-applications';
+  
+  let backHref = '/dashboard/my-applications';
+  if (from) {
+      backHref = from;
+      if(type) {
+        backHref += `?type=${type}`;
+      }
+  }
 
 
   if (isLoading) {
@@ -126,7 +134,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                         <Separator />
                         <DetailItem label="Date of Birth" value={application.date_of_birth} />
                          <Separator />
-                        <DetailItem label="Aadhar Number" value={application.aadhar_no} />
+                        <DetailItem label="Aadhaar Number" value={application.aadhar_no} />
                          <Separator />
                         <DetailItem label="Phone Number" value={application.phone_number} />
                          <Separator />
@@ -264,3 +272,5 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
     </>
   );
 }
+
+    

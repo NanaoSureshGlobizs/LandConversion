@@ -29,7 +29,7 @@ const otherDocumentSchema = z.array(z.object({
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   date_of_birth: z.date({ required_error: 'Date of birth is required.' }),
-  aadhar_no: z.string().length(12, 'Aadhar number must be 12 digits.'),
+  aadhar_no: z.string().length(12, 'Aadhaar number must be 12 digits.'),
   address: z.string().min(1, 'Address is required.'),
   phone_number: z.string().length(10, 'Phone number must be 10 digits.'),
   email: z.string().email('Invalid email address.'),
