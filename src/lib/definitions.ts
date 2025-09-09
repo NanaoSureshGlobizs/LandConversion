@@ -1,5 +1,6 @@
 
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -130,6 +131,10 @@ export interface LegacyDataItem {
   file_name: string | null;
   file_path: string | null;
 }
+
+export type FullLegacyDataResponse = LegacyDataItem & {
+    remark?: string;
+};
 
 export interface PaginatedLegacyData {
   legacies: LegacyDataItem[];

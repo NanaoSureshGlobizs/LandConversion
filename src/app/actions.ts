@@ -499,6 +499,11 @@ export async function getLegacyData(accessToken: string, page = 1, limit = 10) {
     return { data, log: debugLog };
 }
 
+export async function getLegacyDataById(token: string, id: string) {
+    const { data, debugLog } = await fetchFromApi(`/legacy/${id}`, token);
+    return { data, log: debugLog };
+}
+
 export async function submitLegacyData(payload: any, token: string | undefined) {
   if (!token) {
     return { success: false, message: 'Authentication token not found.', debugLog: 'submitLegacyData Error: No auth token provided.' };
