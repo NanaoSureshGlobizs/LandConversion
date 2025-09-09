@@ -19,6 +19,7 @@ import { Step2DocumentRequirements } from './form-steps/step2-document-requireme
 import { Step3Details } from './form-steps/step3-details';
 import { StepIndicator } from './form-steps/step-indicator';
 import { Step4DocumentUpload } from './form-steps/step4-document-upload';
+import { Step5Preview } from './form-steps/step5-preview';
 
 const fileUploadSchema = z.array(z.string()).optional();
 const otherDocumentSchema = z.array(z.object({
@@ -215,6 +216,7 @@ const steps = [
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
   { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry'] },
   { id: 'Step 4', name: 'Document Upload', fields: [] },
+  { id: 'Step 5', name: 'Preview & Submit', fields: [] },
 ]
 
 export function MultiStepForm({
@@ -416,6 +418,24 @@ export function MultiStepForm({
               {currentStep === 3 && (
                 <Step4DocumentUpload documentType={documentType} accessToken={accessToken} relationships={relationships} />
               )}
+              {currentStep === 4 && (
+                 <Step5Preview
+                    formValues={watch()}
+                    data={{
+                      districts,
+                      circles,
+                      subDivisions,
+                      villages,
+                      landPurposes,
+                      locationTypes,
+                      areaUnits,
+                      landClassifications,
+                      changeOfLandUseDates,
+                      purposes,
+                      relationships,
+                    }}
+                  />
+              )}
             </CardContent>
           </Card>
 
@@ -454,3 +474,4 @@ export function MultiStepForm({
     </div>
   );
 }
+
