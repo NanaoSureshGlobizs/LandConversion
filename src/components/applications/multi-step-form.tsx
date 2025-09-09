@@ -72,17 +72,6 @@ const formSchema = z.object({
     relationship_id: z.number(),
     relative_aadhar: z.string(),
   })).optional(),
-}).superRefine((data, ctx) => {
-    // This is a placeholder for the actual ID of the "Other" purpose.
-    // It should be dynamically retrieved or configured.
-    const OTHER_PURPOSE_ID = '7'; // Assuming '7' is the ID for 'Other' based on previous context.
-    if (data.purpose_id === OTHER_PURPOSE_ID && (!data.other_entry || data.other_entry.trim() === '')) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['other_entry'],
-            message: 'Please specify the other purpose.',
-        });
-    }
 });
 
 
@@ -250,8 +239,21 @@ export function MultiStepForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion'>('land_conversion');
 
+  const validationSchema = formSchema.superRefine((data, ctx) => {
+    const otherPurpose = purposes.find(p => p.name === 'Other');
+    if (otherPurpose && data.purpose_id === otherPurpose.id.toString()) {
+      if (!data.other_entry || data.other_entry.trim() === '') {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['other_entry'],
+            message: 'Please specify the other purpose.',
+        });
+      }
+    }
+  });
+
   const methods = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes),
   });
 
