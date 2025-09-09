@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -66,9 +67,9 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
     const payload = {
         order_no: values.order_no,
         order_date: format(values.order_date, 'yyyy-MM-dd'),
-        legacy_type: values.legacy_type,
+        legacy_type: values.legacy_type === 'Approve' ? 1 : 2, // Map Approve/Reject to 1/2
         remark: values.remark,
-        order_upload: uploadResult.data.filename,
+        legacy_order: [uploadResult.data.filename], // Use legacy_order and wrap in an array
     };
     
     const result = await submitLegacyData(payload, accessToken);
@@ -220,4 +221,3 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
     </Card>
   );
 }
-

@@ -504,7 +504,7 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
     return { success: false, message: 'Authentication token not found.', debugLog: 'submitLegacyData Error: No auth token provided.' };
   }
 
-  const url = `${API_BASE_URL}/legacy-data`;
+  const url = `${API_BASE_URL}/legacy`;
   let debugLog = '--- Submitting Legacy Data ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
@@ -641,3 +641,4 @@ function addLog(log: string) {
     
 
     
+
