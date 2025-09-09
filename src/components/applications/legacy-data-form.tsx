@@ -27,7 +27,7 @@ const formSchema = z.object({
   order_date: z.date({ required_error: 'Order date is required.' }),
   legacy_type: z.enum(['Approve', 'Reject'], { required_error: 'Legacy type is required.' }),
   remark: z.string().optional(),
-  order_upload: z.any().refine(fileList => fileList?.length > 0, 'Order document is required.'),
+  order_upload: z.custom<FileList>().refine(fileList => fileList && fileList.length > 0, 'At least one order document is required.'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -50,26 +50,32 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
 
   const processForm = async (values: FormValues) => {
     setIsSubmitting(true);
-
-    const file = values.order_upload[0];
-    const formData = new FormData();
-    formData.append('legacy_order_file', file);
     
-    const uploadResult = await uploadFile(formData, accessToken);
-    if(uploadResult.debugLog) addLog(uploadResult.debugLog);
+    const uploadedFileNames: string[] = [];
+    const files = Array.from(values.order_upload);
 
-    if (!uploadResult.success || !uploadResult.data?.filename) {
-        toast({ title: 'File Upload Failed', description: uploadResult.message || 'Could not upload the order file.', variant: 'destructive'});
-        setIsSubmitting(false);
-        return;
+    for (const file of files) {
+        const formData = new FormData();
+        formData.append('legacy_order_file', file);
+        
+        const uploadResult = await uploadFile(formData, accessToken);
+        addLog(uploadResult.debugLog || `Log for uploading ${file.name}`);
+
+        if (!uploadResult.success || !uploadResult.data?.filename) {
+            toast({ title: 'File Upload Failed', description: uploadResult.message || `Could not upload the file ${file.name}.`, variant: 'destructive'});
+            setIsSubmitting(false);
+            return; // Stop the submission process if one file fails
+        }
+        uploadedFileNames.push(uploadResult.data.filename);
     }
+
 
     const payload = {
         order_no: values.order_no,
         order_date: format(values.order_date, 'yyyy-MM-dd'),
         legacy_type: values.legacy_type === 'Approve' ? 1 : 2, // Map Approve/Reject to 1/2
         remark: values.remark,
-        legacy_order: [uploadResult.data.filename], // Use legacy_order and wrap in an array
+        legacy_order: uploadedFileNames, // Use the array of uploaded filenames
     };
     
     const result = await submitLegacyData(payload, accessToken);
@@ -186,6 +192,7 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
                                         type="file" 
                                         {...register("order_upload")}
                                         accept="application/pdf,image/*"
+                                        multiple
                                     />
                                 </FormControl>
                                 <FormMessage />
