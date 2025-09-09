@@ -28,9 +28,10 @@ import { Label } from '../ui/label';
 interface EnquiriesTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
+  workflowId: number | null;
 }
 
-export function EnquiriesTable({ initialData, accessToken }: EnquiriesTableProps) {
+export function EnquiriesTable({ initialData, accessToken, workflowId }: EnquiriesTableProps) {
   const router = useRouter();
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
@@ -53,7 +54,7 @@ export function EnquiriesTable({ initialData, accessToken }: EnquiriesTableProps
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage);
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -65,7 +66,7 @@ export function EnquiriesTable({ initialData, accessToken }: EnquiriesTableProps
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog, accessToken]);
+  }, [page, hasMore, isLoading, addLog, accessToken, workflowId]);
   
   useEffect(() => {
     if (isNearScreen) {

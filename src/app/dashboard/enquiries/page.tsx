@@ -33,7 +33,11 @@ export default async function EnquiriesPage({ searchParams }: { searchParams: { 
         <p className="text-muted-foreground">
           View and manage all enquiries.
         </p>
-        <EnquiriesTable initialData={initialApplicationsData} accessToken={accessToken} />
+        <EnquiriesTable 
+          initialData={initialApplicationsData} 
+          accessToken={accessToken} 
+          workflowId={workflowId}
+        />
       </div>
     </>
   );
