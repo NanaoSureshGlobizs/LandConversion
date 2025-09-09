@@ -27,7 +27,7 @@ const formSchema = z.object({
   order_date: z.date({ required_error: 'Order date is required.' }),
   legacy_type: z.enum(['Approve', 'Reject'], { required_error: 'Legacy type is required.' }),
   remark: z.string().optional(),
-  order_upload: z.any().refine(file => file, 'Order document is required.'),
+  order_upload: z.any().refine(fileList => fileList?.length > 0, 'Order document is required.'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,7 +46,7 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
     resolver: zodResolver(formSchema),
   });
 
-  const { handleSubmit, control } = form;
+  const { handleSubmit, control, register } = form;
 
   const processForm = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -178,14 +178,13 @@ export function LegacyDataForm({ accessToken }: LegacyDataFormProps) {
                          <FormField
                             control={control}
                             name="order_upload"
-                            render={({ field: { onChange, ...fieldProps} }) => (
+                            render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Order Upload</FormLabel>
                                 <FormControl>
                                     <Input 
                                         type="file" 
-                                        {...fieldProps}
-                                        onChange={(e) => onChange(e.target.files)}
+                                        {...register("order_upload")}
                                         accept="application/pdf,image/*"
                                     />
                                 </FormControl>
