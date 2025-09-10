@@ -286,6 +286,10 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
         debugLog += '---------------------------\n';
         
         if (result.success) {
+            // The workflow API has a nested data object, so we handle that here.
+            if (result.data && typeof result.data.success !== 'undefined') {
+                return { data: result.data.data, debugLog }
+            }
             return { data: result.data, debugLog };
         }
 
@@ -614,6 +618,15 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
 
 export async function getApplicationById(token: string, id: string) {
     const { data, debugLog } = await fetchFromApi(`/applications/${id}`, token);
+    return { data, log: debugLog };
+}
+
+export async function getApplicationWorkflow(token: string, id: string) {
+    if (!token) {
+      return { data: null, log: "No access token found" };
+    }
+    const url = `/applications/workflows?id=${id}`;
+    const { data, debugLog } = await fetchFromApi(url, token);
     return { data, log: debugLog };
 }
 

@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Download, FileText, Printer, Edit, Loader2 } from 'lucide-react';
-import { getApplicationById } from '@/app/actions';
+import { getApplicationById, getApplicationWorkflow } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
-import type { FullApplicationResponse, ApplicationStatusOption } from '@/lib/definitions';
+import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -23,6 +23,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
+import { TrackingTimeline } from '@/components/applications/tracking-timeline';
 
 
 function DetailItem({
@@ -50,14 +51,20 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   const type = searchParams.get('type');
 
   const [application, setApplication] = useState<FullApplicationResponse | null>(initialApplication);
+  const [workflow, setWorkflow] = useState<WorkflowItem[] | null>(null);
   const [log, setLog] = useState<(string|undefined)[]>(initialLog);
   const [isLoading, setIsLoading] = useState(!initialApplication);
 
-  const refreshApplicationData = useCallback(async () => {
+  const refreshData = useCallback(async () => {
     setIsLoading(true);
-    const { data, log } = await getApplicationById(accessToken, id);
-    setApplication(data as FullApplicationResponse | null);
-    setLog(prev => [...prev, log]); // Append new log
+    const [{ data: appData, log: appLog }, { data: workflowData, log: workflowLog }] = await Promise.all([
+        getApplicationById(accessToken, id),
+        getApplicationWorkflow(accessToken, id)
+    ]);
+    
+    setApplication(appData as FullApplicationResponse | null);
+    setWorkflow(workflowData as WorkflowItem[] | null);
+    setLog(prev => [...prev, appLog, workflowLog]);
     setIsLoading(false);
   },[accessToken, id]);
 
@@ -65,9 +72,15 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   useEffect(() => {
     // If data wasn't passed from server, fetch it on the client
     if (!initialApplication) {
-        refreshApplicationData();
+        refreshData();
+    } else {
+        // Fetch workflow data even if application data is present
+        getApplicationWorkflow(accessToken, id).then(({ data, log }) => {
+            setWorkflow(data as WorkflowItem[] | null);
+            setLog(prev => [...prev, log]);
+        })
     }
-  }, [id, accessToken, initialApplication, refreshApplicationData]);
+  }, [id, accessToken, initialApplication, refreshData]);
 
   const canShowSurveyButton = (role === 'Admin' || role === 'SDAO') && from === '/dashboard/pending-enquiries';
   
@@ -246,18 +259,18 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                           )}
                           {application.can_forward && application.form_type === 'Forward' && (
                             <div className='flex gap-2'>
-                                <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshApplicationData}>
+                                <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
                                     <Button variant="default" className="flex-1">
                                         {application.button_name || 'Forward'}
                                     </Button>
                                 </ForwardForm>
-                                <RejectForm applicationId={id} accessToken={accessToken} onSuccess={refreshApplicationData}>
+                                <RejectForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
                                     <Button variant="destructive">Reject</Button>
                                 </RejectForm>
                             </div>
                           )}
                           {canShowSurveyButton && (
-                            <SurveyReportDialog application={application} statuses={statuses} accessToken={accessToken} onSuccess={refreshApplicationData}>
+                            <SurveyReportDialog application={application} statuses={statuses} accessToken={accessToken} onSuccess={refreshData}>
                                <Button variant="default">
                                   <FileText className="mr-2"/>
                                   Survey Report
@@ -266,6 +279,16 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                            )}
                       </CardContent>
                   </Card>
+                  {workflow && (
+                    <Card>
+                        <CardHeader>
+                          <CardTitle>History</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                           <TrackingTimeline items={workflow} />
+                        </CardContent>
+                    </Card>
+                  )}
               </div>
           </div>
       </div>

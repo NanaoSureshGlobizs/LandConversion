@@ -1,6 +1,7 @@
 
 
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -144,4 +145,28 @@ export interface PaginatedLegacyData {
     currentPage: number;
     perPage: number;
   };
+}
+
+
+export interface WorkflowItem {
+  from_user: string | null;
+  to_user: string;
+  remark: string;
+  opened_on: string | null;
+  workflow_sequence_id: number;
+  created_at: string;
+  attachment: string | null;
+  days_held: number;
+  status: {
+    name: string;
+    foreground_color: string;
+    background_color: string;
+  };
+  highlight: boolean;
+}
+
+export interface WorkflowResponse {
+    success: boolean;
+    data: WorkflowItem[];
+    message: string | null;
 }
