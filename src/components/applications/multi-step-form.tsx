@@ -247,22 +247,6 @@ export function MultiStepForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion'>('land_conversion');
 
-  
-  const watchedLandUseChangeId = watch('change_of_land_use_id');
- 
-  useEffect(() => {
-    if (watchedLandUseChangeId) {
-      const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === watchedLandUseChangeId);
-      if (selectedOption?.name.includes('Before')) {
-        setDocumentType('land_diversion');
-        addLog("Document type set to: land_diversion");
-      } else {
-        setDocumentType('land_conversion');
-        addLog("Document type set to: land_conversion");
-      }
-    }
-  }, [watchedLandUseChangeId, changeOfLandUseDates, addLog]);
-
   const validationSchema = formSchema.superRefine((data, ctx) => {
     const otherPurpose = purposes.find(p => p.name === 'Other');
     if (otherPurpose && data.purpose_id === otherPurpose.id.toString()) {
@@ -301,6 +285,20 @@ export function MultiStepForm({
 
   const { handleSubmit, trigger, watch } = methods;
 
+  const watchedLandUseChangeId = watch('change_of_land_use_id');
+ 
+  useEffect(() => {
+    if (watchedLandUseChangeId) {
+      const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === watchedLandUseChangeId);
+      if (selectedOption?.name.includes('Before')) {
+        setDocumentType('land_diversion');
+        addLog("Document type set to: land_diversion");
+      } else {
+        setDocumentType('land_conversion');
+        addLog("Document type set to: land_conversion");
+      }
+    }
+  }, [watchedLandUseChangeId, changeOfLandUseDates, addLog]);
 
   const handleNext = async () => {
     const fields = steps[currentStep].fields as (keyof FormValues)[];
