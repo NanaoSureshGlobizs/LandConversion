@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { LocationType, AreaUnit, LandClassification, LandPurpose, Purpose, FormValues } from '../multi-step-form';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
 
 interface Step3Props {
     locationTypes: LocationType[];
@@ -21,9 +22,10 @@ interface Step3Props {
     landClassifications: LandClassification[];
     landPurposes: LandPurpose[];
     purposes: Purpose[];
+    documentType: 'land_diversion' | 'land_conversion';
 }
 
-export function Step3Details({ locationTypes, areaUnits, landClassifications, landPurposes, purposes }: Step3Props) {
+export function Step3Details({ locationTypes, areaUnits, landClassifications, landPurposes, purposes, documentType }: Step3Props) {
   const { control, watch } = useFormContext<FormValues>();
 
   const watchedPurposeId = watch('purpose_id');
@@ -290,6 +292,64 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   )}
                 />
               )}
+
+              {documentType === 'land_diversion' && (
+                <>
+                    <Separator className="md:col-span-2 my-4" />
+                     <div className="space-y-2">
+                        <FormLabel>Exact build up area</FormLabel>
+                        <div className="grid grid-cols-3 gap-2">
+                            <FormField
+                                control={control}
+                                name="exact_build_up_area"
+                                render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
+                            />
+                            <FormField
+                                control={control}
+                                name="exact_build_up_area_unit_id"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <FormLabel>Previously Occupied area</FormLabel>
+                        <div className="grid grid-cols-3 gap-2">
+                            <FormField
+                                control={control}
+                                name="previously_occupied_area"
+                                render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
+                            />
+                            <FormField
+                                control={control}
+                                name="previously_occupied_area_unit_id"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+                </>
+              )}
+
           </div>
         </CardContent>
       </Card>

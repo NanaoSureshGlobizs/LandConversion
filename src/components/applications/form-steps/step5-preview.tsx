@@ -36,6 +36,7 @@ function findLandPurposeNameById(items: { id: number; purpose_name: string }[] |
 
 interface Step5PreviewProps {
   formValues: FormValues;
+  documentType: 'land_diversion' | 'land_conversion';
   data: {
     districts: { id: number; name: string }[];
     circles: { id: number; name: string }[];
@@ -51,7 +52,7 @@ interface Step5PreviewProps {
   };
 }
 
-export function Step5Preview({ formValues, data }: Step5PreviewProps) {
+export function Step5Preview({ formValues, documentType, data }: Step5PreviewProps) {
   const { getValues } = useFormContext<FormValues>();
   const values = getValues();
 
@@ -134,6 +135,14 @@ export function Step5Preview({ formValues, data }: Step5PreviewProps) {
             <>
                 <Separator />
                 <DetailItem label="Other Purpose" value={values.other_entry} />
+            </>
+          )}
+          {documentType === 'land_diversion' && (
+            <>
+                <Separator />
+                <DetailItem label="Exact build up area" value={`${values.exact_build_up_area} ${findNameById(data.areaUnits, values.exact_build_up_area_unit_id!)}`} />
+                <Separator />
+                <DetailItem label="Previously Occupied area" value={`${values.previously_occupied_area} ${findNameById(data.areaUnits, values.previously_occupied_area_unit_id!)}`} />
             </>
           )}
         </CardContent>

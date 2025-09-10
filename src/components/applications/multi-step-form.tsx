@@ -54,6 +54,12 @@ const formSchema = z.object({
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
   other_entry: z.string().optional(),
 
+  // Land Diversion fields
+  exact_build_up_area: z.coerce.number().optional(),
+  exact_build_up_area_unit_id: z.string().optional(),
+  previously_occupied_area: z.coerce.number().optional(),
+  previously_occupied_area_unit_id: z.string().optional(),
+
   // Document fields
   patta: fileUploadSchema,
   applicant_aadhar: fileUploadSchema,
@@ -174,7 +180,7 @@ const getInitialValues = (
   const village = villages.find(v => v.name === application.village); 
 
   const landClassification = landClassifications.find(lc => lc.name === application.land_classification);
-  const purpose = purposes.find(p => p.name === application.purpose);
+  const purpose = purposes.find(p => p.id === application.purpose_id);
   const locationType = locationTypes.find(lt => lt.name === application.location_type);
   const areaUnit = areaUnits.find(u => u.name === application.original_area_of_plot_unit);
   const applicationAreaUnit = areaUnits.find(u => u.name === application.area_for_change_unit);
@@ -214,7 +220,7 @@ const getInitialValues = (
 const steps = [
   { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
-  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry'] },
+  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry', 'exact_build_up_area', 'exact_build_up_area_unit_id', 'previously_occupied_area', 'previously_occupied_area_unit_id'] },
   { id: 'Step 4', name: 'Document Upload', fields: [] },
   { id: 'Step 5', name: 'Preview & Submit', fields: [] },
 ]
@@ -241,26 +247,7 @@ export function MultiStepForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion'>('land_conversion');
 
-  const validationSchema = formSchema.superRefine((data, ctx) => {
-    const otherPurpose = purposes.find(p => p.name === 'Other');
-    if (otherPurpose && data.purpose_id === otherPurpose.id.toString()) {
-      if (!data.other_entry || data.other_entry.trim() === '') {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['other_entry'],
-            message: 'Please specify the other purpose.',
-        });
-      }
-    }
-  });
-
-  const methods = useForm<FormValues>({
-    resolver: zodResolver(validationSchema),
-    defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes),
-  });
-
-  const { handleSubmit, trigger, watch } = methods;
-
+  
   const watchedLandUseChangeId = watch('change_of_land_use_id');
  
   useEffect(() => {
@@ -275,6 +262,45 @@ export function MultiStepForm({
       }
     }
   }, [watchedLandUseChangeId, changeOfLandUseDates, addLog]);
+
+  const validationSchema = formSchema.superRefine((data, ctx) => {
+    const otherPurpose = purposes.find(p => p.name === 'Other');
+    if (otherPurpose && data.purpose_id === otherPurpose.id.toString()) {
+      if (!data.other_entry || data.other_entry.trim() === '') {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['other_entry'],
+            message: 'Please specify the other purpose.',
+        });
+      }
+    }
+
+    const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === data.change_of_land_use_id);
+    const isDiversion = selectedOption?.name.includes('Before');
+
+    if (isDiversion) {
+      if (!data.exact_build_up_area) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area'], message: 'Build up area is required.' });
+      }
+      if (!data.exact_build_up_area_unit_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area_unit_id'], message: 'Unit is required.' });
+      }
+      if (!data.previously_occupied_area) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area'], message: 'Occupied area is required.' });
+      }
+       if (!data.previously_occupied_area_unit_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area_unit_id'], message: 'Unit is required.' });
+      }
+    }
+  });
+  
+  const methods = useForm<FormValues>({
+    resolver: zodResolver(validationSchema),
+    defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes),
+  });
+
+  const { handleSubmit, trigger, watch } = methods;
+
 
   const handleNext = async () => {
     const fields = steps[currentStep].fields as (keyof FormValues)[];
@@ -307,7 +333,7 @@ export function MultiStepForm({
       'district_id', 'circle_id', 'sub_division_id', 'village_id', 
       'location_type_id', 'area_unit_id', 'application_area_unit_id', 
       'land_classification_id', 'land_purpose_id', 'change_of_land_use_id', 
-      'purpose_id'
+      'purpose_id', 'exact_build_up_area_unit_id', 'previously_occupied_area_unit_id'
     ];
     integerFields.forEach(field => {
         if (payload[field]) payload[field] = parseInt(payload[field]);
@@ -352,6 +378,13 @@ export function MultiStepForm({
     const otherPurpose = purposes.find(p => p.name === 'Other');
     if (!otherPurpose || payload.purpose_id !== otherPurpose.id) {
       delete payload.other_entry;
+    }
+
+     if(documentType !== 'land_diversion') {
+        delete payload.exact_build_up_area;
+        delete payload.exact_build_up_area_unit_id;
+        delete payload.previously_occupied_area;
+        delete payload.previously_occupied_area_unit_id;
     }
     
     const result = await submitApplication(payload, accessToken);
@@ -413,6 +446,7 @@ export function MultiStepForm({
                     landClassifications={landClassifications}
                     landPurposes={landPurposes}
                     purposes={purposes}
+                    documentType={documentType}
                 />
               )}
               {currentStep === 3 && (
@@ -421,6 +455,7 @@ export function MultiStepForm({
               {currentStep === 4 && (
                  <Step5Preview
                     formValues={watch()}
+                    documentType={documentType}
                     data={{
                       districts,
                       circles,
@@ -474,4 +509,3 @@ export function MultiStepForm({
     </div>
   );
 }
-
