@@ -104,13 +104,11 @@ export const allMenuItems = [
         {
             href: '/dashboard/llmc-review',
             label: 'Conversion',
-            accessKey: 'conversion',
             type: 'conversion'
         },
         {
             href: '/dashboard/llmc-review',
             label: 'Diversion',
-            accessKey: 'diversion',
             type: 'diversion'
         },
     ]
