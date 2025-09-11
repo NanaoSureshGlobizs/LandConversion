@@ -96,12 +96,12 @@ export const allMenuItems = [
     href: '/dashboard/legacy-data',
     label: 'Legacy Data',
     icon: History,
-    // accessKey: 'legacy_data', // Temporarily remove access key for testing
+    accessKey: 'legacy_data', 
   },
   {
     label: 'LLMC Review',
     icon: ShieldCheck,
-    // accessKey: 'llmc_review', // Temporarily removed for testing
+    accessKey: 'llmc_review',
     subItems: [
         {
             href: '/dashboard/llmc-review',
@@ -263,22 +263,22 @@ export function SidebarNav() {
   };
   
  const visibleMenuItems = useMemo(() => {
+    // For testing: show all items if access array is empty. Remove this for production.
+    if (access.length === 0) {
+        // return allMenuItems; 
+    }
+
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
-      // If the item has no access key, always show it (for testing purposes)
-      if (!item.accessKey) {
-          return item;
-      }
-      
       // If user doesn't have access to the main item, skip it
-      if (!userAccessSet.has(item.accessKey)) {
+      if (item.accessKey && !userAccessSet.has(item.accessKey)) {
         return null;
       }
       
       // If item has sub-items, filter them based on user access
       if (item.subItems) {
-        const visibleSubItems = item.subItems.filter(subItem => userAccessSet.has(subItem.accessKey));
+        const visibleSubItems = item.subItems.filter(subItem => !subItem.accessKey || userAccessSet.has(subItem.accessKey));
         
         // If no sub-items are visible, don't show the parent menu
         if (visibleSubItems.length === 0) {

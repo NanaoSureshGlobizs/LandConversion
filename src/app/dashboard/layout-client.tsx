@@ -26,8 +26,8 @@ export default function DashboardLayoutClient({
     const getAllowedRoutesRecursive = (items: typeof allMenuItems): string[] => {
       let routes: string[] = [];
       items.forEach(item => {
-        // Check if user has access to the parent item
-        if (access.includes(item.accessKey)) {
+        // Check if user has access to the parent item, or if it has no access key (for testing)
+        if (!item.accessKey || access.includes(item.accessKey)) {
           if (item.href) {
             routes.push(item.href);
           }
@@ -35,7 +35,7 @@ export default function DashboardLayoutClient({
           if (item.subItems) {
             // Add the base hrefs of sub-items without query params for the check
             item.subItems.forEach(sub => {
-                if (access.includes(sub.accessKey)) {
+                if (!sub.accessKey || access.includes(sub.accessKey)) {
                      routes.push(sub.href);
                 }
             });
