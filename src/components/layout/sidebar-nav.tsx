@@ -101,7 +101,7 @@ export const allMenuItems = [
   {
     label: 'LLMC Review',
     icon: ShieldCheck,
-    accessKey: 'llmc_review', // Added a new access key
+    // accessKey: 'llmc_review', // Temporarily removed for testing
     subItems: [
         {
             href: '/dashboard/llmc-review',
