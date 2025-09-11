@@ -13,7 +13,7 @@ import { useDebug } from '@/context/DebugContext';
 import { submitApplication } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Application } from '@/lib/definitions';
+import type { FullApplicationResponse } from '@/lib/definitions';
 import { Step1LandDetails } from './form-steps/step1-land-details';
 import { Step2DocumentRequirements } from './form-steps/step2-document-requirements';
 import { Step3Details } from './form-steps/step3-details';
@@ -89,14 +89,14 @@ export interface Option {
   name: string;
 }
 export interface District extends Option {}
-export interface Circle extends Option {
+export interface SubDivision extends Option {
   district_id: number;
 }
-export interface SubDivision extends Option {
-  circle_id: number;
+export interface Circle extends Option {
+  sub_division_id: number;
 }
 export interface Village extends Option {
-  sub_division_id: number;
+  circle_id: number;
 }
 export interface LandPurpose extends Option {
   purpose_name: string;
@@ -110,7 +110,7 @@ export interface Relationship extends Option {}
 
 
 interface MultiStepFormProps {
-  existingApplication?: Application | null;
+  existingApplication?: FullApplicationResponse | null;
   districts: District[];
   circles: Circle[];
   subDivisions: SubDivision[];
@@ -126,17 +126,7 @@ interface MultiStepFormProps {
 }
 
 const getInitialValues = (
-    application: Application | null | undefined,
-    districts: District[],
-    circles: Circle[],
-    subDivisions: SubDivision[],
-    villages: Village[],
-    landClassifications: LandClassification[],
-    landPurposes: LandPurpose[],
-    locationTypes: LocationType[],
-    changeOfLandUseDates: ChangeOfLandUseDate[],
-    areaUnits: AreaUnit[],
-    purposes: Purpose[],
+    application: FullApplicationResponse | null | undefined,
   ): FormValues => {
 
   const emptyValues: FormValues = {
@@ -170,55 +160,38 @@ const getInitialValues = (
     return emptyValues;
   }
 
-  const dobDate = application.dob ? parse(application.dob, 'yyyy-MM-dd', new Date()) : new Date();
-
-  // Mapping from name to ID
-  const district = districts.find(d => d.name === application.district);
-  const circle = circles.find(c => c.name === application.sdo_circle && c.district_id === district?.id);
-  // Note: sub_division is not in the new API response, so we can't map it directly.
-  // We'll rely on the chained selection logic to handle this.
-  const village = villages.find(v => v.name === application.village); 
-
-  const landClassification = landClassifications.find(lc => lc.name === application.land_classification);
-  const purpose = purposes.find(p => p.id === application.purpose_id);
-  const locationType = locationTypes.find(lt => lt.name === application.location_type);
-  const areaUnit = areaUnits.find(u => u.name === application.original_area_of_plot_unit);
-  const applicationAreaUnit = areaUnits.find(u => u.name === application.area_for_change_unit);
-
-  // These are not in the new response, so we need to handle potential undefined values.
-  const landPurpose = application.land_purpose_id ? landPurposes.find(p => p.id === application.land_purpose_id) : undefined;
-  const changeOfLandUse = application.change_of_land_use_id ? changeOfLandUseDates.find(d => d.id === application.change_of_land_use_id) : undefined;
+  const dobDate = application.date_of_birth ? parse(application.date_of_birth, 'yyyy-MM-dd', new Date()) : new Date();
   
   return {
-    name: application.owner_name || '',
+    name: application.applicant_name || '',
     date_of_birth: dobDate,
-    aadhar_no: application.aadhar || '',
-    address: application.owner_address || '',
+    aadhar_no: application.aadhar_no || '',
+    address: application.address || '',
     phone_number: application.phone_number || '',
     email: application.email || '',
-    district_id: district?.id.toString() || '',
-    circle_id: circle?.id.toString() || '',
-    sub_division_id: '', // Cannot determine from API, user must re-select
-    village_id: village?.id.toString() || '',
+    district_id: application.district.id.toString() || '',
+    circle_id: application.circle_id.toString() || '',
+    sub_division_id: application.sub_division.id.toString() || '',
+    village_id: application.village_id.toString() || '',
     patta_no: application.patta_no || '',
     dag_no: application.dag_no || '',
-    location_type_id: locationType?.id.toString() || '',
+    location_type_id: application.location_type_id.toString() || '',
     original_area_of_plot: application ? parseFloat(application.original_area_of_plot) : ('' as any),
-    area_unit_id: areaUnit?.id.toString() || '',
-    area_applied_for_conversion: application ? parseFloat(application.area_for_change) : ('' as any),
-    application_area_unit_id: applicationAreaUnit?.id.toString() || '',
-    land_classification_id: landClassification?.id.toString() || '',
-    land_purpose_id: landPurpose?.id.toString() || '', // May be undefined
-    change_of_land_use_id: changeOfLandUse?.id.toString() || '', // May be undefined
-    purpose_id: purpose?.id.toString() || '',
-    other_entry: (application as any).other_entry || '',
+    area_unit_id: application.land_area_unit_id.toString() || '',
+    area_applied_for_conversion: application ? parseFloat(application.area_applied_for_conversion) : ('' as any),
+    application_area_unit_id: application.application_area_unit_id.toString() || '',
+    land_classification_id: application.land_classification_id.toString() || '',
+    land_purpose_id: application.land_purpose_id.toString() || '',
+    change_of_land_use_id: application.change_of_land_use_id.toString() || '',
+    purpose_id: application.purpose_id.toString() || '',
+    other_entry: '',
     relatives: [], // Existing app data doesn't contain this yet
     others_relevant_document: [],
   };
 };
 
 const steps = [
-  { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'circle_id', 'sub_division_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
+  { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'sub_division_id', 'circle_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
   { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry', 'exact_build_up_area', 'exact_build_up_area_unit_id', 'previously_occupied_area', 'previously_occupied_area_unit_id'] },
   { id: 'Step 4', name: 'Document Upload', fields: [] },
@@ -280,7 +253,7 @@ export function MultiStepForm({
   
   const methods = useForm<FormValues>({
     resolver: zodResolver(validationSchema),
-    defaultValues: getInitialValues(existingApplication, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes),
+    defaultValues: getInitialValues(existingApplication),
   });
 
   const { handleSubmit, trigger, watch } = methods;
@@ -406,7 +379,7 @@ export function MultiStepForm({
         // Potentially refresh data or router if needed for an update
       } else {
         // Fallback for new application if no ID is returned
-        methods.reset(getInitialValues(null, districts, circles, subDivisions, villages, landClassifications, landPurposes, locationTypes, changeOfLandUseDates, areaUnits, purposes));
+        methods.reset(getInitialValues(null));
         setCurrentStep(0);
       }
 

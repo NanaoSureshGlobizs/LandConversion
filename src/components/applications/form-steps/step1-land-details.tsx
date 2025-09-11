@@ -27,48 +27,48 @@ export function Step1LandDetails({
 }: Step1Props) {
   const { control, watch, setValue, getValues } = useFormContext<FormValues>();
 
-  const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
   const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
+  const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
   const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
   
   const selectedDistrictId = watch('district_id');
-  const selectedCircleId = watch('circle_id');
   const selectedSubDivisionId = watch('sub_division_id');
+  const selectedCircleId = watch('circle_id');
   
   useEffect(() => {
     if (selectedDistrictId) {
-      const relevantCircles = circles.filter(c => c.district_id === parseInt(selectedDistrictId));
-      setFilteredCircles(relevantCircles);
-      
-      const currentCircleId = getValues('circle_id');
-      if (currentCircleId && !relevantCircles.some(c => c.id.toString() === currentCircleId)) {
-        setValue('circle_id', '');
-        setValue('sub_division_id', '');
-        setValue('village_id', '');
-      }
-    } else {
-      setFilteredCircles([]);
-    }
-  }, [selectedDistrictId, circles, getValues, setValue]);
-
-  useEffect(() => {
-    if (selectedCircleId) {
-      const relevantSubDivisions = subDivisions.filter(sd => sd.circle_id === parseInt(selectedCircleId));
+      const relevantSubDivisions = subDivisions.filter(sd => sd.district_id === parseInt(selectedDistrictId));
       setFilteredSubDivisions(relevantSubDivisions);
-
+      
       const currentSubDivisionId = getValues('sub_division_id');
       if (currentSubDivisionId && !relevantSubDivisions.some(sd => sd.id.toString() === currentSubDivisionId)) {
         setValue('sub_division_id', '');
+        setValue('circle_id', '');
         setValue('village_id', '');
       }
     } else {
       setFilteredSubDivisions([]);
     }
-  }, [selectedCircleId, subDivisions, getValues, setValue]);
+  }, [selectedDistrictId, subDivisions, getValues, setValue]);
 
   useEffect(() => {
     if (selectedSubDivisionId) {
-      const relevantVillages = villages.filter(v => v.sub_division_id === parseInt(selectedSubDivisionId));
+      const relevantCircles = circles.filter(c => c.sub_division_id === parseInt(selectedSubDivisionId));
+      setFilteredCircles(relevantCircles);
+
+      const currentCircleId = getValues('circle_id');
+      if (currentCircleId && !relevantCircles.some(c => c.id.toString() === currentCircleId)) {
+        setValue('circle_id', '');
+        setValue('village_id', '');
+      }
+    } else {
+      setFilteredCircles([]);
+    }
+  }, [selectedSubDivisionId, circles, getValues, setValue]);
+
+  useEffect(() => {
+    if (selectedCircleId) {
+      const relevantVillages = villages.filter(v => v.circle_id === parseInt(selectedCircleId));
       setFilteredVillages(relevantVillages);
 
       const currentVillageId = getValues('village_id');
@@ -78,21 +78,21 @@ export function Step1LandDetails({
     } else {
       setFilteredVillages([]);
     }
-  }, [selectedSubDivisionId, villages, getValues, setValue]);
+  }, [selectedCircleId, villages, getValues, setValue]);
 
   useEffect(() => {
     // This effect primes the dropdowns when the form is initialized for an existing application.
     const initialDistrictId = getValues('district_id');
     if (initialDistrictId) {
-      setFilteredCircles(circles.filter(c => c.district_id === parseInt(initialDistrictId)));
-    }
-    const initialCircleId = getValues('circle_id');
-    if (initialCircleId) {
-      setFilteredSubDivisions(subDivisions.filter(sd => sd.circle_id === parseInt(initialCircleId)));
+      setFilteredSubDivisions(subDivisions.filter(sd => sd.district_id === parseInt(initialDistrictId)));
     }
     const initialSubDivisionId = getValues('sub_division_id');
     if (initialSubDivisionId) {
-      setFilteredVillages(villages.filter(v => v.sub_division_id === parseInt(initialSubDivisionId)));
+       setFilteredCircles(circles.filter(c => c.sub_division_id === parseInt(initialSubDivisionId)));
+    }
+    const initialCircleId = getValues('circle_id');
+    if (initialCircleId) {
+       setFilteredVillages(villages.filter(v => v.circle_id === parseInt(initialCircleId)));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run only once on mount
@@ -123,14 +123,14 @@ export function Step1LandDetails({
         />
         <FormField
           control={control}
-          name="circle_id"
+          name="sub_division_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Circle</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedDistrictId || filteredCircles.length === 0}>
-                <FormControl><SelectTrigger><SelectValue placeholder={!selectedDistrictId ? "Select a district first" : "Select Circle"} /></SelectTrigger></FormControl>
+              <FormLabel>Sub Division</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedDistrictId || filteredSubDivisions.length === 0}>
+                <FormControl><SelectTrigger><SelectValue placeholder={!selectedDistrictId ? "Select a district first" : "Select Sub Division"} /></SelectTrigger></FormControl>
                 <SelectContent>
-                  {filteredCircles.map((circle) => (<SelectItem key={circle.id} value={circle.id.toString()}>{circle.name}</SelectItem>))}
+                  {filteredSubDivisions.map((subDivision) => (<SelectItem key={subDivision.id} value={subDivision.id.toString()}>{subDivision.name}</SelectItem>))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -139,14 +139,14 @@ export function Step1LandDetails({
         />
         <FormField
           control={control}
-          name="sub_division_id"
+          name="circle_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Sub Division</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCircleId || filteredSubDivisions.length === 0}>
-                <FormControl><SelectTrigger><SelectValue placeholder={!selectedCircleId ? "Select a circle first" : "Select Sub Division"} /></SelectTrigger></FormControl>
+              <FormLabel>Circle</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedSubDivisionId || filteredCircles.length === 0}>
+                <FormControl><SelectTrigger><SelectValue placeholder={!selectedSubDivisionId ? "Select a sub-division first" : "Select Circle"} /></SelectTrigger></FormControl>
                 <SelectContent>
-                  {filteredSubDivisions.map((subDivision) => (<SelectItem key={subDivision.id} value={subDivision.id.toString()}>{subDivision.name}</SelectItem>))}
+                  {filteredCircles.map((circle) => (<SelectItem key={circle.id} value={circle.id.toString()}>{circle.name}</SelectItem>))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -159,8 +159,8 @@ export function Step1LandDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Village</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedSubDivisionId || filteredVillages.length === 0}>
-                <FormControl><SelectTrigger><SelectValue placeholder={!selectedSubDivisionId ? "Select a sub-division first" : "Select Village"} /></SelectTrigger></FormControl>
+              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCircleId || filteredVillages.length === 0}>
+                <FormControl><SelectTrigger><SelectValue placeholder={!selectedCircleId ? "Select a circle first" : "Select Village"} /></SelectTrigger></FormControl>
                 <SelectContent>
                   {filteredVillages.map((village) => (<SelectItem key={village.id} value={village.id.toString()}>{village.name}</SelectItem>))}
                 </SelectContent>
