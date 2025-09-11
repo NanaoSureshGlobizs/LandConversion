@@ -99,6 +99,25 @@ export const allMenuItems = [
     // accessKey: 'legacy_data', // Temporarily remove access key for testing
   },
   {
+    label: 'LLMC Review',
+    icon: ShieldCheck,
+    accessKey: 'llmc_review', // Added a new access key
+    subItems: [
+        {
+            href: '/dashboard/llmc-review',
+            label: 'Conversion',
+            accessKey: 'conversion',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/llmc-review',
+            label: 'Diversion',
+            accessKey: 'diversion',
+            type: 'diversion'
+        },
+    ]
+  },
+  {
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
