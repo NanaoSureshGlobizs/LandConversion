@@ -27,19 +27,24 @@ export function Step1LandDetails({
 }: Step1Props) {
   const { control, watch, setValue, getValues } = useFormContext<FormValues>();
 
+  // State to hold the filtered lists for dependent dropdowns
   const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
   const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
   const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
   
-  const selectedDistrictId = watch('district_id');
-  const selectedSubDivisionId = watch('sub_division_id');
-  const selectedCircleId = watch('circle_id');
+  // Watch for changes in the parent dropdowns
+  const watchedDistrictId = watch('district_id');
+  const watchedSubDivisionId = watch('sub_division_id');
+  const watchedCircleId = watch('circle_id');
   
+  // Effect for when District changes
   useEffect(() => {
-    if (selectedDistrictId) {
-      const relevantSubDivisions = subDivisions.filter(sd => sd.district_id === parseInt(selectedDistrictId));
+    const districtId = parseInt(watchedDistrictId);
+    if (!isNaN(districtId)) {
+      const relevantSubDivisions = subDivisions.filter(sd => sd.district_id === districtId);
       setFilteredSubDivisions(relevantSubDivisions);
       
+      // If the current sub-division is not in the new list, reset it and its children
       const currentSubDivisionId = getValues('sub_division_id');
       if (currentSubDivisionId && !relevantSubDivisions.some(sd => sd.id.toString() === currentSubDivisionId)) {
         setValue('sub_division_id', '');
@@ -47,15 +52,21 @@ export function Step1LandDetails({
         setValue('village_id', '');
       }
     } else {
+      // If no district is selected, clear all children
       setFilteredSubDivisions([]);
+      setFilteredCircles([]);
+      setFilteredVillages([]);
     }
-  }, [selectedDistrictId, subDivisions, getValues, setValue]);
+  }, [watchedDistrictId, subDivisions, setValue, getValues]);
 
+  // Effect for when Sub Division changes
   useEffect(() => {
-    if (selectedSubDivisionId) {
-      const relevantCircles = circles.filter(c => c.sub_division_id === parseInt(selectedSubDivisionId));
+    const subDivisionId = parseInt(watchedSubDivisionId);
+    if (!isNaN(subDivisionId)) {
+      const relevantCircles = circles.filter(c => c.sub_division_id === subDivisionId);
       setFilteredCircles(relevantCircles);
 
+      // If the current circle is not in the new list, reset it and its children
       const currentCircleId = getValues('circle_id');
       if (currentCircleId && !relevantCircles.some(c => c.id.toString() === currentCircleId)) {
         setValue('circle_id', '');
@@ -63,14 +74,18 @@ export function Step1LandDetails({
       }
     } else {
       setFilteredCircles([]);
+      setFilteredVillages([]);
     }
-  }, [selectedSubDivisionId, circles, getValues, setValue]);
+  }, [watchedSubDivisionId, circles, setValue, getValues]);
 
+  // Effect for when Circle changes
   useEffect(() => {
-    if (selectedCircleId) {
-      const relevantVillages = villages.filter(v => v.circle_id === parseInt(selectedCircleId));
+    const circleId = parseInt(watchedCircleId);
+    if (!isNaN(circleId)) {
+      const relevantVillages = villages.filter(v => v.circle_id === circleId);
       setFilteredVillages(relevantVillages);
 
+      // If the current village is not in the new list, reset it
       const currentVillageId = getValues('village_id');
       if (currentVillageId && !relevantVillages.some(v => v.id.toString() === currentVillageId)) {
         setValue('village_id', '');
@@ -78,10 +93,10 @@ export function Step1LandDetails({
     } else {
       setFilteredVillages([]);
     }
-  }, [selectedCircleId, villages, getValues, setValue]);
+  }, [watchedCircleId, villages, setValue, getValues]);
 
+  // Effect to initialize dropdowns on mount if editing an existing application
   useEffect(() => {
-    // This effect primes the dropdowns when the form is initialized for an existing application.
     const initialDistrictId = getValues('district_id');
     if (initialDistrictId) {
       setFilteredSubDivisions(subDivisions.filter(sd => sd.district_id === parseInt(initialDistrictId)));
@@ -127,8 +142,8 @@ export function Step1LandDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Sub Division</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedDistrictId || filteredSubDivisions.length === 0}>
-                <FormControl><SelectTrigger><SelectValue placeholder={!selectedDistrictId ? "Select a district first" : "Select Sub Division"} /></SelectTrigger></FormControl>
+              <Select onValueChange={field.onChange} value={field.value} disabled={!watchedDistrictId || filteredSubDivisions.length === 0}>
+                <FormControl><SelectTrigger><SelectValue placeholder={!watchedDistrictId ? "Select a district first" : "Select Sub Division"} /></SelectTrigger></FormControl>
                 <SelectContent>
                   {filteredSubDivisions.map((subDivision) => (<SelectItem key={subDivision.id} value={subDivision.id.toString()}>{subDivision.name}</SelectItem>))}
                 </SelectContent>
@@ -143,8 +158,8 @@ export function Step1LandDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Circle</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedSubDivisionId || filteredCircles.length === 0}>
-                <FormControl><SelectTrigger><SelectValue placeholder={!selectedSubDivisionId ? "Select a sub-division first" : "Select Circle"} /></SelectTrigger></FormControl>
+              <Select onValueChange={field.onChange} value={field.value} disabled={!watchedSubDivisionId || filteredCircles.length === 0}>
+                <FormControl><SelectTrigger><SelectValue placeholder={!watchedSubDivisionId ? "Select a sub-division first" : "Select Circle"} /></SelectTrigger></FormControl>
                 <SelectContent>
                   {filteredCircles.map((circle) => (<SelectItem key={circle.id} value={circle.id.toString()}>{circle.name}</SelectItem>))}
                 </SelectContent>
@@ -159,8 +174,8 @@ export function Step1LandDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Village</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCircleId || filteredVillages.length === 0}>
-                <FormControl><SelectTrigger><SelectValue placeholder={!selectedCircleId ? "Select a circle first" : "Select Village"} /></SelectTrigger></FormControl>
+              <Select onValueChange={field.onChange} value={field.value} disabled={!watchedCircleId || filteredVillages.length === 0}>
+                <FormControl><SelectTrigger><SelectValue placeholder={!watchedCircleId ? "Select a circle first" : "Select Village"} /></SelectTrigger></FormControl>
                 <SelectContent>
                   {filteredVillages.map((village) => (<SelectItem key={village.id} value={village.id.toString()}>{village.name}</SelectItem>))}
                 </SelectContent>
