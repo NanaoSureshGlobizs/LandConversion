@@ -162,11 +162,11 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                         <CardTitle>Land & Location Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <DetailItem label="District" value={application.district.name} />
+                        <DetailItem label="District" value={application.district?.name} />
                         <Separator />
                         <DetailItem label="Circle" value={application.circle_name} />
                         <Separator />
-                         <DetailItem label="Sub-Division" value={application.sub_division.name} />
+                         <DetailItem label="Sub-Division" value={application.sub_division?.name} />
                         <Separator />
                         <DetailItem label="Village" value={application.village_name} />
                         <Separator />
@@ -236,7 +236,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                           </div>
                            <div>
                             <p className="text-sm text-muted-foreground">Status</p>
-                            <Badge variant="secondary" className="text-base mt-1">{application.application_status.name}</Badge>
+                            <Badge variant="secondary" className="text-base mt-1">{application.application_status?.name}</Badge>
                           </div>
                       </CardContent>
                   </Card>
@@ -295,5 +295,3 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
     </>
   );
 }
-
-    
