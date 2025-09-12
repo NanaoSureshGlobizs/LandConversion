@@ -109,9 +109,17 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
         <>
             <ServerLogHandler logs={log} />
             <div className="flex-1 space-y-6 px-4 md:px-8">
-                 <h1 className="text-3xl font-bold tracking-tight font-headline">
-                    Application Not Found
-                </h1>
+                 <div className="flex items-center gap-4">
+                    <Button variant="outline" size="icon" asChild>
+                        <Link href={backHref}>
+                            <ArrowLeft />
+                            <span className="sr-only">Back to applications</span>
+                        </Link>
+                    </Button>
+                    <h1 className="text-2xl font-bold tracking-tight font-headline">
+                        Application Not Found
+                    </h1>
+                </div>
                 <p>The application with ID {id} could not be loaded. This might be due to a server error or invalid data.</p>
                 <p className='text-muted-foreground text-sm'>Check the debug panel for the full server response.</p>
             </div>

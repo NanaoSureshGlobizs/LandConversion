@@ -132,19 +132,19 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
       case 'Survey':
          return (
              <SurveyReportDialog 
-                application={app as FullApplicationResponse} // We need to cast here, assuming list item has enough data
+                application={app as any} // Cast needed but be cautious, ensure list item has enough data for dialog if used directly
                 statuses={statuses} 
                 accessToken={accessToken} 
                 onSuccess={refreshData}
             >
                 <Button variant="default" size="sm">
-                   <FileText className="mr-2"/>
+                   <FileText className="mr-2 h-4 w-4"/>
                    Survey Report
                 </Button>
             </SurveyReportDialog>
          );
       case 'LLMC Report':
-          return <Button variant="default" size="sm" disabled>LLMC Report</Button>
+          return <Button variant="default" size="sm" disabled>LLMC Report</Button>;
 
       default:
         return null;
