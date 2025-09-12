@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
+import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption, FullApplicationResponse } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -14,7 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, CalendarIcon } from 'lucide-react';
+import { Loader2, CalendarIcon, FileText } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
@@ -27,14 +27,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import Link from 'next/link';
 import { ForwardForm } from './forward-form';
 import { RejectForm } from './reject-form';
+import { SurveyReportDialog } from './survey-report-dialog';
 
 interface PendingEnquiriesTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
   workflowId: number | null;
+  statuses: ApplicationStatusOption[];
 }
 
-export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: PendingEnquiriesTableProps) {
+export function PendingEnquiriesTable({ initialData, accessToken, workflowId, statuses }: PendingEnquiriesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,6 +57,19 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: 
     externalRef: isLoading ? null : externalRef,
     once: false,
   });
+
+  const refreshData = useCallback(async () => {
+    // This function can be used to refetch data after an action
+    setIsLoading(true);
+    const { data: newData, log } = await getApplications(accessToken, 1, 10, workflowId);
+    addLog(log || "Log for getApplications refresh");
+    if (newData && Array.isArray(newData.applications)) {
+        setApplications(newData.applications);
+        setPage(newData.pagination.currentPage);
+        setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+    }
+    setIsLoading(false);
+  }, [accessToken, workflowId, addLog]);
 
   // This effect resets the state when the initial data prop changes.
   // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
@@ -100,6 +115,42 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: 
         item.application_status.name.toLowerCase().includes(lowercasedFilter)
     );
   }, [applications, searchTerm]);
+  
+  const renderActions = (app: ApplicationListItem) => {
+    switch (app.form_type) {
+      case 'Forward':
+        return (
+          <>
+            <ForwardForm applicationId={app.id.toString()} accessToken={accessToken} onSuccess={refreshData}>
+              <Button variant="default" size="sm">{app.button_name || 'Forward'}</Button>
+            </ForwardForm>
+            <RejectForm applicationId={app.id.toString()} accessToken={accessToken} onSuccess={refreshData}>
+              <Button variant="destructive" size="sm">Reject</Button>
+            </RejectForm>
+          </>
+        );
+      case 'Survey':
+         return (
+             <SurveyReportDialog 
+                application={app as FullApplicationResponse} // We need to cast here, assuming list item has enough data
+                statuses={statuses} 
+                accessToken={accessToken} 
+                onSuccess={refreshData}
+            >
+                <Button variant="default" size="sm">
+                   <FileText className="mr-2"/>
+                   Survey Report
+                </Button>
+            </SurveyReportDialog>
+         );
+      case 'LLMC Report':
+          return <Button variant="default" size="sm" disabled>LLMC Report</Button>
+
+      default:
+        return null;
+    }
+  }
+
 
   return (
     <div className="space-y-4">
@@ -185,16 +236,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: 
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
-                       {app.form_type === 'Forward' && (
-                        <>
-                           <ForwardForm applicationId={app.id.toString()} accessToken={accessToken}>
-                              <Button variant="default" size="sm">Forward</Button>
-                           </ForwardForm>
-                           <RejectForm applicationId={app.id.toString()} accessToken={accessToken}>
-                              <Button variant="destructive" size="sm">Reject</Button>
-                           </RejectForm>
-                        </>
-                      )}
+                       {renderActions(app)}
                        <Button variant="outline" size="sm" asChild>
                          <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}`}>View Details</Link>
                        </Button>

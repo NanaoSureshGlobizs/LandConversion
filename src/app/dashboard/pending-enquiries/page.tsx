@@ -1,13 +1,9 @@
 
 import { PendingEnquiriesTable } from '@/components/applications/pending-enquiries-table';
-import { getApplications } from '@/app/actions';
+import { getApplications, getApplicationStatuses } from '@/app/actions';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { PaginatedApplications } from '@/lib/definitions';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { FilePlus2 } from 'lucide-react';
 
 const WORKFLOW_MAP = {
   conversion: 6,
@@ -25,11 +21,19 @@ export default async function PendingEnquiriesPage({ searchParams }: { searchPar
   }
 
   const workflowId = WORKFLOW_MAP[type] || null;
-  const { data: initialApplicationsData, log } = await getApplications(accessToken, 1, 10, workflowId);
+  
+  const [
+    { data: initialApplicationsData, log: appLog },
+    { data: statuses, log: statusesLog }
+  ] = await Promise.all([
+    getApplications(accessToken, 1, 10, workflowId),
+    getApplicationStatuses(accessToken)
+  ]);
+
 
   return (
     <>
-      <ServerLogHandler logs={[log]} />
+      <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">Pending Enquiries ({type === 'conversion' ? 'Conversion' : 'Diversion'})</h1>
@@ -41,6 +45,7 @@ export default async function PendingEnquiriesPage({ searchParams }: { searchPar
             initialData={initialApplicationsData} 
             accessToken={accessToken}
             workflowId={workflowId}
+            statuses={statuses}
         />
       </div>
     </>
