@@ -143,7 +143,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
                 </Button>
             </SurveyReportDialog>
          );
-      case 'LLMC Report':
+      case 'LLMC_Report':
           return <Button variant="default" size="sm" disabled>LLMC Report</Button>;
 
       default:
