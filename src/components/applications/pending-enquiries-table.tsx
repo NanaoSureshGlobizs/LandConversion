@@ -238,7 +238,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
                     <div className="flex justify-end gap-2">
                        {renderActions(app)}
                        <Button variant="outline" size="sm" asChild>
-                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}`}>View Details</Link>
+                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}`}>View Details</Link>
                        </Button>
                     </div>
                   </TableCell>

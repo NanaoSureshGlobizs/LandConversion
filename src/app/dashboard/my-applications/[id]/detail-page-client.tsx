@@ -49,6 +49,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const type = searchParams.get('type');
+  const actionContext = searchParams.get('actionContext');
 
   const [application, setApplication] = useState<FullApplicationResponse | null>(initialApplication);
   const [workflow, setWorkflow] = useState<WorkflowItem[] | null>(null);
@@ -91,6 +92,52 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
         backHref += `?type=${type}`;
       }
   }
+
+  const renderActionButtons = () => {
+    // Prioritize actionContext from the URL if it exists
+    const currentAction = actionContext || application?.form_type;
+
+    switch (currentAction) {
+        case 'Forward':
+            return (
+                <div className='flex gap-2'>
+                    <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
+                        <Button variant="default" className="flex-1">
+                            {application?.button_name || 'Forward'}
+                        </Button>
+                    </ForwardForm>
+                    <RejectForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
+                        <Button variant="destructive">Reject</Button>
+                    </RejectForm>
+                </div>
+            );
+        case 'Survey':
+             return (
+                <SurveyReportDialog application={application!} statuses={statuses} accessToken={accessToken} onSuccess={refreshData}>
+                   <Button variant="default">
+                      <FileText className="mr-2"/>
+                      Survey Report
+                   </Button>
+                </SurveyReportDialog>
+             );
+        case 'LLMC_Report':
+            // Logic for LLMC Report if needed
+            return null; // Or a specific button
+        default:
+            // Fallback for general application view actions, like edit
+            if (application?.can_edit) {
+                 return (
+                     <Button variant="default" asChild>
+                        <Link href={`/dashboard/my-applications/${id}/edit`}>
+                           <Edit className="mr-2" />
+                           Edit Application
+                        </Link>
+                     </Button>
+                 );
+            }
+            return null;
+    }
+  };
 
 
   if (isLoading) {
@@ -257,34 +304,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                             <Printer className="mr-2"/>
                             Print Application
                           </Button>
-                          {application.can_edit && (
-                             <Button variant="default" asChild>
-                                <Link href={`/dashboard/my-applications/${id}/edit`}>
-                                   <Edit className="mr-2" />
-                                   Edit Application
-                                </Link>
-                             </Button>
-                          )}
-                          {application.can_forward && application.form_type === 'Forward' && (
-                            <div className='flex gap-2'>
-                                <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
-                                    <Button variant="default" className="flex-1">
-                                        {application.button_name || 'Forward'}
-                                    </Button>
-                                </ForwardForm>
-                                <RejectForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
-                                    <Button variant="destructive">Reject</Button>
-                                </RejectForm>
-                            </div>
-                          )}
-                          {canShowSurveyButton && (
-                            <SurveyReportDialog application={application} statuses={statuses} accessToken={accessToken} onSuccess={refreshData}>
-                               <Button variant="default">
-                                  <FileText className="mr-2"/>
-                                  Survey Report
-                               </Button>
-                            </SurveyReportDialog>
-                           )}
+                          {renderActionButtons()}
                       </CardContent>
                   </Card>
                   {workflow && (
