@@ -236,18 +236,18 @@ export function MultiStepForm({
     const isDiversion = selectedOption?.name.includes('Before');
 
     if (isDiversion) {
-      if (!data.exact_build_up_area) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area'], message: 'Build up area is required.' });
-      }
-      if (!data.exact_build_up_area_unit_id) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area_unit_id'], message: 'Unit is required.' });
-      }
-      if (!data.previously_occupied_area) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area'], message: 'Occupied area is required.' });
-      }
-       if (!data.previously_occupied_area_unit_id) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area_unit_id'], message: 'Unit is required.' });
-      }
+      // if (!data.exact_build_up_area) {
+      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area'], message: 'Build up area is required.' });
+      // }
+      // if (!data.exact_build_up_area_unit_id) {
+      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area_unit_id'], message: 'Unit is required.' });
+      // }
+      // if (!data.previously_occupied_area) {
+      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area'], message: 'Occupied area is required.' });
+      // }
+      //  if (!data.previously_occupied_area_unit_id) {
+      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area_unit_id'], message: 'Unit is required.' });
+      // }
     }
   });
   

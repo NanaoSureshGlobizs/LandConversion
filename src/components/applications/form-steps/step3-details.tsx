@@ -293,7 +293,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 />
               )}
 
-              {documentType === 'land_diversion' && (
+              {/* {documentType === 'land_diversion' && (
                 <>
                     <Separator className="md:col-span-2 my-4" />
                      <div className="space-y-2">
@@ -348,7 +348,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                         </div>
                     </div>
                 </>
-              )}
+              )} */}
 
           </div>
         </CardContent>
