@@ -94,7 +94,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   }
 
   const renderActionButtons = () => {
-    // Prioritize actionContext from the URL if it exists
+    // Prioritize actionContext from the URL. This is the source of truth for actions on this page.
     const currentAction = actionContext || application?.form_type;
 
     switch (currentAction) {
