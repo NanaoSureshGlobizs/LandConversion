@@ -185,7 +185,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId }: 
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
-                       {app.can_forward && (
+                       {app.form_type === 'Forward' && (
                         <>
                            <ForwardForm applicationId={app.id.toString()} accessToken={accessToken}>
                               <Button variant="default" size="sm">Forward</Button>
