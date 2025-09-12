@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,7 +22,8 @@ const formSchema = z.object({
   designation: z.string().min(1, 'Designation is required.'),
   email: z.string().email('Invalid email address.'),
   role: z.string().min(1, 'Role is required.'),
-  district_ids: z.array(z.string()).min(1, 'At least one district is required.'),
+  // We'll use a temporary field for the single selection to drive the UI
+  jurisdiction_district_id: z.string().min(1, 'Please select a district for jurisdiction.'),
   sub_division_ids: z.array(z.string()).optional(),
   circle_ids: z.array(z.string()).optional(),
 });
@@ -44,23 +45,62 @@ export function CreateUserForm({ districts, subDivisions, circles, accessToken }
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [filteredSubDivisions, setFilteredSubDivisions] = useState<SubDivision[]>([]);
+  const [filteredCircles, setFilteredCircles] = useState<Circle[]>([]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      district_ids: [],
       sub_division_ids: [],
       circle_ids: [],
     },
   });
 
-  const { handleSubmit, control, reset } = form;
+  const { handleSubmit, control, reset, watch, setValue } = form;
+
+  const watchedDistrictId = watch('jurisdiction_district_id');
+  const watchedSubDivisionIds = watch('sub_division_ids');
+
+  // Effect for when District changes
+  useEffect(() => {
+    const districtId = parseInt(watchedDistrictId);
+    if (!isNaN(districtId)) {
+        const relevantSubDivisions = subDivisions.filter(sd => sd.district_id === districtId);
+        setFilteredSubDivisions(relevantSubDivisions);
+        
+        // Reset child dropdowns if the selection is no longer valid
+        setValue('sub_division_ids', []);
+        setValue('circle_ids', []);
+    } else {
+        setFilteredSubDivisions([]);
+        setFilteredCircles([]);
+    }
+  }, [watchedDistrictId, subDivisions, setValue]);
+
+  // Effect for when Sub Division changes
+  useEffect(() => {
+    if (watchedSubDivisionIds && watchedSubDivisionIds.length > 0) {
+        const subDivisionId = parseInt(watchedSubDivisionIds[0]); // Assuming single selection for now to filter circles
+        const relevantCircles = circles.filter(c => c.sub_division_id === subDivisionId);
+        setFilteredCircles(relevantCircles);
+        setValue('circle_ids', []);
+    } else {
+        setFilteredCircles([]);
+    }
+  }, [watchedSubDivisionIds, circles, setValue]);
+
 
   const processForm = async (values: FormValues) => {
     setIsSubmitting(true);
     
+    // The API expects district_ids as an array. We derive it from the single selection field.
     const payload = {
-        ...values,
-        district_ids: values.district_ids.map(id => parseInt(id)),
+        name: values.name,
+        username: values.username,
+        designation: values.designation,
+        email: values.email,
+        role: values.role,
+        district_ids: [parseInt(values.jurisdiction_district_id)],
         sub_division_ids: values.sub_division_ids?.map(id => parseInt(id)),
         circle_ids: values.circle_ids?.map(id => parseInt(id)),
     };
@@ -151,7 +191,7 @@ export function CreateUserForm({ districts, subDivisions, circles, accessToken }
                 control={control}
                 name="role"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-2">
                     <FormLabel>Role</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select a role" /></SelectTrigger></FormControl>
@@ -166,12 +206,12 @@ export function CreateUserForm({ districts, subDivisions, circles, accessToken }
             </div>
              <FormField
                 control={control}
-                name="district_ids"
+                name="jurisdiction_district_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Districts</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value.join(',')}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select districts" /></SelectTrigger></FormControl>
+                    <FormLabel>Jurisdiction District</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select a district" /></SelectTrigger></FormControl>
                       <SelectContent>
                         {districts.map(d => <SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>)}
                       </SelectContent>
@@ -185,11 +225,15 @@ export function CreateUserForm({ districts, subDivisions, circles, accessToken }
                 name="sub_division_ids"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sub-Divisions (Optional)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value?.join(',')}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select sub-divisions" /></SelectTrigger></FormControl>
+                    <FormLabel>Sub-Division (Optional)</FormLabel>
+                    <Select 
+                      onValueChange={(value) => field.onChange(value ? [value] : [])} 
+                      value={field.value?.[0] || ''}
+                      disabled={!watchedDistrictId || filteredSubDivisions.length === 0}
+                    >
+                      <FormControl><SelectTrigger><SelectValue placeholder={!watchedDistrictId ? "Select a district first" : "Select a sub-division"} /></SelectTrigger></FormControl>
                       <SelectContent>
-                        {subDivisions.map(sd => <SelectItem key={sd.id} value={sd.id.toString()}>{sd.name}</SelectItem>)}
+                        {filteredSubDivisions.map(sd => <SelectItem key={sd.id} value={sd.id.toString()}>{sd.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                      <FormMessage />
@@ -201,11 +245,15 @@ export function CreateUserForm({ districts, subDivisions, circles, accessToken }
                 name="circle_ids"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Circles (Optional)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value?.join(',')}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select circles" /></SelectTrigger></FormControl>
+                    <FormLabel>Circle (Optional)</FormLabel>
+                     <Select 
+                      onValueChange={(value) => field.onChange(value ? [value] : [])} 
+                      value={field.value?.[0] || ''}
+                      disabled={!watchedSubDivisionIds || watchedSubDivisionIds.length === 0 || filteredCircles.length === 0}
+                    >
+                      <FormControl><SelectTrigger><SelectValue placeholder={!watchedSubDivisionIds || watchedSubDivisionIds.length === 0 ? "Select a sub-division first" : "Select a circle"} /></SelectTrigger></FormControl>
                       <SelectContent>
-                        {circles.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}
+                        {filteredCircles.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                      <FormMessage />
