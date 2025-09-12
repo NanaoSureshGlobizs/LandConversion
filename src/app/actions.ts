@@ -637,6 +637,22 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
 
 export async function getApplicationById(token: string, id: string) {
     const { data, debugLog } = await fetchFromApi(`/applications/${id}`, token);
+    
+    if (data && (data.conversion_applications || data.diversion_applications)) {
+        let applicationData = null;
+        if (data.conversion_applications && data.conversion_applications.length > 0) {
+            applicationData = data.conversion_applications[0];
+        } else if (data.diversion_applications && data.diversion_applications.length > 0) {
+            applicationData = data.diversion_applications[0];
+        }
+        
+        if (applicationData) {
+            // Merge the upload_files from the parent data object into the application data
+            applicationData.upload_files = data.upload_files || [];
+            return { data: applicationData, log: debugLog };
+        }
+    }
+    
     return { data, log: debugLog };
 }
 

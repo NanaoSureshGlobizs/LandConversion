@@ -205,7 +205,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                                     <div key={index} className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
                                         <div className="flex items-center gap-3">
                                             <FileText className="text-muted-foreground" />
-                                            <span className="font-mono text-sm">{file.file_name}</span>
+                                            <span className="font-mono text-sm capitalize">{file.file_name.replace(/_/g, ' ')}</span>
                                         </div>
                                         <Button variant="outline" size="sm" asChild>
                                             <a href={file.file_path} target="_blank" rel="noopener noreferrer">
