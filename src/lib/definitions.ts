@@ -5,6 +5,7 @@
 
 
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -172,4 +173,31 @@ export interface WorkflowResponse {
     success: boolean;
     data: WorkflowItem[];
     message: string | null;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  designation: string;
+  username: string;
+  email: string;
+  role: string;
+  status: number;
+}
+
+export interface District {
+  id: number;
+  name: string;
+}
+
+export interface SubDivision {
+    id: number;
+    name: string;
+    district_id: number;
+}
+
+export interface Circle {
+    id: number;
+    name: string;
+    sub_division_id: number;
 }

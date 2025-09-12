@@ -546,6 +546,51 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
   }
 }
 
+// --- USER MANAGEMENT ACTIONS ---
+export async function getUsers(token: string) {
+    const { data, debugLog } = await fetchFromApi('/profile', token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
+}
+
+export async function createUser(payload: any, token: string | undefined) {
+  if (!token) {
+    return { success: false, message: 'Authentication token not found.', debugLog: 'createUser Error: No auth token provided.' };
+  }
+
+  const url = `${API_BASE_URL}/profile`;
+  let debugLog = '--- Creating User ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '---------------------\n';
+    
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+    }
+
+    return { ...result, debugLog };
+  } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '---------------------\n';
+    console.error('createUser error:', error);
+    return { success: false, message: 'An unexpected error occurred.', debugLog };
+  }
+}
+
+
 
 // Functions to be called from Server Components
 async function fetchDataWithLog(fetcher: (token: string) => Promise<any>, token: string) {
@@ -618,8 +663,8 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
         const conversionAppsObject = data[0].conversion_applications || {};
         const diversionAppsObject = data[0].diversion_applications || {};
 
-        const conversionApps = Object.values(conversionAppsObject).filter((v: any) => typeof v === 'object');
-        const diversionApps = Object.values(diversionAppsObject).filter((v: any) => typeof v === 'object');
+        const conversionApps = Object.values(conversionAppsObject).filter((v: any) => typeof v === 'object' && v.id);
+        const diversionApps = Object.values(diversionAppsObject).filter((v: any) => typeof v === 'object' && v.id);
         
         const allApps = [...conversionApps, ...diversionApps];
 

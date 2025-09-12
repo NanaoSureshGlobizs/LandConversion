@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -112,6 +112,11 @@ export const allMenuItems = [
             type: 'diversion'
         },
     ]
+  },
+  {
+    href: '/dashboard/user-management',
+    label: 'User Management',
+    icon: Users,
   },
   {
     label: 'Conversion',
