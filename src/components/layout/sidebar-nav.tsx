@@ -80,6 +80,12 @@ export const allMenuItems = [
     icon: Gavel,
     accessKey: 'decision_and_fee',
   },
+   {
+    href: '/dashboard/marsac-report',
+    label: 'Marsac Report',
+    icon: FileBarChart,
+    accessKey: 'marsac_report',
+  },
   {
     href: '/dashboard/my-applications',
     label: 'My Applications',
