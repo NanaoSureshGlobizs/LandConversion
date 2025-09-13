@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { uploadFile } from '@/app/actions';
+import { uploadFile, forwardApplication } from '@/app/actions';
 import { Loader2, Calendar as CalendarIcon } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
@@ -33,18 +33,11 @@ interface UpdateStatusFormProps {
     applicationId: string;
     accessToken: string;
     statuses: ApplicationStatusOption[];
-}
-
-// Placeholder for the new server action
-async function updateStatus(payload: any, token: string) {
-    console.log('Updating status with payload:', payload);
-    // In a real scenario, this would make an API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { success: true, message: 'Status updated successfully.', debugLog: `--- Updating Status ---\nPayload: ${JSON.stringify(payload, null, 2)}\n--------------------------` };
+    onSuccess?: () => void;
 }
 
 
-export function UpdateStatusForm({ children, applicationId, accessToken, statuses }: UpdateStatusFormProps) {
+export function UpdateStatusForm({ children, applicationId, accessToken, statuses, onSuccess }: UpdateStatusFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,7 +72,8 @@ export function UpdateStatusForm({ children, applicationId, accessToken, statuse
     // Step 1: Upload the file if it exists
     if (imageFile) {
         const formData = new FormData();
-        formData.append('status_update_image', imageFile);
+        // Use a generic key for the attachment in the forward/update context
+        formData.append('workflow_attachment', imageFile);
         const uploadResult = await uploadFile(formData, accessToken);
 
         if(uploadResult.debugLog) addLog(uploadResult.debugLog);
@@ -96,25 +90,27 @@ export function UpdateStatusForm({ children, applicationId, accessToken, statuse
         uploadedFileName = uploadResult.data.filename;
     }
 
-    // Step 2: Submit the forward details
+    // Step 2: Submit the details using the forwardApplication action
     const payload = {
-        application_id: applicationId,
+        application_details_id: parseInt(applicationId),
+        verification_status_id: parseInt(status), // The status selected from the dropdown
         remark,
-        image: uploadedFileName,
-        status: parseInt(status),
+        attachment: uploadedFileName,
+        status: 1, // Status `1` indicates a forward/update action
         date: format(date, 'yyyy-MM-dd'),
     };
 
-    const submitResult = await updateStatus(payload, accessToken);
+    const submitResult = await forwardApplication(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
     if (submitResult.success) {
         toast({
             title: 'Action Successful',
-            description: submitResult.message
+            description: submitResult.message || 'The application status has been updated.'
         });
         resetForm();
         setIsOpen(false);
+        onSuccess?.();
     } else {
         toast({
             title: 'Submission Failed',
@@ -136,7 +132,7 @@ export function UpdateStatusForm({ children, applicationId, accessToken, statuse
             Update the status of this application by filing a report.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
             <div className='space-y-2'>
                 <Label htmlFor="status">Status</Label>
                  <Select value={status} onValueChange={setStatus}>
@@ -185,12 +181,12 @@ export function UpdateStatusForm({ children, applicationId, accessToken, statuse
                 />
             </div>
              <div className='space-y-2'>
-                <Label htmlFor="upload-image">Upload Image (Optional)</Label>
+                <Label htmlFor="upload-image">Upload Attachment (Optional)</Label>
                 <Input 
                     id="upload-image" 
                     type="file" 
                     onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                    accept="image/*"
+                    accept="image/*,application/pdf"
                 />
             </div>
         </div>
