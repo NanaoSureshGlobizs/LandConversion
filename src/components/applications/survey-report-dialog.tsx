@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { uploadFile, submitSurveyReport } from '@/app/actions';
+import { uploadFile, forwardApplication } from '@/app/actions';
 import type { FullApplicationResponse, ApplicationStatusOption } from '@/lib/definitions';
 import { Loader2 } from 'lucide-react';
 
@@ -49,6 +49,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
   const [status, setStatus] = useState('');
   const [reportFile, setReportFile] = useState<File | null>(null);
   const [remarks, setRemarks] = useState('');
+  const [landSchedule, setLandSchedule] = useState('');
   const [sendToDc, setSendToDc] = useState(false);
   const [sendToSdao, setSendToSdao] = useState(false);
   
@@ -59,15 +60,16 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
     setStatus('');
     setReportFile(null);
     setRemarks('');
+    setLandSchedule('');
     setSendToDc(false);
     setSendToSdao(false);
   }
 
   const handleSubmit = async () => {
-    if (!status || !reportFile) {
+    if (!status) {
         toast({
             title: 'Missing Information',
-            description: 'Please select a status and upload a report file.',
+            description: 'Please select a status.',
             variant: 'destructive',
         });
         return;
@@ -75,35 +77,41 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
     
     setIsLoading(true);
 
-    // Step 1: Upload the file
-    const formData = new FormData();
-    formData.append('upload_survey_record', reportFile);
-    const uploadResult = await uploadFile(formData, accessToken);
+    let uploadedFileName = '';
+    // Step 1: Upload the file if it exists
+    if (reportFile) {
+        const formData = new FormData();
+        formData.append('workflow_attachment', reportFile);
+        const uploadResult = await uploadFile(formData, accessToken);
 
-    if(uploadResult.debugLog) addLog(uploadResult.debugLog);
+        if(uploadResult.debugLog) addLog(uploadResult.debugLog);
 
-    if (!uploadResult.success || !uploadResult.data.filename) {
-        toast({
-            title: 'File Upload Failed',
-            description: uploadResult.message || 'Could not upload the survey report.',
-            variant: 'destructive'
-        });
-        setIsLoading(false);
-        return;
+        if (!uploadResult.success || !uploadResult.data.filename) {
+            toast({
+                title: 'File Upload Failed',
+                description: uploadResult.message || 'Could not upload the survey report.',
+                variant: 'destructive'
+            });
+            setIsLoading(false);
+            return;
+        }
+        uploadedFileName = uploadResult.data.filename;
     }
 
-    // Step 2: Submit the survey report details
+    // Step 2: Submit the survey report details using the forwardApplication action
+    const fullRemarks = `Land Schedule: ${landSchedule}\n\nRemarks: ${remarks}`;
+    
     const payload = {
         application_details_id: application.id,
-        survey_details_id: 1, // This seems to be a fixed value from the API example
+        verification_status_id: parseInt(status),
+        remark: fullRemarks,
+        attachment: uploadedFileName,
+        status: 1, // 1 for forward/update
+        // Add other survey-specific fields if the API supports them under the /workflow endpoint
         survey_status: noHomestead && notAffected && notForest ? '1' : '0',
-        department_review_status_id: parseInt(status, 10),
-        review_number: `RV-${application.application_no}`,
-        upload_survey_record: uploadResult.data.filename,
-        remarks: remarks,
     };
 
-    const submitResult = await submitSurveyReport(payload, accessToken);
+    const submitResult = await forwardApplication(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
     if (submitResult.success) {
@@ -154,6 +162,15 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
                 </div>
             </div>
             <div className='space-y-2'>
+                <Label htmlFor="land_schedule">Land Schedule</Label>
+                <Textarea 
+                    id="land_schedule"
+                    placeholder="Enter land schedule details..."
+                    value={landSchedule}
+                    onChange={(e) => setLandSchedule(e.target.value)}
+                />
+            </div>
+            <div className='space-y-2'>
                 <Label htmlFor="status">Status</Label>
                 <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger id="status">
@@ -167,7 +184,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
                 </Select>
             </div>
              <div className='space-y-2'>
-                <Label htmlFor="upload-report">Upload Report</Label>
+                <Label htmlFor="upload-report">Upload Report (Optional)</Label>
                 <Input 
                     id="upload-report" 
                     type="file" 
