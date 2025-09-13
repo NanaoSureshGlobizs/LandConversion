@@ -142,6 +142,12 @@ export const allMenuItems = [
             type: 'conversion'
         },
         {
+            href: '/dashboard/report',
+            label: 'Report',
+            accessKey: 'report',
+            type: 'conversion'
+        },
+        {
             href: '/dashboard/llmc-recommendations',
             label: 'LLMC Recommendations',
             accessKey: 'llmc_recommendations',
@@ -157,12 +163,6 @@ export const allMenuItems = [
             href: '/dashboard/lrd-decision',
             label: 'LRD Decision',
             accessKey: 'lrd_decision',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/report',
-            label: 'Report',
-            accessKey: 'report',
             type: 'conversion'
         },
         {
@@ -191,6 +191,12 @@ export const allMenuItems = [
             type: 'diversion'
         },
         {
+            href: '/dashboard/report',
+            label: 'Report',
+            accessKey: 'report',
+            type: 'diversion'
+        },
+        {
             href: '/dashboard/llmc-recommendations',
             label: 'LLMC Recommendations',
             accessKey: 'llmc_recommendations',
@@ -200,12 +206,6 @@ export const allMenuItems = [
             href: '/dashboard/dlc-recommendations',
             label: 'DLC Recommendations',
             accessKey: 'dlc_recommendations',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/report',
-            label: 'Report',
-            accessKey: 'report',
             type: 'diversion'
         },
         {
