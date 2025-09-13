@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -73,6 +73,24 @@ export const allMenuItems = [
             type: 'diversion'
         },
     ]
+  },
+    {
+    href: '/dashboard/dpo-report',
+    label: 'DPO Report',
+    icon: Building2,
+    accessKey: 'dpo_report',
+  },
+  {
+    href: '/dashboard/limosdo-dao-report',
+    label: 'LIMOSDO/DAO Report',
+    icon: Briefcase,
+    accessKey: 'limosdo_dao_report',
+  },
+  {
+    href: '/dashboard/dc-office',
+    label: 'DC Office',
+    icon: Users,
+    accessKey: 'dc_office',
   },
   {
     href: '/dashboard/decision-and-fees',
@@ -144,7 +162,7 @@ export const allMenuItems = [
             accessKey: 'pending_enquiries',
             type: 'conversion'
         },
-        {
+         {
             href: '/dashboard/report',
             label: 'Report',
             accessKey: 'report',
