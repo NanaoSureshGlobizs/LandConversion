@@ -41,7 +41,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={control}
                 name="name"
@@ -49,34 +49,6 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   <FormItem>
                     <FormLabel>Name of Patta Holder</FormLabel>
                     <FormControl><Input placeholder="Enter full name" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name="aadhar_no"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      <div className="flex items-center gap-1">
-                        Aadhaar Number
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs">
-                              <p className="font-bold mb-2">Aadhaar Privacy Notice</p>
-                              <p className="text-xs">
-                                We collect your Aadhaar number for identity verification and KYC compliance as required for this service. Providing Aadhaar is mandatory for this application. Your information will be used only for authentication through UIDAI's system. We will not store your biometric information.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </FormLabel>
-                    <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -126,6 +98,32 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 )}
               />
             </div>
+             <FormField
+                control={control}
+                name="aadhar_no"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-1">
+                        Aadhaar Number
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-bold mb-2">Aadhaar Privacy Notice</p>
+                            <p className="text-xs">
+                              We collect your Aadhaar number for identity verification and KYC compliance as required for this service. Providing Aadhaar is mandatory for this application. Your information will be used only for authentication through UIDAI's system. We will not store your biometric information.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </FormLabel>
+                    <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
             <FormField
               control={control}
