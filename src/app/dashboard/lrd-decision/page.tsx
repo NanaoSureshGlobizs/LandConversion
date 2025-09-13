@@ -35,7 +35,7 @@ export default async function LrdDecisionPage({ searchParams }: { searchParams: 
       <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">LRD Decision (Conversion)</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">LRD Decision</h1>
         </div>
         <LrdDecisionTable 
           initialData={initialApplicationsData} 
