@@ -79,6 +79,10 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     );
   }, [applications, searchTerm]);
 
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/my-applications/${appId}`);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center">
@@ -104,7 +108,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
@@ -115,7 +119,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/my-applications/${app.id}`}>View</Link>
                         </Button>

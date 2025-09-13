@@ -87,6 +87,10 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
     );
   }, [applications, searchTerm]);
 
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/my-applications/${appId}?from=/dashboard/unprocessed-applications`);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-4">
@@ -136,11 +140,11 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/unprocessed-applications`}>View</Link>
                     </Button>

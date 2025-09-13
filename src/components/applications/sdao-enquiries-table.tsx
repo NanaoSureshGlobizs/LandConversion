@@ -84,6 +84,10 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
     }
   }, [isNearScreen, loadMoreApplications]);
 
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/application/${appId}?from=/dashboard/sdao-enquiries&type=${type}`);
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -156,12 +160,12 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}`}>View Details</Link>
                     </Button>

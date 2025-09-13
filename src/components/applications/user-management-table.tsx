@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { useRouter } from 'next/navigation';
 
 interface UserManagementTableProps {
   initialData: User[];
@@ -32,6 +33,7 @@ export function UserManagementTable({ initialData, accessToken }: UserManagement
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [users, setUsers] = useState<User[]>(initialData || []);
+  const router = useRouter();
 
   const roles = useMemo(() => ['all', ...Array.from(new Set(initialData.map(u => u.role)))], [initialData]);
 
@@ -46,6 +48,12 @@ export function UserManagementTable({ initialData, accessToken }: UserManagement
       return (nameMatch || usernameMatch || emailMatch) && roleMatch;
     });
   }, [users, searchTerm, roleFilter]);
+
+  const handleRowClick = (userId: number) => {
+    // There's no user detail page yet, so this is a placeholder.
+    // We could open an edit dialog or navigate to a new page.
+    console.log(`Row clicked for user ID: ${userId}`);
+  };
 
   return (
     <div className="space-y-4">
@@ -85,7 +93,7 @@ export function UserManagementTable({ initialData, accessToken }: UserManagement
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow key={user.id} onClick={() => handleRowClick(user.id)} className="cursor-pointer">
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
@@ -98,7 +106,7 @@ export function UserManagementTable({ initialData, accessToken }: UserManagement
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="icon">
                         <Edit className="h-4 w-4" />
                         <span className="sr-only">Edit User</span>

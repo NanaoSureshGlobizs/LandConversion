@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
 import { UpdateStatusForm } from './update-status-form';
+import { useRouter } from 'next/navigation';
 
 interface ReportTableProps {
   initialData: PaginatedApplications | null;
@@ -34,6 +35,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const router = useRouter();
   
   const [sdao, setSdao] = useState('');
 
@@ -80,6 +82,10 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
     return applications;
   }, [applications]);
 
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/application/${appId}`);
+  };
+
   const renderAction = (app: ApplicationListItem) => {
     return (
         <UpdateStatusForm 
@@ -120,14 +126,14 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell>
                      <Badge variant={app.application_status.name.toLowerCase() === 'approved' ? 'default' : 'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     {renderAction(app)}
                   </TableCell>
                 </TableRow>

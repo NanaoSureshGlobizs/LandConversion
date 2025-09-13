@@ -23,7 +23,7 @@ import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface ReportsFromDlcTableProps {
   initialData: PaginatedApplications | null;
@@ -33,6 +33,7 @@ interface ReportsFromDlcTableProps {
 
 export function ReportsFromDlcTable({ initialData, districts, accessToken }: ReportsFromDlcTableProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const type = searchParams.get('type') || 'conversion';
 
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -80,6 +81,10 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
   const filteredData = useMemo(() => {
     return applications;
   }, [applications]);
+
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/application/${appId}?from=/dashboard/reports-from-dlc&type=${type}`);
+  };
 
 
   return (
@@ -145,14 +150,14 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
                   <TableCell>
                      <Badge variant={'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/dashboard/application/${app.id}?from=/dashboard/reports-from-dlc&type=${type}`}>View</Link>
                     </Button>

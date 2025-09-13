@@ -152,6 +152,10 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
     setIsForwarding(false);
   };
 
+  const handleRowClick = (appId: string) => {
+    router.push(`/dashboard/application/${appId}?from=/dashboard/llmc-review&type=${type}`);
+  };
+
   const isAllSelected = applications.length > 0 && selectedIds.length === applications.length;
 
   return (
@@ -182,8 +186,8 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id}>
-                  <TableCell>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id.toString())} className="cursor-pointer">
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={selectedRows[app.id] || false}
                         onCheckedChange={(checked) => handleSelectRow(app.id.toString(), !!checked)}
@@ -193,7 +197,7 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-review&type=${type}`}>Review</Link>
                     </Button>

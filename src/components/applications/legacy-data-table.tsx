@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -25,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface LegacyDataTableProps {
   initialData: PaginatedLegacyData | null;
@@ -39,6 +39,7 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const router = useRouter();
 
   const [legacyType, setLegacyType] = useState('all');
   const [date, setDate] = useState<Date | undefined>();
@@ -93,6 +94,10 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
             return 'secondary';
       }
   }
+
+  const handleRowClick = (id: number) => {
+    router.push(`/dashboard/legacy-data/${id}`);
+  };
 
   return (
     <div className="space-y-4">
@@ -152,14 +157,14 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow key={item.id} onClick={() => handleRowClick(item.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{item.order_no}</TableCell>
                   <TableCell>{item.order_date}</TableCell>
                   <TableCell>
                     <Badge variant={getStatusVariant(item.status_name)}>{item.status_name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/legacy-data/${item.id}`}>View</Link>
                         </Button>

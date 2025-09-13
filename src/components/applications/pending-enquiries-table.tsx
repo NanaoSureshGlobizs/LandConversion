@@ -116,6 +116,10 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
     );
   }, [applications, searchTerm]);
   
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}`);
+  };
+  
   const renderActions = (app: ApplicationListItem) => {
     switch (app.form_type) {
       case 'Forward':
@@ -223,7 +227,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>
                     <div className="font-medium">{app.district.name}</div>
@@ -235,7 +239,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
                      <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                        {renderActions(app)}
                        <Button variant="outline" size="sm" asChild>
                          <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}`}>View Details</Link>

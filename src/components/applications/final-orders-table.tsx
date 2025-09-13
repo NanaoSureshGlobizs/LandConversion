@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import {
   Table,
@@ -29,6 +29,7 @@ interface FinalOrdersTableProps {
 
 export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOrdersTableProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const type = searchParams.get('type') || 'diversion';
 
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
@@ -76,6 +77,10 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
     }
   }, [isNearScreen, loadMoreApplications]);
 
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/application/${appId}?from=/dashboard/final-orders&type=${type}`);
+  };
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border bg-card">
@@ -92,7 +97,7 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
@@ -100,7 +105,7 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
                      <Badge variant={app.application_status.name.toLowerCase() === 'approved' ? 'default' : 'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                          <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/final-orders&type=${type}`}>View</Link>
                         </Button>

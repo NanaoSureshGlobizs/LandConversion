@@ -19,6 +19,7 @@ import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { UpdateStatusForm } from './update-status-form';
+import { useRouter } from 'next/navigation';
 
 interface DecisionAndFeesTableProps {
   initialData: PaginatedApplications | null;
@@ -39,6 +40,7 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const router = useRouter();
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -69,6 +71,10 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
         loadMoreApplications();
     }
   }, [isNearScreen, loadMoreApplications]);
+  
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/application/${appId}?from=/dashboard/decision-and-fees`);
+  };
 
   return (
     <div className="space-y-4">
@@ -86,7 +92,7 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app, index) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{mockOwners[index % mockOwners.length]}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
@@ -94,7 +100,7 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell>
-                     <div className='flex justify-end items-center gap-2'>
+                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/decision-and-fees`}>View</Link>
                         </Button>

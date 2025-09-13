@@ -89,6 +89,10 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
     );
   }, [applications, searchTerm]);
 
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/application/${appId}?from=/dashboard/dlc-recommendations&type=${type}`);
+  };
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -113,12 +117,12 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
                   <TableCell>
-                    <div className='flex justify-end items-center gap-2'>
+                    <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/dlc-recommendations&type=${type}`}>View</Link>
                         </Button>

@@ -19,6 +19,7 @@ import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { UpdateStatusForm } from './update-status-form';
+import { useRouter } from 'next/navigation';
 
 interface MarsacReportTableProps {
   initialData: PaginatedApplications | null;
@@ -33,6 +34,7 @@ export function MarsacReportTable({ initialData, accessToken, statuses }: Marsac
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const router = useRouter();
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -64,6 +66,10 @@ export function MarsacReportTable({ initialData, accessToken, statuses }: Marsac
     }
   }, [isNearScreen, loadMoreApplications]);
 
+  const handleRowClick = (appId: number) => {
+    router.push(`/dashboard/application/${appId}?from=/dashboard/marsac-report`);
+  };
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border bg-card">
@@ -80,7 +86,7 @@ export function MarsacReportTable({ initialData, accessToken, statuses }: Marsac
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                    <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
@@ -88,7 +94,7 @@ export function MarsacReportTable({ initialData, accessToken, statuses }: Marsac
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell>
-                     <div className='flex justify-end items-center gap-2'>
+                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/marsac-report`}>View</Link>
                         </Button>
