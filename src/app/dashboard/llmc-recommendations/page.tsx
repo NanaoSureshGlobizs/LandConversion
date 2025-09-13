@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 9,
-  diversion: 17,
+  diversion: 60,
 };
 
 export default async function LlmcRecommendationsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
