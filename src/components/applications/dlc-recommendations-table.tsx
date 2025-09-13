@@ -21,13 +21,13 @@ import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
 import { UpdateStatusForm } from './update-status-form';
 
-interface DlcRecommendationsTableProps {
+interface LlmcMeetingTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
   statuses: ApplicationStatusOption[];
 }
 
-export function DlcRecommendationsTable({ initialData, accessToken, statuses }: DlcRecommendationsTableProps) {
+export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMeetingTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -46,7 +46,6 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
   });
 
   // This effect resets the state when the initial data prop changes.
-  // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
   useEffect(() => {
     setApplications(initialData?.applications || []);
     setPage(initialData?.pagination.currentPage || 1);
@@ -90,7 +89,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
   }, [applications, searchTerm]);
 
   const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/dlc-recommendations&type=${type}`);
+    router.push(`/dashboard/application/${appId}?from=/dashboard/llmc-meeting&type=${type}`);
   };
 
   return (
@@ -124,14 +123,14 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
                   <TableCell>
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/dlc-recommendations&type=${type}`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-meeting&type=${type}`}>View</Link>
                         </Button>
                         <UpdateStatusForm
                             applicationId={app.id.toString()}
                             accessToken={accessToken}
                             statuses={statuses}
                         >
-                            <Button variant="default" size="sm">Forward to LRD</Button>
+                            <Button variant="default" size="sm">Update Status</Button>
                         </UpdateStatusForm>
                     </div>
                   </TableCell>
@@ -140,7 +139,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
             ) : (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">
-                  No recommendations found.
+                  No applications found.
                 </TableCell>
               </TableRow>
             )}
