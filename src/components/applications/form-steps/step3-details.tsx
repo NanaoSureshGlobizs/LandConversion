@@ -57,7 +57,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 control={control}
                 name="date_of_birth"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Date of Birth</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
