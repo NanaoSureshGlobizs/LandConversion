@@ -59,7 +59,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-1">
-                        Aadhaar Number
+                      Aadhaar Number
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -91,7 +91,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                           <Button
                             variant={'outline'}
                             className={cn(
-                              'w-full pl-3 text-left font-normal',
+                              'w-full pl-3 text-left font-normal h-10',
                               !field.value && 'text-muted-foreground'
                             )}
                           >
