@@ -191,7 +191,7 @@ export const allMenuItems = [
             accessKey: 'sdo_dao_final_scrutiny',
             type: 'conversion'
         },
-         {
+        {
             href: '/dashboard/sdo-dao-report',
             label: 'SDO/DAO Report',
             accessKey: 'sdo_dao_report',
