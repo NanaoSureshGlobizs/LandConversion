@@ -1,11 +1,11 @@
 
-import { LimosdoDaoReportTable } from '@/components/applications/limosdo-dao-report-table';
+import { SdoDaoReportTable } from '@/components/applications/limosdo-dao-report-table';
 import { getApplications, getApplicationStatuses } from '@/app/actions';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-export default async function LimosdoDaoReportPage() {
+export default async function SdoDaoReportPage() {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
 
@@ -29,9 +29,9 @@ export default async function LimosdoDaoReportPage() {
       <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">LIMOSDO/DAO Report</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">SDO/DAO Report</h1>
         </div>
-        <LimosdoDaoReportTable
+        <SdoDaoReportTable
             initialData={initialApplicationsData} 
             accessToken={accessToken}
             statuses={statuses}

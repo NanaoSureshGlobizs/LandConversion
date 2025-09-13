@@ -21,13 +21,13 @@ import Link from 'next/link';
 import { UpdateStatusForm } from './update-status-form';
 import { useRouter } from 'next/navigation';
 
-interface LimosdoDaoReportTableProps {
+interface SdoDaoReportTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
   statuses: ApplicationStatusOption[];
 }
 
-export function LimosdoDaoReportTable({ initialData, accessToken, statuses }: LimosdoDaoReportTableProps) {
+export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDaoReportTableProps) {
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -47,7 +47,7 @@ export function LimosdoDaoReportTable({ initialData, accessToken, statuses }: Li
     setIsLoading(true);
     const nextPage = page + 1;
     const { data: newData, log } = await getApplications(accessToken, nextPage, 10, 29);
-    addLog(log || "Log for getApplications in LIMOSDO/DAO Report");
+    addLog(log || "Log for getApplications in SDO/DAO Report");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);
@@ -67,7 +67,7 @@ export function LimosdoDaoReportTable({ initialData, accessToken, statuses }: Li
   }, [isNearScreen, loadMoreApplications]);
 
   const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/limosdo-dao-report`);
+    router.push(`/dashboard/application/${appId}?from=/dashboard/sdo-dao-report`);
   };
 
   return (
@@ -96,7 +96,7 @@ export function LimosdoDaoReportTable({ initialData, accessToken, statuses }: Li
                   <TableCell>
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/limosdo-dao-report`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-report`}>View</Link>
                         </Button>
                         <UpdateStatusForm
                             applicationId={app.id.toString()}

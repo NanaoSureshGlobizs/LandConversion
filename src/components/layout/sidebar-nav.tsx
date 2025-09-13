@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase, Forest } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase, Trees } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -82,14 +82,14 @@ export const allMenuItems = [
   {
     href: '/dashboard/dfo-report',
     label: 'DFO Report',
-    icon: Forest,
+    icon: Trees,
     accessKey: 'dfo_report',
   },
   {
-    href: '/dashboard/limosdo-dao-report',
-    label: 'LIMOSDO/DAO Report',
+    href: '/dashboard/sdo-dao-report',
+    label: 'SDO/DAO Report',
     icon: Briefcase,
-    accessKey: 'limosdo_dao_report',
+    accessKey: 'sdo_dao_report',
   },
   {
     href: '/dashboard/dc-office',
@@ -406,5 +406,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-
-    
