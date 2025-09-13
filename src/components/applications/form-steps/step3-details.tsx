@@ -53,13 +53,13 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   </FormItem>
                 )}
               />
-               <FormField
+              <FormField
                 control={control}
                 name="aadhar_no"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center gap-1">
-                      <FormLabel>Aadhaar Number</FormLabel>
+                    <FormLabel className="flex items-center gap-1">
+                        Aadhaar Number
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -73,13 +73,13 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                    </div>
+                    </FormLabel>
                     <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
+               <FormField
                 control={control}
                 name="date_of_birth"
                 render={({ field }) => (
