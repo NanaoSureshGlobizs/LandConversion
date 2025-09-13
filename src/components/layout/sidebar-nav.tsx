@@ -102,10 +102,12 @@ export const allMenuItems = [
     href: '/dashboard/legacy-data',
     label: 'Legacy Data',
     icon: History,
+    accessKey: 'legacy_data',
   },
   {
     label: 'LLMC Review',
     icon: ShieldCheck,
+    accessKey: 'llmc_review',
     subItems: [
         {
             href: '/dashboard/llmc-review',
@@ -123,6 +125,7 @@ export const allMenuItems = [
     href: '/dashboard/user-management',
     label: 'User Management',
     icon: Users,
+    accessKey: 'user_management',
   },
   {
     label: 'Conversion',

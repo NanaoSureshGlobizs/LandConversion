@@ -81,10 +81,6 @@ export default function DashboardLayoutClient({
     const isGenericViewerPage = pathname.startsWith('/dashboard/application/') || pathname.startsWith('/dashboard/my-applications/');
     if(isGenericViewerPage) return;
 
-    // Add legacy-data and llmc-review to the whitelist for testing
-    if (pathname.startsWith('/dashboard/legacy-data') || pathname.startsWith('/dashboard/llmc-review')) {
-        return;
-    }
 
     // Check if the current route is allowed by checking the pathname against the allowed routes list.
     const isAllowed = allowedRoutes.some(route => {
