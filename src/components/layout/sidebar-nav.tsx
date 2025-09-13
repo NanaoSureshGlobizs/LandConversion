@@ -92,12 +92,6 @@ export const allMenuItems = [
     accessKey: 'dfo_report',
   },
   {
-    href: '/dashboard/sdo-dao-report',
-    label: 'SDO/DAO Report',
-    icon: Briefcase,
-    accessKey: 'sdo_dao_report',
-  },
-  {
     href: '/dashboard/dc-office',
     label: 'DC Office',
     icon: Users,
@@ -195,6 +189,12 @@ export const allMenuItems = [
             href: '/dashboard/sdo-dao-final-scrutiny',
             label: 'SDO/DAO (Final Scrutiny)',
             accessKey: 'sdo_dao_final_scrutiny',
+            type: 'conversion'
+        },
+         {
+            href: '/dashboard/sdo-dao-report',
+            label: 'SDO/DAO Report',
+            accessKey: 'sdo_dao_report',
             type: 'conversion'
         },
         {
