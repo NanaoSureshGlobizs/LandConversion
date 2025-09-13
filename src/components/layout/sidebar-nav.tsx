@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase, Forest } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -79,6 +78,12 @@ export const allMenuItems = [
     label: 'DPO Report',
     icon: Building2,
     accessKey: 'dpo_report',
+  },
+  {
+    href: '/dashboard/dfo-report',
+    label: 'DFO Report',
+    icon: Forest,
+    accessKey: 'dfo_report',
   },
   {
     href: '/dashboard/limosdo-dao-report',
@@ -401,3 +406,5 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
+
+    
