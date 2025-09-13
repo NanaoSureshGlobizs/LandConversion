@@ -180,9 +180,21 @@ export const allMenuItems = [
             type: 'conversion'
         },
         {
-            href: '/dashboard/llmc-recommendations',
-            label: 'LLMC Recommendations',
-            accessKey: 'llmc_recommendations',
+            href: '/dashboard/llmc-meeting',
+            label: 'LLMC Meeting',
+            accessKey: 'llmc_meeting',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/sdo-dao-scrutiny',
+            label: 'SDO/DAO (Scrutiny)',
+            accessKey: 'sdo_dao_scrutiny',
+            type: 'conversion'
+        },
+        {
+            href: '/dashboard/sdo-dao-final-scrutiny',
+            label: 'SDO/DAO (Final Scrutiny)',
+            accessKey: 'sdo_dao_final_scrutiny',
             type: 'conversion'
         },
         {
@@ -229,9 +241,9 @@ export const allMenuItems = [
             type: 'diversion'
         },
         {
-            href: '/dashboard/llmc-recommendations',
-            label: 'LLMC Recommendations',
-            accessKey: 'llmc_recommendations',
+            href: '/dashboard/llmc-meeting',
+            label: 'LLMC Meeting',
+            accessKey: 'llmc_meeting',
             type: 'diversion'
         },
         {
