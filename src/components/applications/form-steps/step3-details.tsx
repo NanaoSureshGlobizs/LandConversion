@@ -102,7 +102,8 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 name="aadhar_no"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='flex items-center gap-2'>
+                    <FormLabel>
+                      <div className="flex items-center gap-1">
                         Aadhaar Number
                         <TooltipProvider>
                             <Tooltip>
@@ -117,6 +118,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                             </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
+                      </div>
                     </FormLabel>
                     <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
                     <FormMessage />
