@@ -169,7 +169,7 @@ export default function OfficialLoginPage() {
               <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
             </div>
             <div className="text-muted-foreground">
-                <p>Revenue Department</p>
+                <p>Land Resources Department</p>
                 <p>Government of Manipur</p>
             </div>
             <h1 className="text-2xl font-bold font-headline text-foreground mt-1">
