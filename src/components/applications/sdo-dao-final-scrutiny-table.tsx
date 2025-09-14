@@ -15,11 +15,12 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
-import { getApplications } from '@/app/actions';
+import { getApplications, forwardApplication } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
-import { UpdateStatusForm } from './update-status-form';
+import { Checkbox } from '../ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
 
 const WORKFLOW_ID = 27;
 
@@ -32,14 +33,17 @@ interface SdoDaoFinalScrutinyTableProps {
 export function SdoDaoFinalScrutinyTable({ initialData, accessToken, statuses }: SdoDaoFinalScrutinyTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const { addLog } = useDebug();
+  const { toast } = useToast();
 
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
-  const externalRef = useRef(null);
-  const { addLog } = useDebug();
+  const [isForwarding, setIsForwarding] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
 
+  const externalRef = useRef(null);
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
     once: false,
@@ -49,6 +53,7 @@ export function SdoDaoFinalScrutinyTable({ initialData, accessToken, statuses }:
     setApplications(initialData?.applications || []);
     setPage(initialData?.pagination.currentPage || 1);
     setHasMore((initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1));
+    setSelectedRows({});
   }, [initialData]);
 
   const loadMoreApplications = useCallback(async () => {
@@ -76,6 +81,75 @@ export function SdoDaoFinalScrutinyTable({ initialData, accessToken, statuses }:
     }
   }, [isNearScreen, loadMoreApplications]);
 
+  const handleSelectAll = (checked: boolean) => {
+    const newSelectedRows: Record<string, boolean> = {};
+    if (checked) {
+      applications.forEach(app => {
+        newSelectedRows[app.id] = true;
+      });
+    }
+    setSelectedRows(newSelectedRows);
+  };
+
+  const handleSelectRow = (id: string, checked: boolean) => {
+    setSelectedRows(prev => ({
+      ...prev,
+      [id]: checked
+    }));
+  };
+  
+  const selectedIds = useMemo(() => {
+      return Object.keys(selectedRows).filter(id => selectedRows[id]);
+  }, [selectedRows]);
+
+  const handleForward = async () => {
+    if (selectedIds.length === 0) {
+      toast({
+        title: "No Applications Selected",
+        description: "Please select at least one application to forward.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsForwarding(true);
+    addLog(`Forwarding applications with IDs: [${selectedIds.join(', ')}]`);
+
+    const results = await Promise.all(
+        selectedIds.map(id => {
+            const payload = {
+                application_details_id: parseInt(id),
+                verification_status_id: 6, // Placeholder for 'Forward'
+                remark: "Forwarded from SDO/DAO Final Scrutiny",
+                attachment: "",
+                status: 1, 
+            };
+            return forwardApplication(payload, accessToken);
+        })
+    );
+    
+    const successfulForwards = results.filter(r => r.success).length;
+    const failedForwards = results.length - successfulForwards;
+
+    if (successfulForwards > 0) {
+        toast({
+            title: "Forward Successful",
+            description: `${successfulForwards} application(s) have been forwarded.`
+        });
+        setSelectedRows({});
+    }
+
+    if (failedForwards > 0) {
+         toast({
+            title: "Forward Failed",
+            description: `${failedForwards} application(s) could not be forwarded. Check logs for details.`,
+            variant: "destructive"
+        });
+    }
+
+    setIsForwarding(false);
+  };
+
 
   const filteredData = useMemo(() => {
     if (!searchTerm) return applications;
@@ -90,22 +164,37 @@ export function SdoDaoFinalScrutinyTable({ initialData, accessToken, statuses }:
   const handleRowClick = (appId: number) => {
     router.push(`/dashboard/application/${appId}?from=/dashboard/sdo-dao-final-scrutiny`);
   };
+  
+  const isAllSelected = applications.length > 0 && selectedIds.length === applications.length;
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          placeholder="Search by App ID, Patta No."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md pl-10"
-        />
+      <div className="flex justify-between items-center">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Search by App ID, Patta No."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-md pl-10"
+          />
+        </div>
+        <Button onClick={handleForward} disabled={isForwarding || selectedIds.length === 0}>
+            {isForwarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Forward ({selectedIds.length})
+        </Button>
       </div>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
+               <TableHead className="w-[50px]">
+                 <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={handleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
               <TableHead>Area Unit</TableHead>
@@ -116,6 +205,13 @@ export function SdoDaoFinalScrutinyTable({ initialData, accessToken, statuses }:
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
                 <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                   <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                        checked={selectedRows[app.id] || false}
+                        onCheckedChange={(checked) => handleSelectRow(app.id.toString(), !!checked)}
+                        aria-label={`Select row ${app.id}`}
+                      />
+                  </TableCell>
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
@@ -124,20 +220,13 @@ export function SdoDaoFinalScrutinyTable({ initialData, accessToken, statuses }:
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-final-scrutiny`}>View</Link>
                         </Button>
-                        <UpdateStatusForm
-                            applicationId={app.id.toString()}
-                            accessToken={accessToken}
-                            statuses={statuses}
-                        >
-                            <Button variant="default" size="sm">Update Status</Button>
-                        </UpdateStatusForm>
                     </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
@@ -167,3 +256,5 @@ export function SdoDaoFinalScrutinyTable({ initialData, accessToken, statuses }:
     </div>
   );
 }
+
+    
