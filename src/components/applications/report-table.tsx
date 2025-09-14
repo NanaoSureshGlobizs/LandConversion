@@ -17,8 +17,6 @@ import { getApplications, forwardApplication } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Label } from '../ui/label';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +38,6 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
   const router = useRouter();
   const { toast } = useToast();
   
-  const [sdao, setSdao] = useState('');
   const [isForwarding, setIsForwarding] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
 
@@ -119,7 +116,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
         selectedIds.map(id => {
             const payload = {
                 application_details_id: parseInt(id),
-                verification_status_id: 6, // Placeholder for 'Forward'
+                verification_status_id: 1, // Hardcoded to 1 as requested
                 remark: "Forwarded from Report Page",
                 attachment: "",
                 status: 1, 
@@ -163,19 +160,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
 
   return (
     <div className="space-y-4">
-        <div className="flex justify-between items-center">
-            <div className='max-w-xs space-y-2'>
-                <Label>Report From</Label>
-                 <Select value={sdao} onValueChange={setSdao}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select SDAO/DC" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="sdao1">SDAO 1</SelectItem>
-                        <SelectItem value="dc1">DC 1</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
+        <div className="flex justify-end items-center">
             <Button onClick={handleForward} disabled={isForwarding || selectedIds.length === 0}>
                 {isForwarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Forward ({selectedIds.length})
