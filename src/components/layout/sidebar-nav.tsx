@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -86,7 +87,6 @@ export const allMenuItems = [
             href: '/dashboard/llmc-meeting',
             label: 'LLMC Meeting',
             accessKey: 'llmc_meeting',
-            type: 'conversion'
         },
         {
             href: '/dashboard/sdo-dao-scrutiny',
@@ -138,7 +138,7 @@ export const allMenuItems = [
         { href: '/dashboard/sdo-dao-scrutiny', label: 'SDO/DAO (Scrutiny)', accessKey: 'sdo_dao_scrutiny', type: 'diversion' },
         { href: '/dashboard/dfo-report', label: 'DFO Report', accessKey: 'dfo_report', type: 'diversion' },
         { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', accessKey: 'sdo_dao_report', type: 'diversion' },
-        { href: '/dashboard/llmc-meeting', label: 'LLMC Meeting', accessKey: 'llmc_meeting', type: 'diversion' },
+        { href: '/dashboard/llmc-meeting', label: 'LLMC Meeting', accessKey: 'llmc_meeting' },
         { href: '/dashboard/sdo-dao-final-scrutiny', label: 'SDO/DAO (Final Scrutiny)', accessKey: 'sdo_dao_final_scrutiny', type: 'diversion' },
         { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', accessKey: 'unprocessed_applications', type: 'diversion' },
         { href: '/dashboard/decision-and-fees', label: 'Decision & Fees', accessKey: 'decision_and_fee', type: 'diversion' },
@@ -305,3 +305,5 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
+
+    

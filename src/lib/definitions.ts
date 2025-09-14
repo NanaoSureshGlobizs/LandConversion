@@ -6,6 +6,7 @@
 
 
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -100,7 +101,9 @@ export interface ApplicationListItem {
   highlight: boolean;
   can_edit: boolean;
   form_type: string;
+  button_name: string;
   application_id: string;
+  change_of_land_use_type: string;
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
@@ -201,3 +204,5 @@ export interface Circle {
     name: string;
     sub_division_id: number;
 }
+
+    

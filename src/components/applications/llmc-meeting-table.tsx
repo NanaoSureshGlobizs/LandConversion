@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,13 +16,14 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
-import { getApplications, forwardApplication } from '@/app/actions';
+import { getLlmcApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { LlmcReportDialog } from './llmc-report-dialog';
+import { Badge } from '../ui/badge';
 
 interface LlmcMeetingTableProps {
   initialData: PaginatedApplications | null;
@@ -32,8 +34,6 @@ interface LlmcMeetingTableProps {
 export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMeetingTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const type = (searchParams.get('type') || 'conversion') as 'conversion' | 'diversion';
   const { addLog } = useDebug();
   const { toast } = useToast();
 
@@ -43,19 +43,26 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
   const [isLoading, setIsLoading] = useState(false);
   
   const externalRef = useRef(null);
-
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
     once: false,
   });
-  
-  const WORKFLOW_MAP = {
-    conversion: 9,
-    diversion: 60,
-  };
 
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    const { data: newData, log } = await getLlmcApplications(accessToken, 1);
+    addLog(log || "Log for getLlmcApplications refresh");
 
-  // This effect resets the state when the initial data prop changes.
+    if (newData && Array.isArray(newData.applications)) {
+        setApplications(newData.applications);
+        setPage(newData.pagination.currentPage);
+        setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+    } else {
+        setHasMore(false);
+    }
+    setIsLoading(false);
+  }, [accessToken, addLog]);
+
   useEffect(() => {
     setApplications(initialData?.applications || []);
     setPage(initialData?.pagination.currentPage || 1);
@@ -67,10 +74,8 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const workflowId = WORKFLOW_MAP[type];
-
-    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId);
-    addLog(log || "Log for getApplications in LLMC Meeting");
+    const { data: newData, log } = await getLlmcApplications(accessToken, nextPage);
+    addLog(log || "Log for getLlmcApplications in LLMC Meeting");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);
@@ -81,7 +86,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog, accessToken, type, WORKFLOW_MAP]);
+  }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
     if (isNearScreen) {
@@ -100,8 +105,12 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
   }, [applications, searchTerm]);
 
   const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/llmc-meeting&type=${type}`);
+    router.push(`/dashboard/application/${appId}?from=/dashboard/llmc-meeting`);
   };
+
+  const getTypeVariant = (type: string) => {
+      return type.includes('After') ? 'destructive' : 'default';
+  }
 
   return (
     <div className="space-y-4">
@@ -122,6 +131,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
             <TableRow>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Area Unit</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -132,15 +142,21 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
                 <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>
+                      <Badge variant={getTypeVariant(app.change_of_land_use_type)}>
+                          {app.change_of_land_use_type.includes('After') ? 'Conversion' : 'Diversion'}
+                      </Badge>
+                  </TableCell>
                   <TableCell>{app.area_type}</TableCell>
                   <TableCell>
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-meeting&type=${type}`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-meeting`}>View</Link>
                         </Button>
                          <LlmcReportDialog
                             applicationId={app.id.toString()}
                             accessToken={accessToken}
+                            onSuccess={refreshData}
                         >
                             <Button variant="default" size="sm">LLMC Report</Button>
                         </LlmcReportDialog>
@@ -150,7 +166,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
@@ -180,3 +196,5 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
     </div>
   );
 }
+
+    

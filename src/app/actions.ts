@@ -680,6 +680,15 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     return { data, log: debugLog };
 }
 
+export async function getLlmcApplications(accessToken: string, page = 1, limit = 10) {
+    if (!accessToken) {
+      return { data: null, log: "No access token found" };
+    }
+    const url = `/applications/llmc_lists?page=${page}&limit=${limit}`;
+    const { data, debugLog } = await fetchFromApi(url, accessToken);
+    return { data, log: debugLog };
+}
+
 export async function getApplicationById(token: string, id: string) {
     const { data, debugLog } = await fetchFromApi(`/applications/${id}`, token);
     
@@ -740,6 +749,9 @@ function addLog(log: string) {
 
     
 
+
+
+    
 
 
     
