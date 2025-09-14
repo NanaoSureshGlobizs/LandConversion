@@ -30,7 +30,7 @@ interface LlmcReviewTableProps {
 export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcReviewTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const type = searchParams.get('type') || 'conversion';
+  const type = (searchParams.get('type') || 'conversion') as 'conversion' | 'diversion';
   const { addLog } = useDebug();
   const { toast } = useToast();
 
@@ -173,7 +173,7 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
               <TableHead className="w-[50px]">
                 <Checkbox
                   checked={isAllSelected}
-                  onCheckedChange={handleSelectAll}
+                  onCheckedChange={(checked) => handleSelectAll(!!checked)}
                   aria-label="Select all"
                 />
               </TableHead>
