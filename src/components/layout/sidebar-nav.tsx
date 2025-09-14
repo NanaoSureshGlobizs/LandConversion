@@ -61,92 +61,19 @@ export const allMenuItems = [
     accessKey: 'legacy_data',
   },
   {
+    href: '/dashboard/unprocessed-applications?type=conversion',
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
-    subItems: [
-        {
-            href: '/dashboard/unprocessed-applications',
-            label: 'Unprocessed Applications',
-            accessKey: 'unprocessed_applications',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/pending-enquiries',
-            label: 'Pending Enquiries',
-            accessKey: 'pending_enquiries',
-            type: 'conversion'
-        },
-         {
-            href: '/dashboard/report',
-            label: 'Report',
-            accessKey: 'report',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/llmc-meeting',
-            label: 'LLMC Meeting',
-            accessKey: 'llmc_meeting',
-        },
-        {
-            href: '/dashboard/sdo-dao-scrutiny',
-            label: 'SDO/DAO (Scrutiny)',
-            accessKey: 'sdo_dao_scrutiny',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/sdo-dao-final-scrutiny',
-            label: 'SDO/DAO (Final Scrutiny)',
-            accessKey: 'sdo_dao_final_scrutiny',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/sdo-dao-report',
-            label: 'SDO/DAO Report',
-            accessKey: 'sdo_dao_report',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/dlc-recommendations',
-            label: 'DLC Recommendations',
-            accessKey: 'dlc_recommendations',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/lrd-decision',
-            label: 'LRD Decision',
-            accessKey: 'lrd_decision',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/reports-from-dlc',
-            label: 'Reports from DLC',
-            accessKey: 'report_from_dlc',
-            type: 'conversion'
-        },
-    ]
+    type: 'conversion'
   },
   {
+    href: '/dashboard/pending-enquiries?type=diversion',
     label: 'Diversion',
     icon: FileText,
     accessKey: 'diversion',
-    subItems: [
-        { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', accessKey: 'pending_enquiries', type: 'diversion' },
-        { href: '/dashboard/sdc-report', label: 'SDC Report', accessKey: 'sdc_report', type: 'diversion' },
-        { href: '/dashboard/report', label: 'Report', accessKey: 'report', type: 'diversion' },
-        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', accessKey: 'SDAO_enquiries', type: 'diversion' },
-        { href: '/dashboard/sdo-dao-scrutiny', label: 'SDO/DAO (Scrutiny)', accessKey: 'sdo_dao_scrutiny', type: 'diversion' },
-        { href: '/dashboard/dfo-report', label: 'DFO Report', accessKey: 'dfo_report', type: 'diversion' },
-        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', accessKey: 'sdo_dao_report', type: 'diversion' },
-        { href: '/dashboard/llmc-meeting', label: 'LLMC Meeting', accessKey: 'llmc_meeting' },
-        { href: '/dashboard/sdo-dao-final-scrutiny', label: 'SDO/DAO (Final Scrutiny)', accessKey: 'sdo_dao_final_scrutiny', type: 'diversion' },
-        { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', accessKey: 'unprocessed_applications', type: 'diversion' },
-        { href: '/dashboard/decision-and-fees', label: 'Decision & Fees', accessKey: 'decision_and_fee', type: 'diversion' },
-        { href: '/dashboard/marsac-report', label: 'MARSAC Report', accessKey: 'marsac_report', type: 'diversion' },
-        { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', accessKey: 'dlc_recommendations', type: 'diversion' },
-        { href: '/dashboard/dc-office', label: 'DC Office', accessKey: 'dc_office', type: 'diversion' },
-    ]
-  },
+    type: 'diversion'
+  }
 ];
 
 export function SidebarNav() {
@@ -164,7 +91,7 @@ export function SidebarNav() {
   const isParentActive = (item: typeof allMenuItems[0]) => {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
-    if (!item.subItems) return false;
+    if (!item.subItems) return item.type ? currentType === item.type : false;
     
     return item.subItems.some(sub => {
       if (sub.type) {
@@ -274,7 +201,7 @@ export function SidebarNav() {
                    </Collapsible>
                 ) : (
                    item.href && (
-                     <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
+                     <SidebarMenuButton asChild isActive={isLinkActive(item.href, item.type, item.exact)}>
                        <Link href={item.href}>
                            {Icon && <Icon />}
                            <span>{item.label}</span>
