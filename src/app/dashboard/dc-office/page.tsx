@@ -5,55 +5,41 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-// DC Office handles multiple workflow steps, so we don't filter by a single ID here.
-// The table or component logic can handle different actions based on the specific workflow_sequence_id of each application.
-export default async function DcOfficePage() {
+const WORKFLOW_MAP = {
+  conversion: 24,
+  diversion: 24,
+};
+
+export default async function DcOfficePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
 
   if (!accessToken) {
     redirect('/');
   }
 
-  // We fetch applications for both relevant workflow IDs.
-  // A better approach might be a backend endpoint that accepts multiple IDs.
-  // For now, we can fetch for one and let the user filter, or make two separate calls.
+  // A different workflow ID might be needed for diversion, adjust as needed.
+  const workflowId = WORKFLOW_MAP[type];
+  
   const [
-    { data: initialApplicationsDataBlc, log: appLogBlc },
-    { data: initialApplicationsDataDc, log: appLogDc },
+    { data: initialApplicationsData, log: appLog },
     { data: statuses, log: statusesLog }
   ] = await Promise.all([
-    getApplications(accessToken, 1, 10, 23), // (BLC) DC
-    getApplications(accessToken, 1, 10, 24), // DC
+    getApplications(accessToken, 1, 10, workflowId),
     getApplicationStatuses(accessToken)
   ]);
   
-  // Combine the application lists
-  const allApplications = [
-    ...(initialApplicationsDataBlc?.applications || []),
-    ...(initialApplicationsDataDc?.applications || [])
-  ];
-  
-  // A simple way to deduplicate if an app somehow appeared in both lists
-  const uniqueApplications = Array.from(new Map(allApplications.map(app => [app.id, app])).values());
-  
-  const combinedData = {
-      applications: uniqueApplications,
-      // Note: Pagination will be incorrect with this simple combination.
-      // A proper implementation would require backend support for fetching multiple workflow IDs.
-      pagination: initialApplicationsDataBlc?.pagination || initialApplicationsDataDc?.pagination
-  }
-
 
   return (
     <>
-      <ServerLogHandler logs={[appLogBlc, appLogDc, statusesLog]} />
+      <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">DC Office</h1>
         </div>
         <DcOfficeTable
-            initialData={combinedData as any} 
+            initialData={initialApplicationsData as any} 
             accessToken={accessToken}
             statuses={statuses}
         />

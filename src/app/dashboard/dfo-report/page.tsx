@@ -5,15 +5,21 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-export default async function DfoReportPage() {
+const WORKFLOW_MAP = {
+  conversion: 26,
+  diversion: 26,
+};
+
+export default async function DfoReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
-
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
+  
   if (!accessToken) {
     redirect('/');
   }
   
-  const workflowId = 26;
+  const workflowId = WORKFLOW_MAP[type];
 
   const [
     { data: initialApplicationsData, log: appLog },
@@ -40,5 +46,3 @@ export default async function DfoReportPage() {
     </>
   );
 }
-
-    

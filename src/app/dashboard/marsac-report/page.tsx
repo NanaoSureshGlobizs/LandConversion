@@ -5,15 +5,21 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-export default async function MarsacReportPage() {
+const WORKFLOW_MAP = {
+  conversion: 30,
+  diversion: 29,
+};
+
+export default async function MarsacReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
 
   if (!accessToken) {
     redirect('/');
   }
   
-  const workflowId = 30;
+  const workflowId = WORKFLOW_MAP[type];
 
   const [
     { data: initialApplicationsData, log: appLog },

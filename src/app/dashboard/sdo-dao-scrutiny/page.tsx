@@ -5,18 +5,24 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-const WORKFLOW_ID = 25;
+const WORKFLOW_MAP = {
+  conversion: 25,
+  diversion: 25,
+};
 
-export default async function SdoDaoScrutinyPage() {
+export default async function SdoDaoScrutinyPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
 
   if (!accessToken) {
     redirect('/');
   }
 
+  const workflowId = WORKFLOW_MAP[type];
+
   const [{ data: initialApplicationsData, log: appLog }, { data: statuses, log: statusesLog }] = await Promise.all([
-    getApplications(accessToken, 1, 10, WORKFLOW_ID),
+    getApplications(accessToken, 1, 10, workflowId),
     getApplicationStatuses(accessToken)
   ]);
 

@@ -36,80 +36,6 @@ export const allMenuItems = [
     exact: true,
   },
   {
-    label: 'Enquiries',
-    icon: FileSearch,
-    accessKey: 'enquiries',
-    subItems: [
-        {
-            href: '/dashboard/enquiries',
-            label: 'Conversion',
-            accessKey: 'conversion',
-            type: 'conversion',
-        },
-        {
-            href: '/dashboard/enquiries',
-            label: 'Diversion',
-            accessKey: 'diversion',
-            type: 'diversion',
-        },
-    ]
-  },
-  {
-    label: 'SDAO Enquiries',
-    icon: FileSearch,
-    accessKey: 'SDAO_enquiries',
-     subItems: [
-        {
-            href: '/dashboard/sdao-enquiries',
-            label: 'Conversion',
-            accessKey: 'conversion',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/sdao-enquiries',
-            label: 'Diversion',
-            accessKey: 'diversion',
-            type: 'diversion'
-        },
-    ]
-  },
-  {
-    href: '/dashboard/sdc-report',
-    label: 'SDC Report',
-    icon: FileBarChart,
-    accessKey: 'sdc_report',
-  },
-  {
-    href: '/dashboard/dpo-report',
-    label: 'DPO Report',
-    icon: Building2,
-    accessKey: 'dpo_report',
-  },
-  {
-    href: '/dashboard/dfo-report',
-    label: 'DFO Report',
-    icon: Trees,
-    accessKey: 'dfo_report',
-  },
-  {
-    href: '/dashboard/dc-office',
-    label: 'DC Office',
-    icon: Users,
-    accessKey: 'dc_office',
-  },
-  {
-    href: '/dashboard/decision-and-fees',
-    label: 'Decision & Fees',
-    icon: Gavel,
-    accessKey: 'decision_and_fee',
-  },
-   {
-    href: '/dashboard/marsac-report',
-    label: 'Marsac Report',
-    icon: Map,
-    accessKey: 'marsac_report',
-  },
-  {
     href: '/dashboard/my-applications',
     label: 'My Applications',
     icon: Files,
@@ -121,34 +47,17 @@ export const allMenuItems = [
     icon: FilePlus2,
     accessKey: 'create_application',
   },
-   {
-    href: '/dashboard/legacy-data',
-    label: 'Legacy Data',
-    icon: History,
-    accessKey: 'legacy_data',
-  },
-  {
-    label: 'LLMC Review',
-    icon: ShieldCheck,
-    accessKey: 'llmc_review',
-    subItems: [
-        {
-            href: '/dashboard/llmc-review',
-            label: 'Conversion',
-            type: 'conversion'
-        },
-        {
-            href: '/dashboard/llmc-review',
-            label: 'Diversion',
-            type: 'diversion'
-        },
-    ]
-  },
   {
     href: '/dashboard/user-management',
     label: 'User Management',
     icon: Users,
     accessKey: 'user_management',
+  },
+  {
+    href: '/dashboard/legacy-data',
+    label: 'Legacy Data',
+    icon: History,
+    accessKey: 'legacy_data',
   },
   {
     label: 'Conversion',
@@ -222,48 +131,20 @@ export const allMenuItems = [
     icon: FileText,
     accessKey: 'diversion',
     subItems: [
-        {
-            href: '/dashboard/unprocessed-applications',
-            label: 'Unprocessed Applications',
-            accessKey: 'unprocessed_applications',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/pending-enquiries',
-            label: 'Pending Enquiries',
-            accessKey: 'pending_enquiries',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/report',
-            label: 'Report',
-            accessKey: 'report',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/llmc-meeting',
-            label: 'LLMC Meeting',
-            accessKey: 'llmc_meeting',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/dlc-recommendations',
-            label: 'DLC Recommendations',
-            accessKey: 'dlc_recommendations',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/final-orders',
-            label: 'Final Orders',
-            accessKey: 'final_order',
-            type: 'diversion'
-        },
-        {
-            href: '/dashboard/reports-from-dlc',
-            label: 'Reports from DLC',
-            accessKey: 'report_from_dlc',
-            type: 'diversion'
-        },
+        { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', accessKey: 'pending_enquiries', type: 'diversion' },
+        { href: '/dashboard/sdc-report', label: 'SDC Report', accessKey: 'sdc_report', type: 'diversion' },
+        { href: '/dashboard/report', label: 'Report', accessKey: 'report', type: 'diversion' },
+        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', accessKey: 'SDAO_enquiries', type: 'diversion' },
+        { href: '/dashboard/sdo-dao-scrutiny', label: 'SDO/DAO (Scrutiny)', accessKey: 'sdo_dao_scrutiny', type: 'diversion' },
+        { href: '/dashboard/dfo-report', label: 'DFO Report', accessKey: 'dfo_report', type: 'diversion' },
+        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', accessKey: 'sdo_dao_report', type: 'diversion' },
+        { href: '/dashboard/llmc-meeting', label: 'LLMC Meeting', accessKey: 'llmc_meeting', type: 'diversion' },
+        { href: '/dashboard/sdo-dao-final-scrutiny', label: 'SDO/DAO (Final Scrutiny)', accessKey: 'sdo_dao_final_scrutiny', type: 'diversion' },
+        { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', accessKey: 'unprocessed_applications', type: 'diversion' },
+        { href: '/dashboard/decision-and-fees', label: 'Decision & Fees', accessKey: 'decision_and_fee', type: 'diversion' },
+        { href: '/dashboard/marsac-report', label: 'MARSAC Report', accessKey: 'marsac_report', type: 'diversion' },
+        { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', accessKey: 'dlc_recommendations', type: 'diversion' },
+        { href: '/dashboard/dc-office', label: 'DC Office', accessKey: 'dc_office', type: 'diversion' },
     ]
   },
 ];

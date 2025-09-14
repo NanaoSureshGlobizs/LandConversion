@@ -5,15 +5,21 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-export default async function SdcReportPage() {
+const WORKFLOW_MAP = {
+  conversion: 28,
+  diversion: 7,
+};
+
+export default async function SdcReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
 
   if (!accessToken) {
     redirect('/');
   }
   
-  const workflowId = 28;
+  const workflowId = WORKFLOW_MAP[type];
 
   const [
     { data: initialApplicationsData, log: appLog },

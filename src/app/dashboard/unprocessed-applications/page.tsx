@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 15,
-  diversion: 4,
+  diversion: 15,
 };
 
 export default async function UnprocessedApplicationsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {

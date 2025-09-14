@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 23,
-  diversion: 20,
+  diversion: 23,
 };
 
 export default async function DlcRecommendationsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {

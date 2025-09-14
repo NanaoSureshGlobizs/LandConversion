@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 9,
-  diversion: 60, // Assuming 60 is for diversion LLMC meeting
+  diversion: 9,
 };
 
 export default async function LlmcMeetingPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
