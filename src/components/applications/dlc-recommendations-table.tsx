@@ -205,7 +205,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
               </TableHead>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Area Unit</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -222,7 +222,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
                   </TableCell>
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>

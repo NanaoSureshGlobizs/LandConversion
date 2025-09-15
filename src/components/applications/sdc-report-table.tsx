@@ -78,6 +78,7 @@ export function SdcReportTable({ initialData, accessToken, statuses }: SdcReport
             <TableRow>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta No.</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead>Application Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Action</TableHead>
@@ -89,6 +90,7 @@ export function SdcReportTable({ initialData, accessToken, statuses }: SdcReport
                 <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                    <TableCell>{app.patta_no}</TableCell>
+                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">{app.application_status.name}</Badge>
@@ -111,7 +113,7 @@ export function SdcReportTable({ initialData, accessToken, statuses }: SdcReport
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No applications found for SDC Report.
                 </TableCell>
               </TableRow>

@@ -179,7 +179,7 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
               </TableHead>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Area Unit</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -196,7 +196,7 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
                   </TableCell>
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-review&type=${type}`}>Review</Link>

@@ -154,7 +154,7 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
             <TableRow>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Area Unit</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead>District</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -165,7 +165,7 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>

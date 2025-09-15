@@ -179,6 +179,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
               </TableHead>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead>District</TableHead>
               <TableHead>SDAO Status</TableHead>
               <TableHead className="text-right">Action</TableHead>
@@ -197,6 +198,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
                   </TableCell>
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell>
                      <Badge variant={app.application_status.name.toLowerCase() === 'approved' ? 'default' : 'secondary'}>{app.application_status.name}</Badge>
@@ -210,7 +212,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No reports found.
                 </TableCell>
               </TableRow>

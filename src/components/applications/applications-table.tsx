@@ -99,7 +99,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
             <TableRow>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta Number</TableHead>
-              <TableHead>Area Unit</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead>Date Submitted</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -111,7 +111,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
                 <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>
                     {app.created_at}
                   </TableCell>

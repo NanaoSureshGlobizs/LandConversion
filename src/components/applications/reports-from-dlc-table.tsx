@@ -142,6 +142,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
             <TableRow>
               <TableHead>Report ID</TableHead>
               <TableHead>District</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead>Date of Submission</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Action</TableHead>
@@ -153,6 +154,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
                 <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
                   <TableCell>
                      <Badge variant={'secondary'}>{app.application_status.name}</Badge>
@@ -166,7 +168,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No reports found.
                 </TableCell>
               </TableRow>

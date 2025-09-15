@@ -89,7 +89,7 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
             <TableRow>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Area Unit</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -100,7 +100,7 @@ export function FinalOrdersTable({ initialData, accessToken, statuses }: FinalOr
                 <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>
                      <Badge variant={app.application_status.name.toLowerCase() === 'approved' ? 'default' : 'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>

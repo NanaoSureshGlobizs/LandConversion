@@ -132,7 +132,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Area Unit</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -147,7 +147,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
                           {app.change_of_land_use_type.includes('After') ? 'Conversion' : 'Diversion'}
                       </Badge>
                   </TableCell>
-                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
