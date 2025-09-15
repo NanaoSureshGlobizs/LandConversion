@@ -88,6 +88,7 @@ export const allMenuItems = [
     accessKey: 'diversion',
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'diversion', accessKey: 'pending_enquiries' },
+        { href: '/dashboard/enquiries', label: 'Enquiries', type: 'diversion', accessKey: 'enquiries' },
         { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'diversion', accessKey: 'sdc_report' },
         { href: '/dashboard/dc-office', label: 'DC Office', type: 'diversion', accessKey: 'dc_office' },
         { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'diversion', accessKey: 'sdo_dao_report' },
