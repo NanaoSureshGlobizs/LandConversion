@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,24 +15,24 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
-import { getApplications, forwardApplication } from '@/app/actions';
+import { getLlmcApplications, forwardApplication } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { LlmcReportDialog } from './llmc-report-dialog';
+import { Badge } from '../ui/badge';
 
-interface DlcRecommendationsTableProps {
+interface LlmcRecommendationsTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
   statuses: ApplicationStatusOption[];
 }
 
-export function DlcRecommendationsTable({ initialData, accessToken, statuses }: DlcRecommendationsTableProps) {
+export function LlmcRecommendationsTable({ initialData, accessToken, statuses }: LlmcRecommendationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const type = searchParams.get('type') || 'conversion';
   const { addLog } = useDebug();
   const { toast } = useToast();
 
@@ -42,20 +42,32 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
   const [isLoading, setIsLoading] = useState(false);
   const [isForwarding, setIsForwarding] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
-
+  
   const externalRef = useRef(null);
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
     once: false,
   });
 
-  // This effect resets the state when the initial data prop changes.
-  // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    const { data: newData, log } = await getLlmcApplications(accessToken, 1);
+    addLog(log || "Log for getLlmcApplications refresh");
+
+    if (newData && Array.isArray(newData.applications)) {
+        setApplications(newData.applications);
+        setPage(newData.pagination.currentPage);
+        setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+    } else {
+        setHasMore(false);
+    }
+    setIsLoading(false);
+  }, [accessToken, addLog]);
+
   useEffect(() => {
     setApplications(initialData?.applications || []);
     setPage(initialData?.pagination.currentPage || 1);
     setHasMore((initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1));
-    setSelectedRows({});
   }, [initialData]);
 
   const loadMoreApplications = useCallback(async () => {
@@ -63,8 +75,8 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage);
-    addLog(log || "Log for getApplications");
+    const { data: newData, log } = await getLlmcApplications(accessToken, nextPage);
+    addLog(log || "Log for getLlmcApplications in LLMC Recommendations");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);
@@ -121,7 +133,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
         selectedIds.map(id => {
             const payload = {
                 application_details_id: parseInt(id),
-                verification_status_id: 6, // This is a placeholder status for 'Forward'
+                verification_status_id: 1, 
                 remark: "Forwarded from LLMC Recommendations",
                 attachment: "",
                 status: 1, 
@@ -138,8 +150,8 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
             title: "Forward Successful",
             description: `${successfulForwards} application(s) have been forwarded.`
         });
-        // Here you would typically refetch the data to show the updated list
         setSelectedRows({});
+        refreshData();
     }
 
     if (failedForwards > 0) {
@@ -153,7 +165,6 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
     setIsForwarding(false);
   };
 
-
   const filteredData = useMemo(() => {
     if (!searchTerm) return applications;
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -164,10 +175,14 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
     );
   }, [applications, searchTerm]);
 
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/dlc-recommendations&type=${type}`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/llmc-recommendations&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
+  const getTypeVariant = (type: string) => {
+      return type.includes('After') ? 'destructive' : 'default';
+  }
+  
   const isAllSelected = applications.length > 0 && selectedIds.length === applications.length;
 
   return (
@@ -184,7 +199,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
         </div>
         <Button onClick={handleForward} disabled={isForwarding || selectedIds.length === 0}>
             {isForwarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Forward to LRD ({selectedIds.length})
+            Forward ({selectedIds.length})
         </Button>
       </div>
       <div className="rounded-md border bg-card">
@@ -200,6 +215,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
               </TableHead>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Area Unit</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -207,30 +223,42 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id}>
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedRows[app.id] || false}
-                        onCheckedChange={(checked) => handleSelectRow(app.id.toString(), !!checked)}
-                        aria-label={`Select row ${app.id}`}
-                      />
+                    <Checkbox
+                      checked={selectedRows[app.id] || false}
+                      onCheckedChange={(checked) => handleSelectRow(app.id.toString(), !!checked)}
+                      aria-label={`Select row ${app.id}`}
+                    />
                   </TableCell>
-                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
-                  <TableCell>{app.patta_no}</TableCell>
-                  <TableCell>{app.area_type}</TableCell>
+                  <TableCell className="font-medium font-mono cursor-pointer" onClick={() => handleRowClick(app)}>{app.application_id || 'N/A'}</TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.patta_no}</TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>
+                      <Badge variant={getTypeVariant(app.change_of_land_use_type)}>
+                          {app.change_of_land_use_type.includes('After') ? 'Conversion' : 'Diversion'}
+                      </Badge>
+                  </TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.area_type}</TableCell>
                   <TableCell>
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/dlc-recommendations&type=${type}`}>Review</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-recommendations&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
+                         <LlmcReportDialog
+                            applicationId={app.id.toString()}
+                            accessToken={accessToken}
+                            onSuccess={refreshData}
+                        >
+                            <Button variant="default" size="sm">LLMC Report</Button>
+                        </LlmcReportDialog>
                     </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  No recommendations found.
+                <TableCell colSpan={6} className="h-24 text-center">
+                  No applications found.
                 </TableCell>
               </TableRow>
             )}
