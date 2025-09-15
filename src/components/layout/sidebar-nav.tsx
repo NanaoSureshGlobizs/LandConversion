@@ -83,13 +83,8 @@ export const allMenuItems = [
     accessKey: 'dlc_report',
   },
    {
-    href: '/dashboard/area-lesser',
-    label: '< 0.5 Hectare',
-    icon: AreaChart,
-  },
-  {
-    href: '/dashboard/area-greater',
-    label: '> 0.5 Hectare',
+    href: '/dashboard/area',
+    label: 'Area wise list',
     icon: AreaChart,
   },
   {
@@ -229,7 +224,7 @@ export function SidebarNav() {
                    </Collapsible>
                 ) : (
                    item.href && (
-                     <SidebarMenuButton asChild isActive={isLinkActive(item.href, item.type, item.exact)}>
+                     <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
                        <Link href={item.href}>
                            {Icon && <Icon />}
                            <span>{item.label}</span>

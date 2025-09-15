@@ -701,26 +701,55 @@ export async function getLlmcApplications(accessToken: string, page = 1, limit =
     return { data, log: debugLog };
 }
 
-export async function getApplicationsByArea(accessToken: string, areaType: 'lesser' | 'greater', page = 1, limit = 10) {
+export async function getApplicationsByArea(accessToken: string, areaType: 'lesser' | 'greater' | 'all', page = 1, limit = 10) {
     if (!accessToken) {
         return { data: null, log: "No access token found" };
     }
-    const url = `/area/${areaType}?page=${page}&limit=${limit}`;
-    const { data, debugLog } = await fetchFromApi(url, accessToken);
-     if (data && (data.conversion_applications || data.diversion_applications)) {
-        const conversionApps = data.conversion_applications || [];
-        const diversionApps = data.diversion_applications || [];
-        const allApps = [...conversionApps, ...diversionApps];
-        return { 
+
+    let allApps: any[] = [];
+    let combinedPagination = null;
+    let combinedLogs = '';
+
+    const fetchAndCombine = async (type: 'lesser' | 'greater') => {
+        const url = `/area/${type}?page=${page}&limit=${limit}`;
+        const { data, debugLog } = await fetchFromApi(url, accessToken);
+        combinedLogs += debugLog || '';
+
+        if (data && (data.conversion_applications || data.diversion_applications)) {
+            const conversionApps = data.conversion_applications || [];
+            const diversionApps = data.diversion_applications || [];
+            allApps = [...allApps, ...conversionApps, ...diversionApps];
+
+            if (!combinedPagination) {
+                combinedPagination = data.pagination;
+            } else {
+                // This is a simplified pagination merge. A real implementation might need more complex logic.
+                combinedPagination.totalCount += data.pagination.totalCount;
+                combinedPagination.pageCount = Math.max(combinedPagination.pageCount, data.pagination.pageCount);
+            }
+        }
+    };
+
+    if (areaType === 'all') {
+        await fetchAndCombine('lesser');
+        await fetchAndCombine('greater');
+    } else {
+        await fetchAndCombine(areaType);
+    }
+
+    if (allApps.length > 0) {
+        return {
             data: {
                 applications: allApps,
-                pagination: data.pagination
-            }, 
-            log: debugLog 
+                pagination: combinedPagination,
+            },
+            log: combinedLogs,
         };
     }
-    return { data, log: debugLog };
+
+    return { data: null, log: combinedLogs };
 }
+
 
 export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
     let url = `/applications/view?id=${id}`;
@@ -796,4 +825,5 @@ function addLog(log: string) {
 
 
     
+
 

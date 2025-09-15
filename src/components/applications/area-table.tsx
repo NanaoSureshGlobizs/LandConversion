@@ -20,13 +20,13 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-interface AreaGreaterTableProps {
+interface AreaTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
   statuses: ApplicationStatusOption[];
 }
 
-export function AreaGreaterTable({ initialData, accessToken, statuses }: AreaGreaterTableProps) {
+export function AreaTable({ initialData, accessToken, statuses }: AreaTableProps) {
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -45,8 +45,8 @@ export function AreaGreaterTable({ initialData, accessToken, statuses }: AreaGre
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplicationsByArea(accessToken, 'greater', nextPage);
-    addLog(log || "Log for getApplicationsByArea (greater)");
+    const { data: newData, log } = await getApplicationsByArea(accessToken, 'all', nextPage);
+    addLog(log || "Log for getApplicationsByArea (all)");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);
@@ -66,7 +66,7 @@ export function AreaGreaterTable({ initialData, accessToken, statuses }: AreaGre
   }, [isNearScreen, loadMoreApplications]);
 
   const handleRowClick = (app: ApplicationListItem) => {
-    router.push(`/dashboard/application/${app.id}?from=/dashboard/area-greater&workflow_sequence_id=${app.workflow_sequence_id}`);
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/area&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   const getTypeVariant = (type: string) => {
@@ -103,7 +103,7 @@ export function AreaGreaterTable({ initialData, accessToken, statuses }: AreaGre
                   <TableCell>
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/area-greater&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/area&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
                     </div>
                   </TableCell>
