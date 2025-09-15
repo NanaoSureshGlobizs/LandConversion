@@ -71,6 +71,15 @@ export const allMenuItems = [
     ]
   },
   {
+    label: 'Area-wise Lists',
+    icon: AreaChart,
+    subItems: [
+      { href: '/dashboard/area-lesser', label: '< 0.5 Hectare' },
+      { href: '/dashboard/area-greater', label: '> 0.5 Hectare' },
+      { href: '/dashboard/area', label: 'All' },
+    ]
+  },
+  {
     href: '/dashboard/llmc-recommendations',
     label: 'LLMC Recommendations',
     icon: ThumbsUp,
@@ -81,11 +90,6 @@ export const allMenuItems = [
     label: 'Reports from DLC',
     icon: FileBarChart,
     accessKey: 'dlc_report',
-  },
-   {
-    href: '/dashboard/area',
-    label: 'Area wise list',
-    icon: AreaChart,
   },
   {
     href: '/dashboard/final-orders',
@@ -147,7 +151,7 @@ export function SidebarNav() {
     // If access array is empty (still loading or a new user with no roles), show nothing or a limited set.
     // For now, let's allow all for testing if access is empty.
     const userAccessSet = new Set(access);
-    if (userAccessSet.size === 0) {
+    if (userAccessSet.size === 0 && access.length > 0) {
       // return allMenuItems; // Uncomment for testing with no roles
     }
 
