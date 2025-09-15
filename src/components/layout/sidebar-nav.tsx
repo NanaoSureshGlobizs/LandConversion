@@ -61,33 +61,27 @@ export const allMenuItems = [
     accessKey: 'legacy_data',
   },
   {
-    href: '/dashboard/pending-enquiries',
-    label: 'Pending Enquiries',
-    icon: FileSearch,
-    accessKey: 'enquiry',
+    label: 'Conversion',
+    icon: FileText,
+    accessKey: 'conversion_menu',
     subItems: [
-        { href: '/dashboard/pending-enquiries', label: 'Conversion', type: 'conversion', accessKey: 'enquiry' },
-        { href: '/dashboard/pending-enquiries', label: 'Diversion', type: 'diversion', accessKey: 'enquiry' }
-    ]
-  },
-   {
-    href: '/dashboard/sdao-enquiries',
-    label: 'SDAO Enquiries',
-    icon: FileSearch,
-    accessKey: 'sdao_enquiries',
-    subItems: [
-        { href: '/dashboard/sdao-enquiries', label: 'Conversion', type: 'conversion', accessKey: 'sdao_enquiries' },
-        { href: '/dashboard/sdao-enquiries', label: 'Diversion', type: 'diversion', accessKey: 'sdao_enquiries' }
+        { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'conversion', accessKey: 'pending_enquiries' },
+        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'sdao_enquiries' },
+        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations'},
+        { href: '/dashboard/report', label: 'Report', type: 'conversion', accessKey: 'report' },
     ]
   },
   {
-    href: '/dashboard/sdo-dao-report',
-    label: 'SDO/DAO Report',
-    icon: FileBarChart,
-    accessKey: 'sdo_dao_report',
+    label: 'Diversion',
+    icon: ShieldCheck,
+    accessKey: 'diversion_menu',
     subItems: [
-        { href: '/dashboard/sdo-dao-report', label: 'Conversion', type: 'conversion', accessKey: 'sdo_dao_report' },
-        { href: '/dashboard/sdo-dao-report', label: 'Diversion', type: 'diversion', accessKey: 'sdo_dao_report' }
+        { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'diversion', accessKey: 'pending_enquiries' },
+        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'sdao_enquiries' },
+        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'diversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
+        { href: '/dashboard/report', label: 'Report', type: 'diversion', accessKey: 'report' },
     ]
   },
   {
@@ -109,18 +103,9 @@ export const allMenuItems = [
     accessKey: 'both_hectare',
   },
   {
-    href: '/dashboard/llmc-recommendations',
-    label: 'LLMC Recommendations',
-    icon: ThumbsUp,
-    accessKey: 'llmc_recommendations',
-     subItems: [
-        { href: '/dashboard/llmc-recommendations', label: 'Conversion', type: 'conversion', accessKey: 'llmc_recommendations' },
-    ]
-  },
-  {
     label: 'LLMC',
     icon: Library,
-    accessKey: 'llmc_meeting',
+    accessKey: 'llmc_menu', // Parent key
     subItems: [
         { href: '/dashboard/llmc-meeting', label: 'LLMC Meeting', accessKey: 'llmc_meeting' },
         { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
@@ -131,25 +116,6 @@ export const allMenuItems = [
     label: 'Reports from DLC',
     icon: FileBarChart,
     accessKey: 'dlc_report',
-  },
-    {
-    href: '/dashboard/report',
-    label: 'Report',
-    icon: FileText,
-    accessKey: 'report',
-     subItems: [
-        { href: '/dashboard/report', label: 'Conversion', type: 'conversion', accessKey: 'report' },
-        { href: '/dashboard/report', label: 'Diversion', type: 'diversion', accessKey: 'report' }
-    ]
-  },
-  {
-    href: '/dashboard/final-orders',
-    label: 'Final Orders',
-    icon: Gavel,
-    accessKey: 'final_order',
-     subItems: [
-        { href: '/dashboard/final-orders', label: 'Diversion', type: 'diversion', accessKey: 'final_order' }
-    ]
   },
 ];
 
@@ -185,25 +151,32 @@ export function SidebarNav() {
     
     if (!href) return false;
     
-    if (exact || (href && href.includes('?'))) {
+    if (exact) {
         if (itemType) {
             return currentPath === href && currentType === itemType;
         }
-        return currentPath === href && !searchParams.has('type');
+        return currentPath === href && !currentType;
     }
     
     if (itemType) {
       return currentPath === href && currentType === itemType;
     }
     
-    return currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/');
+    return currentPath === href;
   };
   
  const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
+    
+    const hasAccessToAnySubItem = (subItems: any[]): boolean => {
+        return subItems.some(sub => !sub.accessKey || userAccessSet.has(sub.accessKey));
+    }
 
     return allMenuItems.map(item => {
-      const hasAccessToParent = !item.accessKey || userAccessSet.has(item.accessKey);
+      // Grant access to parent menus if any child is accessible
+      const hasAccessToParent = !item.accessKey 
+          || userAccessSet.has(item.accessKey)
+          || (item.subItems && hasAccessToAnySubItem(item.subItems));
 
       if (item.subItems) {
         const visibleSubItems = item.subItems.filter(subItem => 
@@ -213,13 +186,13 @@ export function SidebarNav() {
         if (visibleSubItems.length > 0) {
             return { ...item, subItems: visibleSubItems };
         }
-        // If parent is accessible on its own but has no visible children, show it as a single item
+        
         if (hasAccessToParent && item.href) {
             const newItem = {...item};
             delete newItem.subItems;
             return newItem;
         }
-        return null; // Hide parent if it's not accessible and has no visible children
+        return null;
       }
       
       return hasAccessToParent ? item : null;
