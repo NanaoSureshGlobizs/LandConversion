@@ -67,7 +67,6 @@ export const allMenuItems = [
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'conversion', accessKey: 'pending_enquiries' },
         { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'sdao_enquiries' },
-        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
         { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations'},
         { href: '/dashboard/report', label: 'Report', type: 'conversion', accessKey: 'report' },
     ]
@@ -79,9 +78,17 @@ export const allMenuItems = [
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'diversion', accessKey: 'pending_enquiries' },
         { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'sdao_enquiries' },
-        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'diversion', accessKey: 'sdo_dao_report' },
         { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
         { href: '/dashboard/report', label: 'Report', type: 'diversion', accessKey: 'report' },
+    ]
+  },
+   {
+    label: 'SDO/DAO Report',
+    icon: FileBarChart,
+    accessKey: 'sdo_dao_report',
+    subItems: [
+        { href: '/dashboard/sdo-dao-report', label: 'Conversion', type: 'conversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/sdo-dao-report', label: 'Diversion', type: 'diversion', accessKey: 'sdo_dao_report' },
     ]
   },
   {
@@ -103,11 +110,16 @@ export const allMenuItems = [
     accessKey: 'both_hectare',
   },
   {
+    href: '/dashboard/llmc-meeting',
+    label: 'LLMC Meeting',
+    icon: Library,
+    accessKey: 'llmc_meeting',
+  },
+  {
     label: 'LLMC',
     icon: Library,
-    accessKey: 'llmc_menu', // Parent key
+    accessKey: 'llmc_menu',
     subItems: [
-        { href: '/dashboard/llmc-meeting', label: 'LLMC Meeting', accessKey: 'llmc_meeting' },
         { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
     ]
   },
@@ -151,17 +163,21 @@ export function SidebarNav() {
     
     if (!href) return false;
     
+    // For exact matches, we need to be more precise
     if (exact) {
-        if (itemType) {
-            return currentPath === href && currentType === itemType;
+        if(itemType) {
+             return currentPath === href && currentType === itemType;
         }
-        return currentPath === href && !currentType;
+        // If no itemType is provided, we should ensure no type param is present in the URL for a true exact match.
+        // However, for simplicity, we can just check the path if the link itself doesn't have a type.
+        return currentPath === href;
     }
     
     if (itemType) {
       return currentPath === href && currentType === itemType;
     }
     
+    // Fallback for non-exact, non-typed links
     return currentPath === href;
   };
   
