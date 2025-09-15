@@ -94,6 +94,9 @@ export const allMenuItems = [
         { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'sdao_enquiries' },
         { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'diversion', accessKey: 'dlc_recommendations' },
         { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
+        { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'diversion', accessKey: 'marsac_report' },
+        { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'diversion', accessKey: 'unprocessed_applications' },
+        { href: '/dashboard/cabinet', label: 'Cabinet', type: 'diversion', accessKey: 'cabinet' },
     ]
   },
   {
