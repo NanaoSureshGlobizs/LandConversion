@@ -19,7 +19,7 @@ import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { UpdateStatusForm } from './update-status-form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface SdoDaoReportTableProps {
   initialData: PaginatedApplications | null;
@@ -35,6 +35,8 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'conversion';
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -46,7 +48,8 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, 29);
+    const workflowId = type === 'conversion' ? 29 : 18;
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId);
     addLog(log || "Log for getApplications in SDO/DAO Report");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -58,7 +61,7 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog, accessToken]);
+  }, [page, hasMore, isLoading, addLog, accessToken, type]);
   
   useEffect(() => {
     if (isNearScreen) {
@@ -66,8 +69,8 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
     }
   }, [isNearScreen, loadMoreApplications]);
 
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/sdo-dao-report`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-report&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   return (
@@ -87,7 +90,7 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                    <TableCell>{app.patta_no}</TableCell>
                    <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
@@ -98,7 +101,7 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
                   <TableCell>
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-report`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-report&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
                         <UpdateStatusForm
                             applicationId={app.id.toString()}
