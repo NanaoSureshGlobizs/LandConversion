@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { format, parse } from 'date-fns';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mountain, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
 import { submitApplication } from '@/app/actions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { FullApplicationResponse } from '@/lib/definitions';
 import { Step1LandDetails } from './form-steps/step1-land-details';
 import { Step2DocumentRequirements } from './form-steps/step2-document-requirements';
@@ -20,6 +20,7 @@ import { Step3Details } from './form-steps/step3-details';
 import { StepIndicator } from './form-steps/step-indicator';
 import { Step4DocumentUpload } from './form-steps/step4-document-upload';
 import { Step5Preview } from './form-steps/step5-preview';
+import { cn } from '@/lib/utils';
 
 const fileUploadSchema = z.array(z.string()).optional();
 const otherDocumentSchema = z.array(z.object({
@@ -27,7 +28,7 @@ const otherDocumentSchema = z.array(z.object({
   file_path: z.string(),
 })).optional();
 
-const formSchema = z.object({
+const baseFormSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   date_of_birth: z.date({ required_error: 'Date of birth is required.' }),
   aadhar_no: z.string().length(12, 'Aadhaar number must be 12 digits.'),
@@ -36,12 +37,10 @@ const formSchema = z.object({
   email: z.string().email('Invalid email address.'),
   
   district_id: z.string().min(1, 'District is required.'),
-  circle_id: z.string().min(1, 'Circle is required.'),
-  sub_division_id: z.string().min(1, 'Sub Division is required.'),
-  village_id: z.string().min(1, 'Village is required.'),
   patta_no: z.string().min(1, 'Patta number is required.'),
   dag_no: z.string().min(1, 'Dag number is required.'),
   location_type_id: z.string().min(1, 'Location type is required.'),
+  sub_division_id: z.string().min(1, 'Sub Division is required.'),
   
   original_area_of_plot: z.coerce.number().min(0.00001, "Area must be a positive number"),
   area_unit_id: z.string().min(1, "Area unit is required."),
@@ -49,10 +48,14 @@ const formSchema = z.object({
   application_area_unit_id: z.string().min(1, "Area unit is required."),
 
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
-  land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
-  change_of_land_use_id: z.string().min(1, 'Date of change of land use is required.'),
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
   other_entry: z.string().optional(),
+
+  // Optional fields for Hill type
+  circle_id: z.string().optional(),
+  village_id: z.string().optional(),
+  land_purpose_id: z.string().optional(),
+  change_of_land_use_id: z.string().optional(),
 
   // Land Diversion fields
   exact_build_up_area: z.coerce.number().optional(),
@@ -80,8 +83,16 @@ const formSchema = z.object({
   })).optional(),
 });
 
+// For Normal type, these fields are required
+const normalFormSchema = baseFormSchema.extend({
+  circle_id: z.string().min(1, 'Circle is required.'),
+  village_id: z.string().min(1, 'Village is required.'),
+  land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
+  change_of_land_use_id: z.string().min(1, 'Date of change of land use is required.'),
+});
 
-export type FormValues = z.infer<typeof formSchema>;
+
+export type FormValues = z.infer<typeof baseFormSchema>;
 
 export interface Option {
   id: number;
@@ -218,8 +229,9 @@ export function MultiStepForm({
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion'>('land_conversion');
+  const [formType, setFormType] = useState<'normal' | 'hill' | null>(null);
 
-  const validationSchema = formSchema.superRefine((data, ctx) => {
+  const finalSchema = (formType === 'normal' ? normalFormSchema : baseFormSchema).superRefine((data, ctx) => {
     const otherPurpose = purposes.find(p => p.name === 'Other');
     if (otherPurpose && data.purpose_id === otherPurpose.id.toString()) {
       if (!data.other_entry || data.other_entry.trim() === '') {
@@ -235,23 +247,12 @@ export function MultiStepForm({
     const isDiversion = selectedOption?.name.includes('Before');
 
     if (isDiversion) {
-      // if (!data.exact_build_up_area) {
-      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area'], message: 'Build up area is required.' });
-      // }
-      // if (!data.exact_build_up_area_unit_id) {
-      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['exact_build_up_area_unit_id'], message: 'Unit is required.' });
-      // }
-      // if (!data.previously_occupied_area) {
-      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area'], message: 'Occupied area is required.' });
-      // }
-      //  if (!data.previously_occupied_area_unit_id) {
-      //   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['previously_occupied_area_unit_id'], message: 'Unit is required.' });
-      // }
+      // Validation for diversion can be added here if needed
     }
   });
   
   const methods = useForm<FormValues>({
-    resolver: zodResolver(validationSchema),
+    resolver: zodResolver(finalSchema),
     defaultValues: getInitialValues(existingApplication),
   });
 
@@ -273,14 +274,21 @@ export function MultiStepForm({
   }, [watchedLandUseChangeId, changeOfLandUseDates, addLog]);
 
   const handleNext = async () => {
-    const fields = steps[currentStep].fields as (keyof FormValues)[];
-    // Only trigger validation if there are fields to validate in the current step
+    // If we are at the type selection step, just move to the next step.
+    if (currentStep === 0 && formType) {
+        setCurrentStep(1);
+        return;
+    }
+    
+    // For subsequent steps, perform validation
+    const fields = steps[currentStep-1].fields as (keyof FormValues)[];
+    
     if (fields.length > 0) {
       const output = await trigger(fields, { shouldFocus: true });
       if (!output) return;
     }
 
-    if (currentStep < steps.length - 1) {
+    if (currentStep < steps.length) {
       setCurrentStep(step => step + 1);
     }
   };
@@ -294,10 +302,8 @@ export function MultiStepForm({
   const processForm = async (values: FormValues) => {
     setIsSubmitting(true);
     
-    // Create a copy to avoid mutating the original form values
     const payload: { [key: string]: any } = { ...values };
 
-    // Format and convert IDs
     payload.date_of_birth = format(values.date_of_birth, 'yyyy-MM-dd');
     const integerFields = [
       'district_id', 'circle_id', 'sub_division_id', 'village_id', 
@@ -309,28 +315,23 @@ export function MultiStepForm({
         if (payload[field]) payload[field] = parseInt(payload[field]);
     });
 
-    // The API expects single-file uploads to be a string, not an array.
-    // We will take the first element of the array for these fields.
     const singleFileFields = ['applicant_aadhar', 'passport_photo', 'tax_receipt', 'deed_certificate', 'affidavit_certificate', 'noc_certificate'];
     singleFileFields.forEach(field => {
         if (Array.isArray(payload[field]) && payload[field].length > 0) {
             payload[field] = payload[field][0];
         } else {
-            delete payload[field]; // Remove if no file was uploaded
+            delete payload[field];
         }
     });
 
-    // For multiple file fields, ensure they are arrays of strings.
     const multiFileFields = ['patta'];
     multiFileFields.forEach(field => {
         if (!Array.isArray(payload[field]) || payload[field].length === 0) {
-            delete payload[field]; // Remove if no files were uploaded
+            delete payload[field];
         }
     });
 
-    // Handle 'others_relevant_document' - API expects an array of objects.
     if (Array.isArray(payload.others_relevant_document) && payload.others_relevant_document.length > 0) {
-      // The field already has the correct structure from the form state, so we just ensure it's not empty.
     } else {
         delete payload.others_relevant_document;
     }
@@ -338,7 +339,6 @@ export function MultiStepForm({
     if(!payload.relatives || payload.relatives.length === 0) {
         delete payload.relatives;
     } else {
-        // Ensure the relationship_id is removed and relationship (string) is kept.
         payload.relatives = payload.relatives.map((relative: any) => {
             const { relationship_id, ...rest } = relative;
             return { ...rest };
@@ -372,14 +372,10 @@ export function MultiStepForm({
       });
 
       if (!existingApplication) {
-        // Form was for a new application, so reset it
         methods.reset(getInitialValues(null));
         setCurrentStep(0);
-      } else if (existingApplication) {
-        // Form was for an update. You might want to redirect or refresh data here.
-        // For now, we'll just leave the user on the form.
+        setFormType(null);
       }
-
     } else {
        toast({
         title: 'Submission Failed',
@@ -388,90 +384,127 @@ export function MultiStepForm({
       });
     }
   };
+
+  const renderCurrentStep = () => {
+    if (currentStep === 0) {
+        return (
+            <div className="space-y-8 text-center">
+                <CardHeader>
+                    <CardTitle className="font-headline">Select Application Type</CardTitle>
+                    <CardDescription>Choose the type of area for your application.</CardDescription>
+                </CardHeader>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Card 
+                        className={cn("p-6 cursor-pointer hover:shadow-lg transition-shadow", formType === 'normal' && 'ring-2 ring-primary')}
+                        onClick={() => setFormType('normal')}
+                    >
+                        <Building className="mx-auto h-12 w-12 mb-2 text-primary" />
+                        <h3 className="font-semibold text-lg">Normal Area</h3>
+                    </Card>
+                    <Card 
+                        className={cn("p-6 cursor-pointer hover:shadow-lg transition-shadow", formType === 'hill' && 'ring-2 ring-primary')}
+                        onClick={() => setFormType('hill')}
+                    >
+                        <Mountain className="mx-auto h-12 w-12 mb-2 text-primary" />
+                        <h3 className="font-semibold text-lg">Hill Area</h3>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <>
+            {currentStep === 1 && (
+            <Step1LandDetails 
+                districts={districts}
+                circles={circles}
+                subDivisions={subDivisions}
+                villages={villages}
+                landPurposes={landPurposes}
+                changeOfLandUseDates={changeOfLandUseDates}
+                formType={formType!}
+            />
+            )}
+            {currentStep === 2 && <Step2DocumentRequirements documentType={documentType} />}
+            {currentStep === 3 && (
+            <Step3Details
+                locationTypes={locationTypes}
+                areaUnits={areaUnits}
+                landClassifications={landClassifications}
+                landPurposes={landPurposes}
+                purposes={purposes}
+                documentType={documentType}
+            />
+            )}
+            {currentStep === 4 && (
+            <Step4DocumentUpload documentType={documentType} accessToken={accessToken} relationships={relationships} />
+            )}
+            {currentStep === 5 && (
+                <Step5Preview
+                formValues={watch()}
+                documentType={documentType}
+                data={{
+                    districts,
+                    circles,
+                    subDivisions,
+                    villages,
+                    landPurposes,
+                    locationTypes,
+                    areaUnits,
+                    landClassifications,
+                    changeOfLandUseDates,
+                    purposes,
+                    relationships,
+                }}
+                />
+            )}
+        </>
+    )
+  }
   
   return (
     <div className='pb-8 space-y-8'>
-      <StepIndicator steps={steps} currentStep={currentStep} />
+      {formType && <StepIndicator steps={steps} currentStep={currentStep-1} />}
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(processForm)}>
           <Card className='shadow-lg'>
             <CardContent className='pt-6'>
-              {currentStep === 0 && (
-                <Step1LandDetails 
-                  districts={districts}
-                  circles={circles}
-                  subDivisions={subDivisions}
-                  villages={villages}
-                  landPurposes={landPurposes}
-                  changeOfLandUseDates={changeOfLandUseDates}
-                />
-              )}
-              {currentStep === 1 && <Step2DocumentRequirements documentType={documentType} />}
-              {currentStep === 2 && (
-                <Step3Details
-                    locationTypes={locationTypes}
-                    areaUnits={areaUnits}
-                    landClassifications={landClassifications}
-                    landPurposes={landPurposes}
-                    purposes={purposes}
-                    documentType={documentType}
-                />
-              )}
-              {currentStep === 3 && (
-                <Step4DocumentUpload documentType={documentType} accessToken={accessToken} relationships={relationships} />
-              )}
-              {currentStep === 4 && (
-                 <Step5Preview
-                    formValues={watch()}
-                    documentType={documentType}
-                    data={{
-                      districts,
-                      circles,
-                      subDivisions,
-                      villages,
-                      landPurposes,
-                      locationTypes,
-                      areaUnits,
-                      landClassifications,
-                      changeOfLandUseDates,
-                      purposes,
-                      relationships,
-                    }}
-                  />
-              )}
+              {renderCurrentStep()}
             </CardContent>
           </Card>
 
-          {/* Navigation */}
-          <div className="mt-8 pt-5">
-            <div className="flex justify-end">
-              <div className='flex gap-2'>
-                <Button
-                  type="button"
-                  onClick={handlePrev}
-                  disabled={currentStep === 0 || isSubmitting}
-                  variant="outline"
-                >
-                  Go Back
-                </Button>
-                {currentStep < steps.length - 1 && (
+          {formType && (
+            <div className="mt-8 pt-5">
+              <div className="flex justify-end">
+                <div className='flex gap-2'>
                   <Button
-                      type="button"
-                      onClick={handleNext}
-                      disabled={isSubmitting}
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={currentStep === 0 || isSubmitting}
+                    variant="outline"
                   >
-                      Next Step
+                    Go Back
                   </Button>
-                )}
-                {currentStep === steps.length - 1 && (
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {existingApplication ? 'Update Application' : 'Submit Application'}
-                  </Button>
-                )}
+                  {currentStep < steps.length && (
+                    <Button
+                        type="button"
+                        onClick={handleNext}
+                        disabled={isSubmitting || (currentStep === 0 && !formType)}
+                    >
+                        Next Step
+                    </Button>
+                  )}
+                  {currentStep === steps.length && (
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {existingApplication ? 'Update Application' : 'Submit Application'}
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </form>
       </FormProvider>
     </div>
