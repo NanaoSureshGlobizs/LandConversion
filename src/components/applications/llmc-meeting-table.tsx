@@ -104,8 +104,8 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
     );
   }, [applications, searchTerm]);
 
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/llmc-meeting`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/llmc-meeting&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   const getTypeVariant = (type: string) => {
@@ -139,7 +139,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>
@@ -151,7 +151,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
                   <TableCell>
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-meeting`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-meeting&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
                          <LlmcReportDialog
                             applicationId={app.id.toString()}
@@ -196,5 +196,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
     </div>
   );
 }
+
+    
 
     
