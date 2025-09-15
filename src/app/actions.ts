@@ -659,9 +659,9 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     }
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
-    if (data && data[0] && (data[0].conversion_applications || data[0].diversion_applications)) {
-        const conversionAppsObject = data[0].conversion_applications || {};
-        const diversionAppsObject = data[0].diversion_applications || {};
+    if (data && (data.conversion_applications || data.diversion_applications)) {
+        const conversionAppsObject = data.conversion_applications || {};
+        const diversionAppsObject = data.diversion_applications || {};
 
         const conversionApps = Object.values(conversionAppsObject).filter((v: any) => typeof v === 'object' && v.id);
         const diversionApps = Object.values(diversionAppsObject).filter((v: any) => typeof v === 'object' && v.id);
@@ -686,6 +686,39 @@ export async function getLlmcApplications(accessToken: string, page = 1, limit =
     }
     const url = `/applications/llmc_lists?page=${page}&limit=${limit}`;
     const { data, debugLog } = await fetchFromApi(url, accessToken);
+    if (data && (data.conversion_applications || data.diversion_applications)) {
+        const conversionApps = data.conversion_applications || [];
+        const diversionApps = data.diversion_applications || [];
+        const allApps = [...conversionApps, ...diversionApps];
+        return { 
+            data: {
+                applications: allApps,
+                pagination: data.pagination
+            }, 
+            log: debugLog 
+        };
+    }
+    return { data, log: debugLog };
+}
+
+export async function getApplicationsByArea(accessToken: string, areaType: 'lesser' | 'greater', page = 1, limit = 10) {
+    if (!accessToken) {
+        return { data: null, log: "No access token found" };
+    }
+    const url = `/area/${areaType}?page=${page}&limit=${limit}`;
+    const { data, debugLog } = await fetchFromApi(url, accessToken);
+     if (data && (data.conversion_applications || data.diversion_applications)) {
+        const conversionApps = data.conversion_applications || [];
+        const diversionApps = data.diversion_applications || [];
+        const allApps = [...conversionApps, ...diversionApps];
+        return { 
+            data: {
+                applications: allApps,
+                pagination: data.pagination
+            }, 
+            log: debugLog 
+        };
+    }
     return { data, log: debugLog };
 }
 
@@ -763,3 +796,4 @@ function addLog(log: string) {
 
 
     
+

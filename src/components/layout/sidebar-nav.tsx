@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase, Trees, Map, Library } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase, Trees, Map, Library, AreaChart } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -79,6 +80,18 @@ export const allMenuItems = [
     icon: Library,
     accessKey: 'llmc_meeting',
   },
+    {
+    href: '/dashboard/area-lesser',
+    label: '< 0.5 Hectare',
+    icon: AreaChart,
+    accessKey: 'area_lesser',
+  },
+  {
+    href: '/dashboard/area-greater',
+    label: '> 0.5 Hectare',
+    icon: AreaChart,
+    accessKey: 'area_greater',
+  },
 ];
 
 export function SidebarNav() {
@@ -129,7 +142,7 @@ export function SidebarNav() {
  const visibleMenuItems = useMemo(() => {
     // For testing: show all items if access array is empty. Remove this for production.
     if (access.length === 0) {
-        // return allMenuItems; 
+        return allMenuItems; 
     }
 
     const userAccessSet = new Set(access);
