@@ -66,10 +66,20 @@ export const allMenuItems = [
     accessKey: 'conversion_menu',
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'conversion', accessKey: 'pending_enquiries' },
+        { href: '/dashboard/enquiries', label: 'Enquiries', type: 'conversion', accessKey: 'enquiries' },
         { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'sdao_enquiries' },
-        { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations'},
+        { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
         { href: '/dashboard/report', label: 'Report', type: 'conversion', accessKey: 'report' },
+        { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'conversion', accessKey: 'dlc_recommendations' },
+        { href: '/dashboard/lrd-decision', label: 'LRD Decision', type: 'conversion', accessKey: 'lrd_decision' },
+        { href: '/dashboard/decision-and-fees', label: 'Decision & Fees', type: 'conversion', accessKey: 'decision_and_fees' },
+        { href: '/dashboard/dc-office', label: 'DC Office', type: 'conversion', accessKey: 'dc_office' },
+        { href: '/dashboard/dfo-report', label: 'DFO Report', type: 'conversion', accessKey: 'dfo_report' },
+        { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations_alt' },
+        { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'conversion', accessKey: 'sdc_report' },
         { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'conversion', accessKey: 'marsac_report' },
+        { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'conversion', accessKey: 'unprocessed_applications' },
     ]
   },
   {
@@ -78,10 +88,12 @@ export const allMenuItems = [
     accessKey: 'diversion_menu',
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'diversion', accessKey: 'pending_enquiries' },
-        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'sdao_enquiries' },
-        { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
-        { href: '/dashboard/report', label: 'Report', type: 'diversion', accessKey: 'report' },
+        { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'diversion', accessKey: 'sdc_report' },
+        { href: '/dashboard/dc-office', label: 'DC Office', type: 'diversion', accessKey: 'dc_office' },
         { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'diversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'sdao_enquiries' },
+        { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'diversion', accessKey: 'dlc_recommendations' },
+        { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
     ]
   },
   {
