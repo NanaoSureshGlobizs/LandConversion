@@ -28,7 +28,6 @@ const documentCategories = {
       { id: 'patta', title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
       { id: 'applicant_aadhar', title: 'Aadhaar', description: 'Upload a copy of your Aadhaar card' },
       { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
-      { id: 'marsac_report', title: 'MARSAC Imagery Report', description: 'Upload the MARSAC report' },
       { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
       { id: 'deed_certificate', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
       { id: 'affidavit_certificate', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },

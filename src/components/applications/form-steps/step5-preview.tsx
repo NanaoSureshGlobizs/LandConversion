@@ -72,7 +72,6 @@ export function Step5Preview({ formValues, documentType, data }: Step5PreviewPro
     { label: 'Latest Patta Copy', field: 'patta' },
     { label: 'Aadhaar', field: 'applicant_aadhar' },
     { label: 'Passport Photo', field: 'passport_photo' },
-    { label: 'MARSAC Imagery Report', field: 'marsac_report' },
     { label: 'Tax Receipt', field: 'tax_receipt' },
     { label: 'Sale/Title Deed', field: 'deed_certificate' },
     { label: 'Affidavit/Encumbrance Certificate', field: 'affidavit_certificate' },
@@ -81,7 +80,6 @@ export function Step5Preview({ formValues, documentType, data }: Step5PreviewPro
   ];
 
   const relevantDocuments = allDocumentFields.filter(doc => {
-     if (documentType === 'land_conversion' && doc.field === 'marsac_report') return false;
      const files = getUploadedFileNames(doc.field);
      return files.length > 0;
   });

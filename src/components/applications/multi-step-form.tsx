@@ -64,7 +64,6 @@ const formSchema = z.object({
   patta: fileUploadSchema,
   applicant_aadhar: fileUploadSchema,
   passport_photo: fileUploadSchema,
-  marsac_report: fileUploadSchema,
   tax_receipt: fileUploadSchema,
   deed_certificate: fileUploadSchema,
   affidavit_certificate: fileUploadSchema,
@@ -312,7 +311,7 @@ export function MultiStepForm({
 
     // The API expects single-file uploads to be a string, not an array.
     // We will take the first element of the array for these fields.
-    const singleFileFields = ['applicant_aadhar', 'passport_photo', 'marsac_report', 'tax_receipt', 'deed_certificate', 'affidavit_certificate', 'noc_certificate'];
+    const singleFileFields = ['applicant_aadhar', 'passport_photo', 'tax_receipt', 'deed_certificate', 'affidavit_certificate', 'noc_certificate'];
     singleFileFields.forEach(field => {
         if (Array.isArray(payload[field]) && payload[field].length > 0) {
             payload[field] = payload[field][0];

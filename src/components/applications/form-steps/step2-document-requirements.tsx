@@ -26,7 +26,6 @@ const landDiversionDocs = [
   'Aadhaar',
   'Latest Patta Copy (Not more than 10 days from filing)',
   'Passport Photo',
-  'MARSAC Imagery Report',
   'Tax Receipt',
   'Sale Deed/Title Deed/Partial Deed',
   'Affidavit/Encumbrance Certificate',
