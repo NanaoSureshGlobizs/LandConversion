@@ -132,16 +132,22 @@ export function SidebarNav() {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
     
-    if (exact) {
-      return currentPath === href;
+    if (!href) return false;
+    
+    // Check for exact match first
+    if (exact || currentPath === href) {
+        if (itemType) {
+            return currentType === itemType;
+        }
+        return true;
     }
     
-    if (href && itemType) {
-        return currentPath === href && currentType === itemType;
-    }
-    
-    if(href) {
-        return currentPath.startsWith(href);
+    // Fallback for non-exact matches where href is a prefix of the pathname
+    if (!exact && currentPath.startsWith(href) && currentPath[href.length] === '/') {
+       if (itemType) {
+            return currentType === itemType;
+        }
+        return true;
     }
     
     return false;
@@ -216,7 +222,7 @@ export function SidebarNav() {
                           <SidebarMenuSub>
                           {item.subItems!.map((subItem) => (
                                   <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
-                                      <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
+                                      <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type, true)}>
                                           <Link href={subItem.type ? `${subItem.href}?type=${subItem.type}` : subItem.href!}>
                                               <span>{subItem.label}</span>
                                           </Link>
