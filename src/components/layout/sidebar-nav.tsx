@@ -67,7 +67,7 @@ export const allMenuItems = [
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'conversion', accessKey: 'pending_enquiries' },
         { href: '/dashboard/enquiries', label: 'Enquiries', type: 'conversion', accessKey: 'enquiries' },
-        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'sdao_enquiries' },
+        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'SDAO_enquiries' },
         { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
         { href: '/dashboard/report', label: 'Report', type: 'conversion', accessKey: 'report' },
         { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'conversion', accessKey: 'dlc_recommendations' },
@@ -88,16 +88,16 @@ export const allMenuItems = [
     accessKey: 'diversion',
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'diversion', accessKey: 'pending_enquiries' },
-        { href: '/dashboard/enquiries', label: 'Enquiries', type: 'diversion', accessKey: 'enquiries' },
         { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'diversion', accessKey: 'sdc_report' },
         { href: '/dashboard/dc-office', label: 'DC Office', type: 'diversion', accessKey: 'dc_office' },
         { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'diversion', accessKey: 'sdo_dao_report' },
-        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'sdao_enquiries' },
+        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'SDAO_enquiries' },
         { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'diversion', accessKey: 'dlc_recommendations' },
         { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
         { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'diversion', accessKey: 'marsac_report' },
         { href: '/dashboard/cabinet', label: 'Cabinet', type: 'diversion', accessKey: 'cabinet' },
         { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'diversion', accessKey: 'unprocessed_applications' },
+        { href: '/dashboard/enquiries', label: 'Enquiries', type: 'diversion', accessKey: 'enquiries' },
     ]
   },
   {
