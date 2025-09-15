@@ -7,6 +7,7 @@
 
 
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -104,6 +105,7 @@ export interface ApplicationListItem {
   button_name: string;
   application_id: string;
   change_of_land_use_type: string;
+  workflow_sequence_id: number;
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;

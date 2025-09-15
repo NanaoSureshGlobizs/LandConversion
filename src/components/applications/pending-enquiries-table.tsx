@@ -117,7 +117,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
   }, [applications, searchTerm]);
   
   const handleRowClick = (app: ApplicationListItem) => {
-    router.push(`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}`);
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
   
   const renderActions = (app: ApplicationListItem) => {
@@ -242,7 +242,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
                     <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                        {renderActions(app)}
                        <Button variant="outline" size="sm" asChild>
-                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}`}>View Details</Link>
+                         <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}&workflow_sequence_id=${app.workflow_sequence_id}`}>View Details</Link>
                        </Button>
                     </div>
                   </TableCell>

@@ -7,17 +7,18 @@ import { DetailPageClient } from '@/components/applications/detail-page-client';
 import type { FullApplicationResponse } from '@/lib/definitions';
 import { notFound } from 'next/navigation';
 
-export default async function ApplicationDetailPage({ params }: { params: { id: string } }) {
+export default async function ApplicationDetailPage({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
   const { id } = params;
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const workflowSequenceId = searchParams.workflow_sequence_id as string | undefined;
 
   if (!accessToken) {
     redirect('/');
   }
 
   // Fetch data on the server
-  const { data: application, log } = await getApplicationById(accessToken, id);
+  const { data: application, log } = await getApplicationById(accessToken, id, workflowSequenceId);
   const { data: statuses, log: statusesLog } = await getApplicationStatuses(accessToken);
 
   // If the application is not found server-side, show a 404 page immediately.

@@ -84,8 +84,8 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
     }
   }, [isNearScreen, loadMoreApplications]);
 
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/sdao-enquiries&type=${type}`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   return (
@@ -160,14 +160,14 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.area_type}</TableCell>
                   <TableCell>{app.district.name}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}`}>View Details</Link>
+                        <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`}>View Details</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

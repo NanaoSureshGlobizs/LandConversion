@@ -689,8 +689,12 @@ export async function getLlmcApplications(accessToken: string, page = 1, limit =
     return { data, log: debugLog };
 }
 
-export async function getApplicationById(token: string, id: string) {
-    const { data, debugLog } = await fetchFromApi(`/applications/${id}`, token);
+export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
+    let url = `/applications/view?id=${id}`;
+    if (workflow_sequence_id) {
+      url += `&workflow_sequence_id=${workflow_sequence_id}`;
+    }
+    const { data, debugLog } = await fetchFromApi(url, token);
     
     if (data && (data.conversion_applications || data.diversion_applications)) {
         let applicationData = null;
