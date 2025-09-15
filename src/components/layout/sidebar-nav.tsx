@@ -71,13 +71,22 @@ export const allMenuItems = [
     ]
   },
   {
-    label: 'Area-wise Lists',
+    href: '/dashboard/area-lesser',
+    label: '< 0.5 Hectare',
     icon: AreaChart,
-    subItems: [
-      { href: '/dashboard/area-lesser', label: '< 0.5 Hectare' },
-      { href: '/dashboard/area-greater', label: '> 0.5 Hectare' },
-      { href: '/dashboard/area', label: 'All' },
-    ]
+    accessKey: 'less_then',
+  },
+  {
+    href: '/dashboard/area-greater',
+    label: '> 0.5 Hectare',
+    icon: AreaChart,
+    accessKey: 'greater_then',
+  },
+  {
+    href: '/dashboard/area',
+    label: 'Area-wise List (All)',
+    icon: AreaChart,
+    accessKey: 'both_hectare',
   },
   {
     href: '/dashboard/llmc-recommendations',
@@ -135,15 +144,15 @@ export function SidebarNav() {
     if (!href) return false;
     
     // Check for exact match first
-    if (exact || currentPath === href) {
+    if (exact) {
         if (itemType) {
-            return currentType === itemType;
+            return currentPath === href && currentType === itemType;
         }
-        return true;
+        return currentPath === href;
     }
     
     // Fallback for non-exact matches where href is a prefix of the pathname
-    if (!exact && currentPath.startsWith(href) && currentPath[href.length] === '/') {
+    if (!exact && currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/')) {
        if (itemType) {
             return currentType === itemType;
         }
@@ -154,32 +163,46 @@ export function SidebarNav() {
   };
   
  const visibleMenuItems = useMemo(() => {
-    // If access array is empty (still loading or a new user with no roles), show nothing or a limited set.
-    // For now, let's allow all for testing if access is empty.
     const userAccessSet = new Set(access);
-    if (userAccessSet.size === 0 && access.length > 0) {
-      // return allMenuItems; // Uncomment for testing with no roles
-    }
-
 
     return allMenuItems.map(item => {
-      // If user doesn't have access to the main item, skip it
+      // If the parent item has an accessKey and the user doesn't have it, skip it.
       if (item.accessKey && !userAccessSet.has(item.accessKey)) {
-        return null;
+        // However, if it's a menu with sub-items, we need to check if any sub-item is accessible.
+        if (!item.subItems || item.subItems.length === 0) {
+          return null;
+        }
       }
       
-      // If item has sub-items, filter them based on user access
       if (item.subItems) {
-        const visibleSubItems = item.subItems.filter(subItem => !subItem.accessKey || userAccessSet.has(subItem.accessKey));
+        const visibleSubItems = item.subItems.filter(subItem => 
+            !subItem.accessKey || userAccessSet.has(subItem.accessKey)
+        );
         
-        // If no sub-items are visible, don't show the parent menu
-        if (visibleSubItems.length === 0) {
+        // If the parent has no access key itself, but no sub-items are visible, hide the parent.
+        if (!item.accessKey && visibleSubItems.length === 0) {
             return null;
         }
-        return { ...item, subItems: visibleSubItems };
+
+        // A special case: if the parent's accessKey is 'area_wise_lists', show it if any of its children are accessible.
+        if (item.accessKey === 'area_wise_lists' && visibleSubItems.length > 0) {
+            return { ...item, subItems: visibleSubItems };
+        }
+        
+        // If the user has direct access to the parent item, show it with its filtered sub-items.
+        if (item.accessKey && userAccessSet.has(item.accessKey)) {
+            return { ...item, subItems: visibleSubItems };
+        }
+
+        // If the parent has no access key, it's a container. Show if it has visible children.
+        if (!item.accessKey && visibleSubItems.length > 0) {
+            return { ...item, subItems: visibleSubItems };
+        }
+
+        return null;
       }
 
-      // If it's a regular item, just return it
+      // If it's a regular item, just return it (access check already passed or no key)
       return item;
     }).filter(Boolean) as (typeof allMenuItems[0])[];
 
