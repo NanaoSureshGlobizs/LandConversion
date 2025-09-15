@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 24,
-  diversion: 24,
+  diversion: 4,
 };
 
 export default async function DcOfficePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {

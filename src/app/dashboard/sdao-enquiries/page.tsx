@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 8,
-  diversion: 8,
+  diversion: 19,
 };
 
 export default async function SdaoEnquiriesPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {

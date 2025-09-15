@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 6,
-  diversion: 6, 
+  diversion: 2, 
 };
 
 

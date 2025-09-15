@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 30,
-  diversion: 29,
+  diversion: 30,
 };
 
 export default async function MarsacReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
