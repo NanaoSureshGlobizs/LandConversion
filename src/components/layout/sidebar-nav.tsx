@@ -61,36 +61,45 @@ export const allMenuItems = [
     accessKey: 'legacy_data',
   },
   {
-    href: '/dashboard/conversion',
-    label: 'Conversion',
-    icon: FileText,
-    accessKey: 'conversion',
-    type: 'conversion'
-  },
-  {
-    href: '/dashboard/diversion',
-    label: 'Diversion',
-    icon: FileText,
-    accessKey: 'diversion',
-    type: 'diversion'
+    href: '/dashboard/pending-enquiries',
+    label: 'Pending Enquiries',
+    icon: FileSearch,
+    accessKey: 'enquiry',
+    subItems: [
+        { href: '/dashboard/pending-enquiries', label: 'Conversion', type: 'conversion', accessKey: 'enquiry' },
+        { href: '/dashboard/pending-enquiries', label: 'Diversion', type: 'diversion', accessKey: 'enquiry' }
+    ]
   },
   {
     href: '/dashboard/llmc-recommendations',
     label: 'LLMC Recommendations',
-    icon: Library,
+    icon: ThumbsUp,
     accessKey: 'llmc_meeting',
   },
-    {
+  {
+    href: '/dashboard/reports-from-dlc',
+    label: 'Reports from DLC',
+    icon: FileBarChart,
+    accessKey: 'dlc_report',
+  },
+   {
     href: '/dashboard/area-lesser',
     label: '< 0.5 Hectare',
     icon: AreaChart,
-    accessKey: 'area_lesser',
   },
   {
     href: '/dashboard/area-greater',
     label: '> 0.5 Hectare',
     icon: AreaChart,
-    accessKey: 'area_greater',
+  },
+  {
+    href: '/dashboard/final-orders',
+    label: 'Final Orders',
+    icon: Gavel,
+    accessKey: 'final_order',
+     subItems: [
+        { href: '/dashboard/final-orders', label: 'Diversion', type: 'diversion', accessKey: 'final_order' }
+    ]
   },
 ];
 
@@ -109,7 +118,7 @@ export function SidebarNav() {
   const isParentActive = (item: typeof allMenuItems[0]) => {
     const currentPath = pathname;
     const currentType = searchParams.get('type');
-    if (!item.subItems) return item.type ? currentType === item.type : false;
+    if (!item.subItems) return false;
     
     return item.subItems.some(sub => {
       if (sub.type) {
@@ -140,12 +149,13 @@ export function SidebarNav() {
   };
   
  const visibleMenuItems = useMemo(() => {
-    // For testing: show all items if access array is empty. Remove this for production.
-    if (access.length === 0) {
-        return allMenuItems; 
+    // If access array is empty (still loading or a new user with no roles), show nothing or a limited set.
+    // For now, let's allow all for testing if access is empty.
+    const userAccessSet = new Set(access);
+    if (userAccessSet.size === 0) {
+      // return allMenuItems; // Uncomment for testing with no roles
     }
 
-    const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
       // If user doesn't have access to the main item, skip it
