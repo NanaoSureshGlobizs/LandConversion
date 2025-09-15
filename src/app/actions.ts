@@ -788,6 +788,8 @@ export async function getApplicationById(token: string, id: string, workflow_seq
     
     if (data && (data.conversion_applications || data.diversion_applications)) {
         let applicationData = null;
+        // The API returns an array for some endpoints, but an object for others.
+        // We need to handle both cases to find the first application record.
         if (data.conversion_applications && Array.isArray(data.conversion_applications) && data.conversion_applications.length > 0) {
             applicationData = data.conversion_applications[0];
         } else if (data.diversion_applications && Array.isArray(data.diversion_applications) && data.diversion_applications.length > 0) {
@@ -862,6 +864,7 @@ function addLog(log: string) {
 
 
     
+
 
 
 
