@@ -8,6 +8,7 @@
 
 
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -106,6 +107,7 @@ export interface ApplicationListItem {
   application_id: string;
   change_of_land_use_type: string;
   workflow_sequence_id: number;
+  applied_area: string;
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
@@ -206,5 +208,3 @@ export interface Circle {
     name: string;
     sub_division_id: number;
 }
-
-    

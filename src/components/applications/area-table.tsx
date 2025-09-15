@@ -81,6 +81,7 @@ export function AreaTable({ initialData, accessToken, statuses }: AreaTableProps
             <TableRow>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta No.</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Action</TableHead>
@@ -92,6 +93,7 @@ export function AreaTable({ initialData, accessToken, statuses }: AreaTableProps
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                    <TableCell>{app.patta_no}</TableCell>
+                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                    <TableCell>
                       <Badge variant={getTypeVariant(app.change_of_land_use_type)}>
                           {app.change_of_land_use_type.includes('After') ? 'Conversion' : 'Diversion'}
@@ -111,7 +113,7 @@ export function AreaTable({ initialData, accessToken, statuses }: AreaTableProps
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
