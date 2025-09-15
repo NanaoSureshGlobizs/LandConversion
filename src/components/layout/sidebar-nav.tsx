@@ -70,6 +70,26 @@ export const allMenuItems = [
         { href: '/dashboard/pending-enquiries', label: 'Diversion', type: 'diversion', accessKey: 'enquiry' }
     ]
   },
+   {
+    href: '/dashboard/sdao-enquiries',
+    label: 'SDAO Enquiries',
+    icon: FileSearch,
+    accessKey: 'sdao_enquiries',
+    subItems: [
+        { href: '/dashboard/sdao-enquiries', label: 'Conversion', type: 'conversion', accessKey: 'sdao_enquiries' },
+        { href: '/dashboard/sdao-enquiries', label: 'Diversion', type: 'diversion', accessKey: 'sdao_enquiries' }
+    ]
+  },
+  {
+    href: '/dashboard/sdo-dao-report',
+    label: 'SDO/DAO Report',
+    icon: FileBarChart,
+    accessKey: 'sdo_dao_report',
+    subItems: [
+        { href: '/dashboard/sdo-dao-report', label: 'Conversion', type: 'conversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/sdo-dao-report', label: 'Diversion', type: 'diversion', accessKey: 'sdo_dao_report' }
+    ]
+  },
   {
     href: '/dashboard/area-lesser',
     label: '< 0.5 Hectare',
@@ -143,8 +163,8 @@ export function SidebarNav() {
     
     if (!href) return false;
     
-    // Check for exact match first
-    if (exact) {
+    // Check for exact match first for sub-items or exact routes
+    if (exact || itemType) {
         if (itemType) {
             return currentPath === href && currentType === itemType;
         }
@@ -152,10 +172,7 @@ export function SidebarNav() {
     }
     
     // Fallback for non-exact matches where href is a prefix of the pathname
-    if (!exact && currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/')) {
-       if (itemType) {
-            return currentType === itemType;
-        }
+    if (currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/')) {
         return true;
     }
     
@@ -184,11 +201,6 @@ export function SidebarNav() {
             return null;
         }
 
-        // A special case: if the parent's accessKey is 'area_wise_lists', show it if any of its children are accessible.
-        if (item.accessKey === 'area_wise_lists' && visibleSubItems.length > 0) {
-            return { ...item, subItems: visibleSubItems };
-        }
-        
         // If the user has direct access to the parent item, show it with its filtered sub-items.
         if (item.accessKey && userAccessSet.has(item.accessKey)) {
             return { ...item, subItems: visibleSubItems };
