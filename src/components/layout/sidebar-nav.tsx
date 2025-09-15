@@ -27,6 +27,7 @@ import { Switch } from '../ui/switch';
 import { useMemo, useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { cn } from '@/lib/utils';
+import { Badge } from '../ui/badge';
 
 export const allMenuItems = [
   {
@@ -77,8 +78,8 @@ export const allMenuItems = [
         { href: '/dashboard/dfo-report', label: 'DFO Report', type: 'conversion', accessKey: 'dfo_report' },
         { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations_alt' },
         { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'conversion', accessKey: 'sdc_report' },
-        { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'conversion', accessKey: 'marsac_report' },
         { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'conversion', accessKey: 'marsac_report' },
         { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'conversion', accessKey: 'unprocessed_applications' },
     ]
   },
@@ -146,7 +147,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { logout, access } = useAuth();
+  const { logout, access, role } = useAuth();
   const { isDebugMode, setIsDebugMode } = useDebug();
 
   const handleLogout = async () => {
@@ -232,8 +233,14 @@ export function SidebarNav() {
             <span className="text-xl font-bold font-headline">Change of Land Use</span>
             <span className="text-sm text-muted-foreground">Government of Manipur</span>
           </div>
-          <div className="flex-1" />
         </div>
+        {role && (
+          <div className="mt-2">
+              <Badge variant="outline" className="w-full justify-center">
+                  Role: {role}
+              </Badge>
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
