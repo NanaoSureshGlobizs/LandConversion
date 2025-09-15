@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getApplicationById, getApplicationStatuses } from '@/app/actions';
-import { DetailPageClient } from '@/app/dashboard/my-applications/[id]/detail-page-client';
+import { DetailPageClient } from '@/components/applications/detail-page-client';
 import type { FullApplicationResponse } from '@/lib/definitions';
 import { notFound } from 'next/navigation';
 
