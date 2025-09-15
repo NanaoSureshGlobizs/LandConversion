@@ -288,7 +288,11 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
         if (result.success) {
             // The workflow API has a nested data object, so we handle that here.
             if (result.data && typeof result.data.success !== 'undefined') {
-                return { data: result.data.data, debugLog }
+                 if (result.data.data) {
+                    return { data: result.data.data, debugLog };
+                 }
+                 // Handle cases where the nested call was successful but returned no data
+                 return { data: result.data, debugLog };
             }
             return { data: result.data, debugLog };
         }
@@ -660,12 +664,8 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
     if (data && (data.conversion_applications || data.diversion_applications)) {
-        const conversionAppsObject = data.conversion_applications || {};
-        const diversionAppsObject = data.diversion_applications || {};
-
-        const conversionApps = Object.values(conversionAppsObject).filter((v: any) => typeof v === 'object' && v.id);
-        const diversionApps = Object.values(diversionAppsObject).filter((v: any) => typeof v === 'object' && v.id);
-        
+        const conversionApps = Array.isArray(data.conversion_applications) ? data.conversion_applications : [];
+        const diversionApps = Array.isArray(data.diversion_applications) ? data.diversion_applications : [];
         const allApps = [...conversionApps, ...diversionApps];
 
         return { 
@@ -825,5 +825,6 @@ function addLog(log: string) {
 
 
     
+
 
 

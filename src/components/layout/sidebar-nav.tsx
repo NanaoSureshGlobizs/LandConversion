@@ -112,13 +112,35 @@ export const allMenuItems = [
     href: '/dashboard/llmc-recommendations',
     label: 'LLMC Recommendations',
     icon: ThumbsUp,
+    accessKey: 'llmc_recommendations',
+     subItems: [
+        { href: '/dashboard/llmc-recommendations', label: 'Conversion', type: 'conversion', accessKey: 'llmc_recommendations' },
+    ]
+  },
+  {
+    label: 'LLMC',
+    icon: Library,
     accessKey: 'llmc_meeting',
+    subItems: [
+        { href: '/dashboard/llmc-meeting', label: 'LLMC Meeting', accessKey: 'llmc_meeting' },
+        { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
+    ]
   },
   {
     href: '/dashboard/reports-from-dlc',
     label: 'Reports from DLC',
     icon: FileBarChart,
     accessKey: 'dlc_report',
+  },
+    {
+    href: '/dashboard/report',
+    label: 'Report',
+    icon: FileText,
+    accessKey: 'report',
+     subItems: [
+        { href: '/dashboard/report', label: 'Conversion', type: 'conversion', accessKey: 'report' },
+        { href: '/dashboard/report', label: 'Diversion', type: 'diversion', accessKey: 'report' }
+    ]
   },
   {
     href: '/dashboard/final-orders',
@@ -163,59 +185,45 @@ export function SidebarNav() {
     
     if (!href) return false;
     
-    // Check for exact match first for sub-items or exact routes
-    if (exact || itemType) {
+    if (exact || (href && href.includes('?'))) {
         if (itemType) {
             return currentPath === href && currentType === itemType;
         }
-        return currentPath === href;
+        return currentPath === href && !searchParams.has('type');
     }
     
-    // Fallback for non-exact matches where href is a prefix of the pathname
-    if (currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/')) {
-        return true;
+    if (itemType) {
+      return currentPath === href && currentType === itemType;
     }
     
-    return false;
+    return currentPath.startsWith(href) && (currentPath.length === href.length || currentPath[href.length] === '/');
   };
   
  const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
 
     return allMenuItems.map(item => {
-      // If the parent item has an accessKey and the user doesn't have it, skip it.
-      if (item.accessKey && !userAccessSet.has(item.accessKey)) {
-        // However, if it's a menu with sub-items, we need to check if any sub-item is accessible.
-        if (!item.subItems || item.subItems.length === 0) {
-          return null;
-        }
-      }
-      
+      const hasAccessToParent = !item.accessKey || userAccessSet.has(item.accessKey);
+
       if (item.subItems) {
         const visibleSubItems = item.subItems.filter(subItem => 
             !subItem.accessKey || userAccessSet.has(subItem.accessKey)
         );
-        
-        // If the parent has no access key itself, but no sub-items are visible, hide the parent.
-        if (!item.accessKey && visibleSubItems.length === 0) {
-            return null;
-        }
 
-        // If the user has direct access to the parent item, show it with its filtered sub-items.
-        if (item.accessKey && userAccessSet.has(item.accessKey)) {
+        if (visibleSubItems.length > 0) {
             return { ...item, subItems: visibleSubItems };
         }
-
-        // If the parent has no access key, it's a container. Show if it has visible children.
-        if (!item.accessKey && visibleSubItems.length > 0) {
-            return { ...item, subItems: visibleSubItems };
+        // If parent is accessible on its own but has no visible children, show it as a single item
+        if (hasAccessToParent && item.href) {
+            const newItem = {...item};
+            delete newItem.subItems;
+            return newItem;
         }
-
-        return null;
+        return null; // Hide parent if it's not accessible and has no visible children
       }
+      
+      return hasAccessToParent ? item : null;
 
-      // If it's a regular item, just return it (access check already passed or no key)
-      return item;
     }).filter(Boolean) as (typeof allMenuItems[0])[];
 
   }, [access]);

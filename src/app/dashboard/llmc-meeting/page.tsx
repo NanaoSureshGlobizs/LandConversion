@@ -1,12 +1,12 @@
 
 
 import { LlmcMeetingTable } from '@/components/applications/llmc-meeting-table';
-import { getLlmcApplications, getApplicationStatuses } from '@/app/actions';
+import { getApplications, getApplicationStatuses } from '@/app/actions';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-export default async function LlmcMeetingPage() {
+export default async function LlmcMeetingPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
 
@@ -14,8 +14,12 @@ export default async function LlmcMeetingPage() {
     redirect('/');
   }
 
+  // As per your instruction, let's use a specific workflowId for llmc-meeting.
+  // Using 9 as a placeholder based on llmc-review. Adjust if different.
+  const workflowId = 9;
+
   const [{ data: initialApplicationsData, log: appLog }, { data: statuses, log: statusesLog }] = await Promise.all([
-    getLlmcApplications(accessToken),
+    getApplications(accessToken, 1, 10, workflowId),
     getApplicationStatuses(accessToken)
   ]);
 
@@ -35,5 +39,3 @@ export default async function LlmcMeetingPage() {
     </>
   );
 }
-
-    
