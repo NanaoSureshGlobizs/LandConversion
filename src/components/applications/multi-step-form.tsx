@@ -371,15 +371,13 @@ export function MultiStepForm({
         description: result.message || `Your application has been ${existingApplication ? 'updated' : 'received'}.`,
       });
 
-      if (!existingApplication && result.data?.id) {
-        // Redirect to the detail page for the new application
-        router.push(`/dashboard/my-applications/${result.data.id}`);
-      } else if (existingApplication) {
-        // Potentially refresh data or router if needed for an update
-      } else {
-        // Fallback for new application if no ID is returned
+      if (!existingApplication) {
+        // Form was for a new application, so reset it
         methods.reset(getInitialValues(null));
         setCurrentStep(0);
+      } else if (existingApplication) {
+        // Form was for an update. You might want to redirect or refresh data here.
+        // For now, we'll just leave the user on the form.
       }
 
     } else {
