@@ -63,7 +63,7 @@ export const allMenuItems = [
   {
     label: 'Conversion',
     icon: FileText,
-    accessKey: 'conversion_menu',
+    accessKey: 'conversion',
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'conversion', accessKey: 'pending_enquiries' },
         { href: '/dashboard/enquiries', label: 'Enquiries', type: 'conversion', accessKey: 'enquiries' },
@@ -77,15 +77,15 @@ export const allMenuItems = [
         { href: '/dashboard/dfo-report', label: 'DFO Report', type: 'conversion', accessKey: 'dfo_report' },
         { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations_alt' },
         { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'conversion', accessKey: 'sdc_report' },
-        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
         { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'conversion', accessKey: 'marsac_report' },
+        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
         { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'conversion', accessKey: 'unprocessed_applications' },
     ]
   },
   {
     label: 'Diversion',
     icon: ShieldCheck,
-    accessKey: 'diversion_menu',
+    accessKey: 'diversion',
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'diversion', accessKey: 'pending_enquiries' },
         { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'diversion', accessKey: 'sdc_report' },
