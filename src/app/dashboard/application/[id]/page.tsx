@@ -21,13 +21,10 @@ export default async function ApplicationDetailPage({ params, searchParams }: { 
   const { data: application, log } = await getApplicationById(accessToken, id, workflowSequenceId);
   const { data: statuses, log: statusesLog } = await getApplicationStatuses(accessToken);
 
-  // If the application is not found server-side, show a 404 page immediately.
-  if (!application) {
-    notFound();
-  }
+  // We will no longer throw a 404 here. Instead, we'll pass the null application
+  // to the client component and let it handle the "not found" state gracefully.
 
   // Pass server-fetched data to the client component
-  // We are re-using the client component from my-applications, as the view is identical.
   return <DetailPageClient 
             id={id} 
             accessToken={accessToken} 

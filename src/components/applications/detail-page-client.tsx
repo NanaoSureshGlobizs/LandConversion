@@ -167,8 +167,15 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                         Application Not Found
                     </h1>
                 </div>
-                <p>The application with ID {id} could not be loaded. This might be due to a server error or invalid data.</p>
-                <p className='text-muted-foreground text-sm'>Check the debug panel for the full server response.</p>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className='text-destructive'>Error</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>The application with ID <span className='font-mono bg-muted p-1 rounded-sm'>{id}</span> could not be loaded.</p>
+                    <p className='text-muted-foreground text-sm mt-2'>This may be because the application does not exist or there was a problem fetching the data. Please check the ID and try again.</p>
+                  </CardContent>
+                </Card>
             </div>
         </>
     );
