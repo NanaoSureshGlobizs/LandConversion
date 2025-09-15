@@ -69,6 +69,7 @@ export const allMenuItems = [
         { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'sdao_enquiries' },
         { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations'},
         { href: '/dashboard/report', label: 'Report', type: 'conversion', accessKey: 'report' },
+        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
     ]
   },
   {
@@ -80,15 +81,7 @@ export const allMenuItems = [
         { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'sdao_enquiries' },
         { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
         { href: '/dashboard/report', label: 'Report', type: 'diversion', accessKey: 'report' },
-    ]
-  },
-   {
-    label: 'SDO/DAO Report',
-    icon: FileBarChart,
-    accessKey: 'sdo_dao_report',
-    subItems: [
-        { href: '/dashboard/sdo-dao-report', label: 'Conversion', type: 'conversion', accessKey: 'sdo_dao_report' },
-        { href: '/dashboard/sdo-dao-report', label: 'Diversion', type: 'diversion', accessKey: 'sdo_dao_report' },
+        { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'diversion', accessKey: 'sdo_dao_report' },
     ]
   },
   {
@@ -163,13 +156,7 @@ export function SidebarNav() {
     
     if (!href) return false;
     
-    // For exact matches, we need to be more precise
     if (exact) {
-        if(itemType) {
-             return currentPath === href && currentType === itemType;
-        }
-        // If no itemType is provided, we should ensure no type param is present in the URL for a true exact match.
-        // However, for simplicity, we can just check the path if the link itself doesn't have a type.
         return currentPath === href;
     }
     
@@ -254,7 +241,7 @@ export function SidebarNav() {
                           <SidebarMenuSub>
                           {item.subItems!.map((subItem) => (
                                   <SidebarMenuSubItem key={`${item.label}-${subItem.label}`}>
-                                      <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type, true)}>
+                                      <SidebarMenuSubButton asChild isActive={isLinkActive(subItem.href, subItem.type)}>
                                           <Link href={subItem.type ? `${subItem.href}?type=${subItem.type}` : subItem.href!}>
                                               <span>{subItem.label}</span>
                                           </Link>
