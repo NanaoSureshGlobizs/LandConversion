@@ -663,9 +663,37 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     }
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
+    // This handles the standard response structure for most lists
     if (data && (data.conversion_applications || data.diversion_applications)) {
         const conversionApps = Array.isArray(data.conversion_applications) ? data.conversion_applications : [];
         const diversionApps = Array.isArray(data.diversion_applications) ? data.diversion_applications : [];
+        const allApps = [...conversionApps, ...diversionApps];
+
+        return { 
+            data: {
+                applications: allApps,
+                pagination: data.pagination
+            }, 
+            log: debugLog 
+        };
+    }
+    
+    // This handles the specific nested structure seen for workflow_sequence_id=2
+    if (data && data['0'] && (data['0'].conversion_applications || data['0'].diversion_applications)) {
+        const appsData = data['0'];
+        let conversionApps: any[] = [];
+        if (Array.isArray(appsData.conversion_applications)) {
+            conversionApps = appsData.conversion_applications;
+        }
+
+        let diversionApps: any[] = [];
+        if (appsData.diversion_applications) {
+            // It's an object, not an array, so we convert it.
+            diversionApps = Object.values(appsData.diversion_applications).filter(
+                (item: any): item is object => typeof item === 'object' && item !== null && 'id' in item
+            );
+        }
+        
         const allApps = [...conversionApps, ...diversionApps];
 
         return { 
@@ -760,15 +788,24 @@ export async function getApplicationById(token: string, id: string, workflow_seq
     
     if (data && (data.conversion_applications || data.diversion_applications)) {
         let applicationData = null;
-        if (data.conversion_applications && data.conversion_applications.length > 0) {
+        if (data.conversion_applications && Array.isArray(data.conversion_applications) && data.conversion_applications.length > 0) {
             applicationData = data.conversion_applications[0];
-        } else if (data.diversion_applications && data.diversion_applications.length > 0) {
+        } else if (data.diversion_applications && Array.isArray(data.diversion_applications) && data.diversion_applications.length > 0) {
             applicationData = data.diversion_applications[0];
+        } else if (data.conversion_applications && typeof data.conversion_applications === 'object' && Object.keys(data.conversion_applications).length > 0) {
+            // Handle case where it's an object instead of an array
+            applicationData = Object.values(data.conversion_applications).find(
+                (item: any): item is object => typeof item === 'object' && item !== null && 'id' in item
+            );
+        } else if (data.diversion_applications && typeof data.diversion_applications === 'object' && Object.keys(data.diversion_applications).length > 0) {
+            applicationData = Object.values(data.diversion_applications).find(
+                (item: any): item is object => typeof item === 'object' && item !== null && 'id' in item
+            );
         }
         
         if (applicationData) {
             // Merge the upload_files from the parent data object into the application data
-            applicationData.upload_files = data.upload_files || [];
+            (applicationData as any).upload_files = data.upload_files || [];
             return { data: applicationData, log: debugLog };
         }
     }
@@ -825,6 +862,7 @@ function addLog(log: string) {
 
 
     
+
 
 
 
