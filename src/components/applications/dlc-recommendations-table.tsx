@@ -91,7 +91,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
   const handleSelectAll = (checked: boolean) => {
     const newSelectedRows: Record<string, boolean> = {};
     if (checked) {
-      applications.forEach(app => {
+      filteredData.forEach(app => {
         newSelectedRows[app.id] = true;
       });
     }
@@ -173,7 +173,7 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
     router.push(`/dashboard/application/${appId}?from=/dashboard/dlc-recommendations&type=${type}`);
   };
 
-  const isAllSelected = applications.length > 0 && selectedIds.length === applications.length;
+  const isAllSelected = filteredData.length > 0 && selectedIds.length === filteredData.length;
 
   return (
     <div className="space-y-4">
