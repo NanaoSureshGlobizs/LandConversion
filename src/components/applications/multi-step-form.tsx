@@ -399,7 +399,7 @@ export function MultiStepForm({
                         onClick={() => setFormType('normal')}
                     >
                         <Building className="mx-auto h-12 w-12 mb-2 text-primary" />
-                        <h3 className="font-semibold text-lg">Normal Area</h3>
+                        <h3 className="font-semibold text-lg">Valley Area</h3>
                     </Card>
                     <Card 
                         className={cn("p-6 cursor-pointer hover:shadow-lg transition-shadow", formType === 'hill' && 'ring-2 ring-primary')}
