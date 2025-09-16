@@ -4,9 +4,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { useDebug } from '@/context/DebugContext';
-import { uploadFile } from '@/app/actions';
-import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,8 +14,6 @@ import Link from 'next/link';
 export default function KmlUploadPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { addLog } = useDebug();
-    const { accessToken } = useAuth(); // Assume we need auth to upload
 
     const [kmlFile, setKmlFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -39,39 +34,42 @@ export default function KmlUploadPage() {
         }
     };
 
-    const handleUpload = async () => {
+    const handleViewFile = async () => {
         if (!kmlFile) {
-            toast({ title: 'No File Selected', description: 'Please choose a KML file to upload.', variant: 'destructive' });
+            toast({ title: 'No File Selected', description: 'Please choose a KML file to view.', variant: 'destructive' });
             return;
         }
 
-        if (!accessToken) {
-            toast({ title: 'Authentication Error', description: 'You must be logged in to upload files.', variant: 'destructive' });
-            return;
-        }
-        
         setIsLoading(true);
 
-        const formData = new FormData();
-        formData.append('kml_file', kmlFile);
-
-        const result = await uploadFile(formData, accessToken);
-        if (result.debugLog) addLog(result.debugLog);
-
-        if (result.success && result.data?.file_url) {
-            toast({ title: 'Upload Successful', description: 'Redirecting to KML viewer...' });
-            
-            // The API response from uploadFile should contain the full URL
-            const fileUrl = result.data.file_url;
-            router.push(`/kml-viewer?url=${encodeURIComponent(fileUrl)}`);
-        } else {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const content = e.target?.result;
+                if (typeof content !== 'string') {
+                    throw new Error("Failed to read file content.");
+                }
+                // Create a data URI from the KML content
+                const dataUri = `data:application/vnd.google-earth.kml+xml;charset=utf-8,${encodeURIComponent(content)}`;
+                router.push(`/kml-viewer?url=${encodeURIComponent(dataUri)}`);
+            } catch (error) {
+                toast({
+                    title: 'Error Reading File',
+                    description: error instanceof Error ? error.message : 'Could not process the KML file.',
+                    variant: 'destructive'
+                });
+                setIsLoading(false);
+            }
+        };
+        reader.onerror = () => {
             toast({
-                title: 'Upload Failed',
-                description: result.message || 'Could not upload the KML file.',
+                title: 'File Read Error',
+                description: 'There was an error reading the selected file.',
                 variant: 'destructive'
             });
             setIsLoading(false);
-        }
+        };
+        reader.readAsText(kmlFile);
     };
 
     return (
@@ -82,10 +80,10 @@ export default function KmlUploadPage() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-headline text-2xl">
                         <FileUp className="h-6 w-6 text-primary" />
-                        Upload KML File
+                        View Local KML File
                     </CardTitle>
                     <CardDescription>
-                        Select a .kml file from your device to view it on the map.
+                        Select a .kml file from your device to view it on the map. Your file will not be uploaded.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -120,13 +118,13 @@ export default function KmlUploadPage() {
                             onChange={handleFileChange}
                         />
                     </div>
-                    <Button onClick={handleUpload} disabled={isLoading || !kmlFile} className="w-full">
+                    <Button onClick={handleViewFile} disabled={isLoading || !kmlFile} className="w-full">
                         {isLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
                             <FileUp className="mr-2 h-4 w-4" />
                         )}
-                        Upload and View
+                        View on Map
                     </Button>
                      <Button variant="link" asChild className="w-full">
                         <Link href="/">Back to Login</Link>
