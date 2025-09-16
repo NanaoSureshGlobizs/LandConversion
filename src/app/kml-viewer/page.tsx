@@ -109,7 +109,7 @@ export default function KmlViewerPage() {
                 }
                 delete (window as any).initMap;
             };
-        } else if (typeof google !== 'undefined' && google.maps) {
+        } else if (typeof google !== 'undefined' && google.maps && !isMapInitialized.current) {
             initMap();
         }
 
