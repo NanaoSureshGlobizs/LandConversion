@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +11,7 @@ import { format, parse } from 'date-fns';
 import { Loader2, Mountain, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { submitApplication } from '@/app/actions';
+import { submitApplication, getDistrictsByLandType } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { FullApplicationResponse } from '@/lib/definitions';
@@ -210,7 +211,7 @@ const steps = [
 
 export function MultiStepForm({
   existingApplication,
-  districts,
+  districts: initialDistricts,
   circles,
   subDivisions,
   villages,
@@ -230,6 +231,8 @@ export function MultiStepForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documentType, setDocumentType] = useState<'land_diversion' | 'land_conversion'>('land_conversion');
   const [formType, setFormType] = useState<'normal' | 'hill' | null>(null);
+  const [districts, setDistricts] = useState<District[]>(initialDistricts);
+  const [isFetchingDistricts, setIsFetchingDistricts] = useState(false);
 
   const finalSchema = (formType === 'normal' ? normalFormSchema : baseFormSchema).superRefine((data, ctx) => {
     const otherPurpose = purposes.find(p => p.name === 'Other');
@@ -256,7 +259,7 @@ export function MultiStepForm({
     defaultValues: getInitialValues(existingApplication),
   });
 
-  const { handleSubmit, trigger, watch } = methods;
+  const { handleSubmit, trigger, watch, setValue } = methods;
 
   const watchedLandUseChangeId = watch('change_of_land_use_id');
  
@@ -272,6 +275,17 @@ export function MultiStepForm({
       }
     }
   }, [watchedLandUseChangeId, changeOfLandUseDates, addLog]);
+  
+  const handleSetFormType = async (type: 'normal' | 'hill') => {
+    setFormType(type);
+    setIsFetchingDistricts(true);
+    setValue('district_id', ''); // Reset district on type change
+    const landType = type === 'normal' ? 'valley' : 'hill';
+    const { data, log } = await getDistrictsByLandType(accessToken, landType);
+    addLog(log || `Fetched districts for ${landType}`);
+    setDistricts(data);
+    setIsFetchingDistricts(false);
+  }
 
   const handleNext = async () => {
     // If we are at the type selection step, just move to the next step.
@@ -396,19 +410,28 @@ export function MultiStepForm({
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Card 
                         className={cn("p-6 cursor-pointer hover:shadow-lg transition-shadow", formType === 'normal' && 'ring-2 ring-primary')}
-                        onClick={() => setFormType('normal')}
+                        onClick={() => handleSetFormType('normal')}
                     >
                         <Building className="mx-auto h-12 w-12 mb-2 text-primary" />
                         <h3 className="font-semibold text-lg">Valley Area</h3>
                     </Card>
                     <Card 
                         className={cn("p-6 cursor-pointer hover:shadow-lg transition-shadow", formType === 'hill' && 'ring-2 ring-primary')}
-                        onClick={() => setFormType('hill')}
+                        onClick={() => handleSetFormType('hill')}
                     >
                         <Mountain className="mx-auto h-12 w-12 mb-2 text-primary" />
                         <h3 className="font-semibold text-lg">Hill Area</h3>
                     </Card>
                 </div>
+            </div>
+        )
+    }
+    
+    if (isFetchingDistricts) {
+        return (
+            <div className='flex items-center justify-center h-48'>
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <p className='ml-2'>Fetching districts...</p>
             </div>
         )
     }
@@ -481,7 +504,7 @@ export function MultiStepForm({
                   <Button
                     type="button"
                     onClick={handlePrev}
-                    disabled={currentStep === 0 || isSubmitting}
+                    disabled={isSubmitting || currentStep === 0}
                     variant="outline"
                   >
                     Go Back
@@ -490,7 +513,7 @@ export function MultiStepForm({
                     <Button
                         type="button"
                         onClick={handleNext}
-                        disabled={isSubmitting || (currentStep === 0 && !formType)}
+                        disabled={isSubmitting || (currentStep === 0 && !formType) || isFetchingDistricts}
                     >
                         Next Step
                     </Button>

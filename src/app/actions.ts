@@ -648,6 +648,11 @@ export async function getDistricts(token: string) {
     const { data, debugLog } = await fetchFromApi('/district', token);
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
+export async function getDistrictsByLandType(token: string, landType: 'hill' | 'valley') {
+    const endpoint = `/district/get-by-land-type-for-${landType}`;
+    const { data, debugLog } = await fetchFromApi(endpoint, token);
+    return { data: Array.isArray(data) ? data : [], log: debugLog };
+}
 export async function getCircles(token: string) {
     const { data, debugLog } = await fetchFromApi('/circle', token);
     return { data: Array.isArray(data) ? data : [], log: debugLog };
@@ -905,6 +910,7 @@ function addLog(log: string) {
 
 
     
+
 
 
 
