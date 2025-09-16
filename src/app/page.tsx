@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { citizenSignUp, citizenSendOtp, citizenVerifyOtp } from './actions';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Map } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
 import { ForwardForm } from '@/components/applications/forward-form';
@@ -244,8 +244,9 @@ export default function LoginPage() {
             {renderFormContent()}
             <div className="mt-4 text-center">
                 <Button variant="secondary" asChild>
-                    <Link href="/kml-viewer?url=https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml" target="_blank">
-                        Test KML Viewer
+                    <Link href="/kml-upload" target="_blank">
+                        <Map className="mr-2" />
+                        KML Uploader
                     </Link>
                 </Button>
             </div>
