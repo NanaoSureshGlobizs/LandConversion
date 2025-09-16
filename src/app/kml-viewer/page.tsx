@@ -178,18 +178,6 @@ export default function KmlViewerPage() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
-                <div className="text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                    <p>Loading map...</p>
-                </div>
-            </div>
-        );
-    }
-
-
     return (
         <div className='flex h-screen w-screen bg-background'>
             <aside className='w-full max-w-xs flex flex-col border-r'>
@@ -221,7 +209,15 @@ export default function KmlViewerPage() {
                     )}
                 </ScrollArea>
             </aside>
-            <main className='flex-1 h-full'>
+            <main className='flex-1 h-full relative'>
+                 {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
+                        <div className="text-center">
+                            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                            <p>Loading map...</p>
+                        </div>
+                    </div>
+                )}
                  <div ref={mapRef} id="map" className='h-full w-full'></div>
             </main>
         </div>
