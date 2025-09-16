@@ -497,6 +497,45 @@ export async function forwardApplication(payload: any, token: string | undefined
 }
 
 
+export async function submitMarsacReport(payload: any, token: string | undefined) {
+  if (!token) {
+    return { success: false, message: 'Authentication token not found.', debugLog: 'submitMarsacReport Error: No auth token provided.' };
+  }
+
+  const url = `${API_BASE_URL}/marsac-entry`;
+  let debugLog = '--- Submitting MARSAC Report ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '----------------------------\n';
+    
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+    }
+
+    return { ...result, debugLog };
+  } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '----------------------------\n';
+    console.error('submitMarsacReport error:', error);
+    return { success: false, message: 'An unexpected error occurred.', debugLog };
+  }
+}
+
+
 // --- LEGACY DATA ACTIONS ---
 export async function getLegacyData(accessToken: string, page = 1, limit = 10) {
     if (!accessToken) {
@@ -864,6 +903,7 @@ function addLog(log: string) {
 
 
     
+
 
 
 

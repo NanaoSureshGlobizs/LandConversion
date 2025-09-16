@@ -9,6 +9,7 @@
 
 
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -34,6 +35,11 @@ export interface ApplicationStatusOption {
 export interface Relationship {
   id: number;
   name: string;
+}
+
+export interface AreaUnit {
+    id: number;
+    name: string;
 }
 
 // This is based on the `data` object in the API response for a single application

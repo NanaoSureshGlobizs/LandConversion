@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useSearchParams } from 'next/navigation';
@@ -15,7 +16,7 @@ import { ArrowLeft, Download, FileText, Printer, Edit, Loader2 } from 'lucide-re
 import { getApplicationById, getApplicationWorkflow } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
-import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem } from '@/lib/definitions';
+import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem, AreaUnit } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -24,6 +25,7 @@ import { SurveyReportDialog } from '@/components/applications/survey-report-dial
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
 import { TrackingTimeline } from '@/components/applications/tracking-timeline';
+import { MarsacReportDialog } from './marsac-report-dialog';
 
 
 function DetailItem({
@@ -44,7 +46,7 @@ function DetailItem({
 }
 
 // This is the Client Component that handles rendering and interactivity.
-export function DetailPageClient({ id, accessToken, initialApplication, initialLog, statuses }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: (string | undefined)[], statuses: ApplicationStatusOption[] }) {
+export function DetailPageClient({ id, accessToken, initialApplication, initialLog, statuses, areaUnits }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: (string | undefined)[], statuses: ApplicationStatusOption[], areaUnits: AreaUnit[] }) {
   const { role } = useAuth();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
@@ -120,6 +122,15 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                    </Button>
                 </SurveyReportDialog>
              );
+        case 'MARSAC_Report':
+            return (
+                <MarsacReportDialog application={application!} accessToken={accessToken} onSuccess={refreshData} areaUnits={areaUnits}>
+                    <Button variant="default">
+                        <FileText className="mr-2" />
+                        {application?.button_name || 'MARSAC Report'}
+                    </Button>
+                </MarsacReportDialog>
+            )
         case 'LLMC_Report':
             // Logic for LLMC Report if needed
             return null; // Or a specific button
