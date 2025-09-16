@@ -93,6 +93,7 @@ export default function KmlViewerPage() {
 
     useEffect(() => {
         if (isMapInitialized.current) return;
+        isMapInitialized.current = true;
 
         const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyC8hH3cmd3-OiH4j0jn8e2i3uECyVKpk-o';
         
@@ -103,11 +104,12 @@ export default function KmlViewerPage() {
 
         loader.load().then(() => {
             if (!mapRef.current) return;
-            isMapInitialized.current = true;
             
             const mapInstance = new google.maps.Map(mapRef.current, {
                 zoom: 5,
                 center: { lat: 26.8, lng: 80.9 }, // Centered on India
+                mapTypeControl: false,
+                streetViewControl: false,
             });
             setMap(mapInstance);
             setIsLoading(false);
@@ -160,6 +162,7 @@ export default function KmlViewerPage() {
         }).catch(e => {
             console.error("Failed to initialize map or load KML:", e);
             setIsLoading(false);
+            setIsPlacemarksLoading(false);
         });
 
     }, []);
@@ -167,57 +170,60 @@ export default function KmlViewerPage() {
     const zoomToPlacemark = (placemark: Placemark) => {
         if (map) {
             map.fitBounds(placemark.bounds);
+             // Add a small zoom out after fitting bounds if it's too close
+            const listener = google.maps.event.addListener(map, 'idle', function() { 
+                if (map.getZoom()! > 15) map.setZoom(15); 
+                google.maps.event.removeListener(listener); 
+            });
         }
     };
 
-    return (
-        <div className='relative h-screen w-screen'>
-            {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
-                    <div className="text-center">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                        <p>Loading map...</p>
-                    </div>
+    if (isLoading) {
+        return (
+            <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                    <p>Loading map...</p>
                 </div>
-            )}
-            <div className="absolute top-4 left-4 z-10 bg-background/80 backdrop-blur-sm rounded-lg shadow-lg max-w-sm w-full">
-                <Collapsible defaultOpen={true}>
-                    <CollapsibleTrigger asChild>
-                        <Button variant="ghost" className="w-full justify-between p-4">
-                            <h2 className="text-lg font-semibold">Placemarks</h2>
-                            <ChevronDown />
-                        </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                        <ScrollArea className="h-64 px-4 pb-4">
-                            {isPlacemarksLoading ? (
-                                <div className="flex items-center justify-center h-full">
-                                    <Loader2 className="h-6 w-6 animate-spin" />
-                                </div>
-                            ) : placemarks.length > 0 ? (
-                                <ul className="space-y-2">
-                                    {placemarks.map(p => (
-                                        <li key={p.id}>
-                                            <Button 
-                                                variant="ghost" 
-                                                className="w-full justify-start text-left h-auto py-2"
-                                                onClick={() => zoomToPlacemark(p)}
-                                            >
-                                                {getIconForType(p.type)}
-                                                {p.name}
-                                            </Button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-sm text-muted-foreground text-center py-4">No placemarks found in KML file.</p>
-                            )}
-                        </ScrollArea>
-                    </CollapsibleContent>
-                </Collapsible>
             </div>
-            <div ref={mapRef} id="map" className='h-full w-full'></div>
+        );
+    }
+
+
+    return (
+        <div className='flex h-screen w-screen bg-background'>
+            <aside className='w-full max-w-xs flex flex-col border-r'>
+                 <div className="p-4 border-b">
+                    <h2 className="text-lg font-semibold">Placemarks</h2>
+                 </div>
+                 <ScrollArea className="flex-1">
+                    {isPlacemarksLoading ? (
+                        <div className="flex items-center justify-center h-full p-4">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                        </div>
+                    ) : placemarks.length > 0 ? (
+                        <ul className="space-y-1 p-2">
+                            {placemarks.map(p => (
+                                <li key={p.id}>
+                                    <Button 
+                                        variant="ghost" 
+                                        className="w-full justify-start text-left h-auto py-2"
+                                        onClick={() => zoomToPlacemark(p)}
+                                    >
+                                        {getIconForType(p.type)}
+                                        <span className="flex-1 truncate">{p.name}</span>
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-muted-foreground text-center p-4">No placemarks found in KML file.</p>
+                    )}
+                </ScrollArea>
+            </aside>
+            <main className='flex-1 h-full'>
+                 <div ref={mapRef} id="map" className='h-full w-full'></div>
+            </main>
         </div>
     );
 }
-
