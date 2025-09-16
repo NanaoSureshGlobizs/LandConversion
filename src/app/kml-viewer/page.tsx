@@ -11,6 +11,19 @@ export default function KmlViewerPage() {
 
     useEffect(() => {
         const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyC8hH3cmd3-OiH4j0jn8e2i3uECyVKpk-o';
+        const scriptId = 'google-maps-script';
+
+        // Exit if the script is already loaded or in the process of being loaded
+        if (window.google && window.google.maps) {
+            if (!isMapInitialized.current) {
+                initMap();
+            }
+            return;
+        }
+
+        if (document.getElementById(scriptId)) {
+            return;
+        }
         
         let map: google.maps.Map;
         let currentKmlLayer: google.maps.KmlLayer | null;
@@ -91,27 +104,28 @@ export default function KmlViewerPage() {
             }
         };
 
-        const scriptId = 'google-maps-script';
+        // Define the callback function on the window object
+        (window as any).initMap = initMap;
         
-        if (!document.getElementById(scriptId)) {
-            (window as any).initMap = initMap;
-            const script = document.createElement('script');
-            script.id = scriptId;
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
+        // Create and append the script tag
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
 
-            return () => {
-                const existingScript = document.getElementById(scriptId);
-                if (existingScript) {
-                    document.head.removeChild(existingScript);
-                }
+        // Cleanup function to run when the component unmounts
+        return () => {
+            const existingScript = document.getElementById(scriptId);
+            if (existingScript) {
+                document.head.removeChild(existingScript);
+            }
+            // It's important to remove the callback function from the window object as well
+            if ((window as any).initMap) {
                 delete (window as any).initMap;
-            };
-        } else if (typeof google !== 'undefined' && google.maps && !isMapInitialized.current) {
-            initMap();
-        }
+            }
+        };
 
     }, []);
 
