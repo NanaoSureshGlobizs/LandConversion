@@ -108,7 +108,11 @@ export default function KmlViewerPage() {
             const mapInstance = new google.maps.Map(mapRef.current, {
                 zoom: 5,
                 center: { lat: 26.8, lng: 80.9 }, // Centered on India
-                mapTypeControl: false,
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                  style: google.maps.MapTypeControlStyle.DEFAULT,
+                  position: google.maps.ControlPosition.RIGHT_TOP,
+                },
                 streetViewControl: false,
             });
             setMap(mapInstance);
