@@ -14,7 +14,7 @@ export default function KmlViewerPage() {
         const scriptId = 'google-maps-script';
 
         let map: google.maps.Map;
-        let currentKmlLayer: google.maps.KmlLayer | null;
+        let currentKmlLayer: google.maps.KmlLayer | null = null;
 
         function loadKML(kmlContent: string) {
             if (!kmlContent) {
@@ -23,7 +23,10 @@ export default function KmlViewerPage() {
                 return;
             }
 
-            clearKML();
+            if (currentKmlLayer) {
+                currentKmlLayer.setMap(null);
+                currentKmlLayer = null;
+            }
 
             try {
                 const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
@@ -37,25 +40,26 @@ export default function KmlViewerPage() {
                 });
 
                 currentKmlLayer.addListener('defaultviewport_changed', function() {
-                    const bounds = currentKmlLayer!.getDefaultViewport();
-                    if (bounds) {
-                        map.fitBounds(bounds);
+                    if (currentKmlLayer) {
+                        const bounds = currentKmlLayer.getDefaultViewport();
+                        if (bounds) {
+                            map.fitBounds(bounds);
+                        }
                     }
                 });
 
                 currentKmlLayer.addListener('status_changed', function() {
-                    const status = currentKmlLayer!.getStatus();
-                    if (status === google.maps.KmlLayerStatus.INVALID_DOCUMENT) {
-                        console.error('Invalid KML document');
-                        alert('Invalid KML document');
-                    } else if (status === google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND) {
-                        console.error('KML document not found');
-                        alert('KML document not found');
-                    } else if (status === google.maps.KmlLayerStatus.OK) {
-                        console.log('KML loaded successfully and zoomed to bounds');
-                        setTimeout(() => URL.revokeObjectURL(url), 500);
+                    if (currentKmlLayer) {
+                        const status = currentKmlLayer.getStatus();
+                        if (status !== google.maps.KmlLayerStatus.OK) {
+                            console.error(`KML Layer status: ${status}`);
+                        } else {
+                            console.log('KML loaded successfully.');
+                        }
                     }
                 });
+                // The URL is revoked after a short delay to give the map time to process it.
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
 
             } catch (error) {
                 console.error('Error loading KML:', error);
@@ -64,20 +68,14 @@ export default function KmlViewerPage() {
                 }
             }
         }
-
-        function clearKML() {
-            if (currentKmlLayer) {
-                currentKmlLayer.setMap(null);
-                currentKmlLayer = null;
-            }
-        }
-
+        
         function initMap() {
-            if (loadingRef.current) {
-                loadingRef.current.style.display = 'none';
-            }
             if (mapRef.current && !isMapInitialized.current) {
                 isMapInitialized.current = true;
+                if (loadingRef.current) {
+                    loadingRef.current.style.display = 'none';
+                }
+
                 map = new google.maps.Map(mapRef.current, {
                     zoom: 2,
                     center: { lat: 0, lng: 0 }
@@ -92,38 +90,36 @@ export default function KmlViewerPage() {
             }
         };
 
-        // If the script is already loaded, just initialize the map.
         if (window.google && window.google.maps) {
             initMap();
-            return;
+        } else {
+            const script = document.getElementById(scriptId) as HTMLScriptElement;
+            if (script) {
+                // If script is already in the DOM, it might still be loading,
+                // so we attach our initMap to its load event.
+                const oldCallback = (window as any).initMap;
+                script.addEventListener('load', initMap);
+                 if (oldCallback) {
+                     script.removeEventListener('load', oldCallback);
+                 }
+            } else {
+                // If script does not exist, create it and add it to the page.
+                (window as any).initMap = initMap;
+                const newScript = document.createElement('script');
+                newScript.id = scriptId;
+                newScript.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
+                newScript.async = true;
+                newScript.defer = true;
+                document.head.appendChild(newScript);
+            }
         }
 
-        // If the script is not loaded, add it to the page.
-        // Check if the script tag already exists to prevent duplicates.
-        if (!document.getElementById(scriptId)) {
-            // Define the callback function on the window object
-            (window as any).initMap = initMap;
-            
-            const script = document.createElement('script');
-            script.id = scriptId;
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-
-            // Cleanup function to run when the component unmounts
-            return () => {
-                const existingScript = document.getElementById(scriptId);
-                if (existingScript) {
-                    // It's generally not recommended to remove the Google Maps script,
-                    // but we clear the callback to prevent issues on re-mounts.
-                    // document.head.removeChild(existingScript);
-                }
-                if ((window as any).initMap) {
-                    delete (window as any).initMap;
-                }
-            };
-        }
+        // Cleanup function to remove the global callback and potentially the script
+        return () => {
+            if ((window as any).initMap) {
+                delete (window as any).initMap;
+            }
+        };
     }, []);
 
     return (

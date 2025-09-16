@@ -221,14 +221,15 @@ export async function logout() {
 export async function checkAuth() {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken');
-  const role = cookieStore.get('userRole');
-  const access = cookieStore.get('userAccess');
-  const userId = cookieStore.get('userId');
   
   if (!accessToken?.value) {
     return { isAuthenticated: false, role: null, access: [], userId: null };
   }
   
+  const role = cookieStore.get('userRole');
+  const access = cookieStore.get('userAccess');
+  const userId = cookieStore.get('userId');
+
   try {
     const accessArray = access ? JSON.parse(access.value) : [];
     return { 
@@ -239,6 +240,7 @@ export async function checkAuth() {
     };
   } catch (error) {
     console.error("Failed to parse user access cookie:", error);
+    // Fallback to authenticated state with empty access if parsing fails
     return { isAuthenticated: true, role: role?.value || null, access: [], userId: userId?.value || null };
   }
 }
@@ -903,6 +905,7 @@ function addLog(log: string) {
 
 
     
+
 
 
 
