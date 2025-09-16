@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -242,5 +241,3 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
     </div>
   );
 }
-
-    

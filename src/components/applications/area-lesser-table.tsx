@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -84,7 +83,7 @@ export function AreaLesserTable({ initialData, accessToken, statuses }: AreaLess
               <TableHead>Applied Area</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -102,7 +101,7 @@ export function AreaLesserTable({ initialData, accessToken, statuses }: AreaLess
                   <TableCell>
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/area-lesser&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>

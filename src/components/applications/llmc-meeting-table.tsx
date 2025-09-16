@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -148,7 +146,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
                       </Badge>
                   </TableCell>
                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-meeting&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
@@ -196,7 +194,3 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
     </div>
   );
 }
-
-    
-
-    

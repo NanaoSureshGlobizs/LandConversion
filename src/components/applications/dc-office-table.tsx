@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -71,7 +70,7 @@ export function DcOfficeTable({ initialData, accessToken, statuses }: DcOfficeTa
               <TableHead>Applied Area</TableHead>
               <TableHead>Application Date</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -85,7 +84,7 @@ export function DcOfficeTable({ initialData, accessToken, statuses }: DcOfficeTa
                   <TableCell>
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/dc-office`}>View</Link>

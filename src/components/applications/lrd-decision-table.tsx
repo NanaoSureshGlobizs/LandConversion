@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -110,7 +109,7 @@ export function LrdDecisionTable({ initialData, accessToken, statuses }: LrdDeci
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/lrd-decision`}>View</Link>

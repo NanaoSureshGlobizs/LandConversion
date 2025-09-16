@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -238,7 +237,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
                   <TableCell>
                      <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                        {renderActions(app)}
                        <Button variant="outline" size="sm" asChild>

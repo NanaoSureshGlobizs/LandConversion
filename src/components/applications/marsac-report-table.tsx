@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -81,7 +80,7 @@ export function MarsacReportTable({ initialData, accessToken, statuses }: Marsac
               <TableHead>Applied Area</TableHead>
               <TableHead>Application Date</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -95,7 +94,7 @@ export function MarsacReportTable({ initialData, accessToken, statuses }: Marsac
                   <TableCell>
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/marsac-report&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>

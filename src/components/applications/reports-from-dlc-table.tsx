@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -145,7 +144,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
               <TableHead>Applied Area</TableHead>
               <TableHead>Date of Submission</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -159,7 +158,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
                   <TableCell>
                      <Badge variant={'secondary'}>{app.application_status.name}</Badge>
                   </TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/dashboard/application/${app.id}?from=/dashboard/reports-from-dlc&type=${type}`}>View</Link>
                     </Button>
