@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,32 @@ interface SurveyReportDialogProps {
     onSuccess?: () => void;
 }
 
+const surveyChecklists = {
+    'Survey': [
+        { id: 'land_acquisition', label: 'The land is affected by land acquisition' }
+    ],
+    'Survey_2': [
+        { id: 'adverse_ecology', label: 'The reclamation of paddy land shall not adversely affect the ecological condition and the agricultural activities in the adjoining paddy land' },
+        { id: 'surrounded_by_paddy', label: 'The said land is not surrounded on all four sides by paddy land' }
+    ],
+    'Survey_3': [
+        { id: 'forest_area', label: 'Land falls under forest area' },
+        { id: 'violates_master_plan', label: 'The proposal violates the Greater Imphal Master Plan 2043' }
+    ],
+    'Survey_4': [
+        { id: 'adverse_ecology_2', label: 'The reclamation of paddy land shall not adversely affect the ecological condition and the agricultural activities in the adjoining paddy land' },
+        { id: 'surrounded_by_paddy_2', label: 'The said land is not surrounded on all four sides by paddy land' }
+    ]
+};
+
+const surveyTitles = {
+    'Survey': 'Land Acquisition Check',
+    'Survey_2': 'Paddy Land Assessment',
+    'Survey_3': 'Environmental and Planning Compliance',
+    'Survey_4': 'Additional Paddy Land Verification'
+}
+
+
 export function SurveyReportDialog({ children, application, statuses, accessToken, onSuccess }: SurveyReportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,26 +70,30 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
   const { toast } = useToast();
   const { addLog } = useDebug();
 
-  const [noHomestead, setNoHomestead] = useState(false);
-  const [notAffected, setNotAffected] = useState(false);
-  const [notForest, setNotForest] = useState(false);
+  const [checkboxes, setCheckboxes] = useState<Record<string, boolean>>({});
   const [status, setStatus] = useState('');
   const [reportFile, setReportFile] = useState<File | null>(null);
   const [remarks, setRemarks] = useState('');
   const [landSchedule, setLandSchedule] = useState('');
   const [sendToDc, setSendToDc] = useState(false);
   const [sendToSdao, setSendToSdao] = useState(false);
+
+  const formType = application.form_type as keyof typeof surveyChecklists;
+  const checklist = useMemo(() => surveyChecklists[formType] || [], [formType]);
+  const dialogTitle = useMemo(() => surveyTitles[formType] || 'Survey Report', [formType]);
   
   const resetForm = () => {
-    setNoHomestead(false);
-    setNotAffected(false);
-    setNotForest(false);
+    setCheckboxes({});
     setStatus('');
     setReportFile(null);
     setRemarks('');
     setLandSchedule('');
     setSendToDc(false);
     setSendToSdao(false);
+  }
+
+  const handleCheckboxChange = (id: string, checked: boolean) => {
+    setCheckboxes(prev => ({ ...prev, [id]: checked }));
   }
 
   const handleSubmit = async () => {
@@ -78,7 +109,6 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
     setIsLoading(true);
 
     let uploadedFileName = '';
-    // Step 1: Upload the file if it exists
     if (reportFile) {
         const formData = new FormData();
         formData.append('workflow_attachment', reportFile);
@@ -87,47 +117,33 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         if(uploadResult.debugLog) addLog(uploadResult.debugLog);
 
         if (!uploadResult.success || !uploadResult.data.filename) {
-            toast({
-                title: 'File Upload Failed',
-                description: uploadResult.message || 'Could not upload the survey report.',
-                variant: 'destructive'
-            });
+            toast({ title: 'File Upload Failed', description: uploadResult.message || 'Could not upload the survey report.', variant: 'destructive'});
             setIsLoading(false);
             return;
         }
         uploadedFileName = uploadResult.data.filename;
     }
 
-    // Step 2: Submit the survey report details using the forwardApplication action
-    const fullRemarks = `Land Schedule: ${landSchedule}\n\nRemarks: ${remarks}`;
+    const fullRemarks = `Land Schedule: ${landSchedule}\n\nChecklist: ${JSON.stringify(checkboxes)}\n\nRemarks: ${remarks}`;
     
     const payload = {
         application_details_id: application.id,
         verification_status_id: parseInt(status),
         remark: fullRemarks,
         attachment: uploadedFileName,
-        status: 1, // 1 for forward/update
-        // Add other survey-specific fields if the API supports them under the /workflow endpoint
-        survey_status: noHomestead && notAffected && notForest ? '1' : '0',
+        status: 1,
     };
 
     const submitResult = await forwardApplication(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
     if (submitResult.success) {
-        toast({
-            title: 'Survey Report Submitted',
-            description: 'The report has been sent successfully.'
-        });
+        toast({ title: 'Survey Report Submitted', description: 'The report has been sent successfully.'});
         resetForm();
         setIsOpen(false);
         onSuccess?.();
     } else {
-        toast({
-            title: 'Submission Failed',
-            description: submitResult.message || 'Could not submit the survey report.',
-            variant: 'destructive'
-        });
+        toast({ title: 'Submission Failed', description: submitResult.message || 'Could not submit the survey report.', variant: 'destructive' });
     }
 
     setIsLoading(false);
@@ -138,85 +154,51 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">Survey Report</DialogTitle>
+          <DialogTitle className="font-headline">{dialogTitle}</DialogTitle>
+           <DialogDescription>Complete the checklist and submit the report.</DialogDescription>
         </DialogHeader>
         <div className="space-y-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <Label htmlFor="no-homestead" className="flex-1">Applicant & family have no homestead land</Label>
-                    <div className="flex items-center gap-4">
-                       <Checkbox id="no-homestead" checked={noHomestead} onCheckedChange={(checked) => setNoHomestead(!!checked)} />
-                    </div>
+            
+            {checklist.length > 0 && (
+                <div className="space-y-4 rounded-md border p-4">
+                    {checklist.map(item => (
+                        <div key={item.id} className="flex items-start justify-between">
+                            <Label htmlFor={item.id} className="flex-1 pr-4">{item.label}</Label>
+                            <Checkbox id={item.id} checked={checkboxes[item.id] || false} onCheckedChange={(checked) => handleCheckboxChange(item.id, !!checked)} />
+                        </div>
+                    ))}
                 </div>
-                 <div className="flex items-center justify-between">
-                    <Label htmlFor="not-affected" className="flex-1">Land not affected by land acquisition</Label>
-                    <div className="flex items-center gap-4">
-                       <Checkbox id="not-affected" checked={notAffected} onCheckedChange={(checked) => setNotAffected(!!checked)} />
-                    </div>
-                </div>
-                 <div className="flex items-center justify-between">
-                    <Label htmlFor="not-forest" className="flex-1">Land not falling under forest Area (Ha)s</Label>
-                    <div className="flex items-center gap-4">
-                       <Checkbox id="not-forest" checked={notForest} onCheckedChange={(checked) => setNotForest(!!checked)} />
-                    </div>
-                </div>
-            </div>
+            )}
+
             <div className='space-y-2'>
                 <Label htmlFor="land_schedule">Land Schedule</Label>
-                <Textarea 
-                    id="land_schedule"
-                    placeholder="Enter land schedule details..."
-                    value={landSchedule}
-                    onChange={(e) => setLandSchedule(e.target.value)}
-                />
+                <Textarea id="land_schedule" placeholder="Enter land schedule details..." value={landSchedule} onChange={(e) => setLandSchedule(e.target.value)} />
             </div>
             <div className='space-y-2'>
                 <Label htmlFor="status">Status</Label>
                 <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger id="status">
-                        <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
+                    <SelectTrigger id="status"><SelectValue placeholder="Select Status" /></SelectTrigger>
                     <SelectContent>
-                        {statuses.map((s) => (
-                           <SelectItem key={s.id} value={s.id.toString()}>{s.status_name}</SelectItem>
-                        ))}
+                        {statuses.map((s) => (<SelectItem key={s.id} value={s.id.toString()}>{s.status_name}</SelectItem>))}
                     </SelectContent>
                 </Select>
             </div>
              <div className='space-y-2'>
                 <Label htmlFor="upload-report">Upload Report (Optional)</Label>
-                <Input 
-                    id="upload-report" 
-                    type="file" 
-                    onChange={(e) => setReportFile(e.target.files?.[0] || null)}
-                    accept="application/pdf,image/*"
-                />
+                <Input id="upload-report" type="file" onChange={(e) => setReportFile(e.target.files?.[0] || null)} accept="application/pdf,image/*" />
             </div>
             <div className='space-y-2'>
                 <Label htmlFor="remarks">Remarks</Label>
-                <Textarea 
-                    id="remarks"
-                    placeholder="Enter remarks..."
-                    value={remarks}
-                    onChange={(e) => setRemarks(e.target.value)}
-                />
+                <Textarea id="remarks" placeholder="Enter remarks..." value={remarks} onChange={(e) => setRemarks(e.target.value)} />
             </div>
             <div className="space-y-3">
                 <Label className='font-semibold'>Auto-Email</Label>
                 <div className="flex items-center space-x-2">
-                    <Checkbox 
-                        id="send-dc"
-                        checked={sendToDc}
-                        onCheckedChange={(checked) => setSendToDc(!!checked)}
-                    />
+                    <Checkbox id="send-dc" checked={sendToDc} onCheckedChange={(checked) => setSendToDc(!!checked)} />
                     <Label htmlFor="send-dc">Send to DCs of valley/surveyed districts</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Checkbox 
-                        id="send-sdao"
-                        checked={sendToSdao}
-                        onCheckedChange={(checked) => setSendToSdao(!!checked)}
-                    />
+                    <Checkbox id="send-sdao" checked={sendToSdao} onCheckedChange={(checked) => setSendToSdao(!!checked)} />
                     <Label htmlFor="send-sdao">Send to SDAO</Label>
                 </div>
             </div>
