@@ -13,18 +13,6 @@ export default function KmlViewerPage() {
         const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyC8hH3cmd3-OiH4j0jn8e2i3uECyVKpk-o';
         const scriptId = 'google-maps-script';
 
-        // Exit if the script is already loaded or in the process of being loaded
-        if (window.google && window.google.maps) {
-            if (!isMapInitialized.current) {
-                initMap();
-            }
-            return;
-        }
-
-        if (document.getElementById(scriptId)) {
-            return;
-        }
-        
         let map: google.maps.Map;
         let currentKmlLayer: google.maps.KmlLayer | null;
 
@@ -104,29 +92,38 @@ export default function KmlViewerPage() {
             }
         };
 
-        // Define the callback function on the window object
-        (window as any).initMap = initMap;
-        
-        // Create and append the script tag
-        const script = document.createElement('script');
-        script.id = scriptId;
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+        // If the script is already loaded, just initialize the map.
+        if (window.google && window.google.maps) {
+            initMap();
+            return;
+        }
 
-        // Cleanup function to run when the component unmounts
-        return () => {
-            const existingScript = document.getElementById(scriptId);
-            if (existingScript) {
-                document.head.removeChild(existingScript);
-            }
-            // It's important to remove the callback function from the window object as well
-            if ((window as any).initMap) {
-                delete (window as any).initMap;
-            }
-        };
+        // If the script is not loaded, add it to the page.
+        // Check if the script tag already exists to prevent duplicates.
+        if (!document.getElementById(scriptId)) {
+            // Define the callback function on the window object
+            (window as any).initMap = initMap;
+            
+            const script = document.createElement('script');
+            script.id = scriptId;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
 
+            // Cleanup function to run when the component unmounts
+            return () => {
+                const existingScript = document.getElementById(scriptId);
+                if (existingScript) {
+                    // It's generally not recommended to remove the Google Maps script,
+                    // but we clear the callback to prevent issues on re-mounts.
+                    // document.head.removeChild(existingScript);
+                }
+                if ((window as any).initMap) {
+                    delete (window as any).initMap;
+                }
+            };
+        }
     }, []);
 
     return (
