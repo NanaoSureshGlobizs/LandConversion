@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -41,6 +40,9 @@ const surveyChecklists = {
     'Survey': [
         { id: 'land_acquisition', label: 'The land is affected by land acquisition' }
     ],
+    'KML_Survey': [
+        { id: 'land_acquisition', label: 'The land is affected by land acquisition' }
+    ],
     'Survey_2': [
         { id: 'adverse_ecology', label: 'The reclamation of paddy land shall not adversely affect the ecological condition and the agricultural activities in the adjoining paddy land' },
         { id: 'surrounded_by_paddy', label: 'The said land is not surrounded on all four sides by paddy land' }
@@ -57,6 +59,7 @@ const surveyChecklists = {
 
 const surveyTitles = {
     'Survey': 'Land Acquisition Check',
+    'KML_Survey': 'KML Survey Report',
     'Survey_2': 'Paddy Land Assessment',
     'Survey_3': 'Environmental and Planning Compliance',
     'Survey_4': 'Additional Paddy Land Verification'
@@ -73,6 +76,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
   const [checkboxes, setCheckboxes] = useState<Record<string, boolean>>({});
   const [status, setStatus] = useState('');
   const [reportFile, setReportFile] = useState<File | null>(null);
+  const [kmlFile, setKmlFile] = useState<File | null>(null);
   const [remarks, setRemarks] = useState('');
   const [landSchedule, setLandSchedule] = useState('');
   const [sendToDc, setSendToDc] = useState(false);
@@ -86,6 +90,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
     setCheckboxes({});
     setStatus('');
     setReportFile(null);
+    setKmlFile(null);
     setRemarks('');
     setLandSchedule('');
     setSendToDc(false);
@@ -123,8 +128,24 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         }
         uploadedFileName = uploadResult.data.filename;
     }
+    
+    let uploadedKmlFileName = '';
+    if (kmlFile) {
+        const formData = new FormData();
+        formData.append('kml_file', kmlFile);
+        const uploadResult = await uploadFile(formData, accessToken);
 
-    const fullRemarks = `Land Schedule: ${landSchedule}\n\nChecklist: ${JSON.stringify(checkboxes)}\n\nRemarks: ${remarks}`;
+        if(uploadResult.debugLog) addLog(uploadResult.debugLog);
+
+        if (!uploadResult.success || !uploadResult.data.filename) {
+            toast({ title: 'KML Upload Failed', description: uploadResult.message || 'Could not upload the KML file.', variant: 'destructive'});
+            setIsLoading(false);
+            return;
+        }
+        uploadedKmlFileName = uploadResult.data.filename;
+    }
+
+    const fullRemarks = `Land Schedule: ${landSchedule}\n\nChecklist: ${JSON.stringify(checkboxes)}\n\nKML File: ${uploadedKmlFileName}\n\nRemarks: ${remarks}`;
     
     const payload = {
         application_details_id: application.id,
@@ -187,6 +208,12 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
                 <Label htmlFor="upload-report">Upload Report (Optional)</Label>
                 <Input id="upload-report" type="file" onChange={(e) => setReportFile(e.target.files?.[0] || null)} accept="application/pdf,image/*" />
             </div>
+             {formType === 'KML_Survey' && (
+                <div className='space-y-2'>
+                    <Label htmlFor="upload-kml">Upload KML File (Optional)</Label>
+                    <Input id="upload-kml" type="file" onChange={(e) => setKmlFile(e.target.files?.[0] || null)} accept=".kml" />
+                </div>
+            )}
             <div className='space-y-2'>
                 <Label htmlFor="remarks">Remarks</Label>
                 <Textarea id="remarks" placeholder="Enter remarks..." value={remarks} onChange={(e) => setRemarks(e.target.value)} />
