@@ -95,7 +95,13 @@ export default function KmlViewerPage() {
         if (isMapInitialized.current) return;
         isMapInitialized.current = true;
 
-        const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyC8hH3cmd3-OiH4j0jn8e2i3uECyVKpk-o';
+        const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+        if (!GOOGLE_MAPS_API_KEY) {
+            console.error("Google Maps API key is missing. Please add it to your .env file.");
+            setIsLoading(false);
+            return;
+        }
         
         const loader = new Loader({
             apiKey: GOOGLE_MAPS_API_KEY,
