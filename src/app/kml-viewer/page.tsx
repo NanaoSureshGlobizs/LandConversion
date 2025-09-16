@@ -2,12 +2,11 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 
 export default function KmlViewerPage() {
-    const mapRef = useRef(null);
-    const loadingRef = useRef(null);
+    const mapRef = useRef<HTMLDivElement>(null);
+    const loadingRef = useRef<HTMLDivElement>(null);
     const isMapInitialized = useRef(false);
 
     useEffect(() => {
@@ -26,9 +25,7 @@ export default function KmlViewerPage() {
             clearKML();
 
             try {
-                // Create a Blob from the KML content
                 const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
-                // Create an object URL for the Blob
                 const url = URL.createObjectURL(blob);
 
                 currentKmlLayer = new google.maps.KmlLayer({
@@ -55,7 +52,6 @@ export default function KmlViewerPage() {
                         alert('KML document not found');
                     } else if (status === google.maps.KmlLayerStatus.OK) {
                         console.log('KML loaded successfully and zoomed to bounds');
-                        // Revoke the object URL after a short delay to ensure it's been loaded
                         setTimeout(() => URL.revokeObjectURL(url), 500);
                     }
                 });
@@ -75,46 +71,46 @@ export default function KmlViewerPage() {
             }
         }
 
-        // Define initMap on the window object
-        (window as any).initMap = () => {
+        function initMap() {
             if (loadingRef.current) {
-                (loadingRef.current as HTMLElement).style.display = 'none';
+                loadingRef.current.style.display = 'none';
             }
-             if (mapRef.current && !isMapInitialized.current) {
+            if (mapRef.current && !isMapInitialized.current) {
                 isMapInitialized.current = true;
                 map = new google.maps.Map(mapRef.current, {
                     zoom: 2,
                     center: { lat: 0, lng: 0 }
                 });
 
-                // Retrieve KML content from sessionStorage
                 const kmlContent = sessionStorage.getItem('kmlContent');
                 if (kmlContent) {
                     loadKML(kmlContent);
-                    // Clear the content from storage after use
-                    // sessionStorage.removeItem('kmlContent');
                 } else {
                      alert('No KML data found. Please go back and upload a file.');
                 }
             }
         };
 
-        // Load the script if it's not already loaded
-        if (!document.querySelector(`script[src*="maps.googleapis.com"]`)) {
+        const scriptId = 'google-maps-script';
+        
+        if (!document.getElementById(scriptId)) {
+            (window as any).initMap = initMap;
             const script = document.createElement('script');
+            script.id = scriptId;
             script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
             script.async = true;
             script.defer = true;
             document.head.appendChild(script);
 
             return () => {
-                // Clean up the script tag and the global function
-                document.head.removeChild(script);
+                const existingScript = document.getElementById(scriptId);
+                if (existingScript) {
+                    document.head.removeChild(existingScript);
+                }
                 delete (window as any).initMap;
             };
-        } else if (typeof google !== 'undefined' && google.maps && mapRef.current && !isMapInitialized.current) {
-            // If script is already there, just init the map
-            (window as any).initMap();
+        } else if (typeof google !== 'undefined' && google.maps) {
+            initMap();
         }
 
     }, []);
