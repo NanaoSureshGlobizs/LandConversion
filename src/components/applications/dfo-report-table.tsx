@@ -100,13 +100,13 @@ export function DfoReportTable({ initialData, accessToken, statuses }: DfoReport
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/dfo-report`}>View</Link>
                         </Button>
-                        <UpdateStatusForm
+                        {/* <UpdateStatusForm
                             applicationId={app.id.toString()}
                             accessToken={accessToken}
                             statuses={statuses}
                         >
                             <Button variant="default" size="sm">Update Status</Button>
-                        </UpdateStatusForm>
+                        </UpdateStatusForm> */}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -143,5 +143,3 @@ export function DfoReportTable({ initialData, accessToken, statuses }: DfoReport
     </div>
   );
 }
-
-    

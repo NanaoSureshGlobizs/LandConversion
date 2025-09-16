@@ -106,13 +106,13 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/decision-and-fees`}>View</Link>
                         </Button>
-                        <UpdateStatusForm
+                        {/* <UpdateStatusForm
                             applicationId={app.id.toString()}
                             accessToken={accessToken}
                             statuses={statuses}
                         >
                             <Button variant="default" size="sm">Take Decision</Button>
-                        </UpdateStatusForm>
+                        </UpdateStatusForm> */}
                     </div>
                   </TableCell>
                 </TableRow>

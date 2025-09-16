@@ -100,13 +100,13 @@ export function MarsacReportTable({ initialData, accessToken, statuses }: Marsac
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/marsac-report&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
-                        <UpdateStatusForm
+                        {/* <UpdateStatusForm
                             applicationId={app.id.toString()}
                             accessToken={accessToken}
                             statuses={statuses}
                         >
                             <Button variant="default" size="sm">Update Status</Button>
-                        </UpdateStatusForm>
+                        </UpdateStatusForm> */}
                     </div>
                   </TableCell>
                 </TableRow>
