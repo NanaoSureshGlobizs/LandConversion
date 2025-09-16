@@ -16,6 +16,7 @@ import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
 import { UpdateStatusForm } from '@/components/applications/update-status-form';
 import { FeeReportForm } from '@/components/applications/fee-report-form';
+import Link from 'next/link';
 
 type AuthStep = 'signIn' | 'signUp' | 'verifyOtp';
 
@@ -241,34 +242,13 @@ export default function LoginPage() {
             </h1>
           </div>
             {renderFormContent()}
-            {/* <div className="mt-4 text-center flex justify-center gap-2">
-              <ForwardForm 
-                applicationId="TEST-APP-123"
-                accessToken="test-token"
-              >
-                <Button variant="secondary">Forward (Test)</Button>
-              </ForwardForm>
-              <RejectForm
-                applicationId="TEST-APP-123"
-                accessToken="test-token"
-              >
-                 <Button variant="destructive">Reject (Test)</Button>
-              </RejectForm>
-               <UpdateStatusForm
-                applicationId="TEST-APP-123"
-                accessToken="test-token"
-                statuses={[{id: "1", status_name: "In Progress"}, {id: "2", status_name: "Completed"}]}
-              >
-                 <Button variant="outline">Report</Button>
-              </UpdateStatusForm>
-               <FeeReportForm
-                applicationId="TEST-APP-123"
-                accessToken="test-token"
-                statuses={[{id: "1", status_name: "In Progress"}, {id: "2", status_name: "Completed"}]}
-              >
-                 <Button variant="outline">Fee Report (Test)</Button>
-              </FeeReportForm>
-            </div> */}
+            <div className="mt-4 text-center">
+                <Button variant="secondary" asChild>
+                    <Link href="/kml-viewer?url=https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml" target="_blank">
+                        Test KML Viewer
+                    </Link>
+                </Button>
+            </div>
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
             <p>An initiative by the Government of Manipur.</p>
