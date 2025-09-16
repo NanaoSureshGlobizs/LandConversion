@@ -49,9 +49,9 @@ export default function KmlUploadPage() {
                 if (typeof content !== 'string') {
                     throw new Error("Failed to read file content.");
                 }
-                // Create a data URI from the KML content
-                const dataUri = `data:application/vnd.google-earth.kml+xml;charset=utf-8,${encodeURIComponent(content)}`;
-                router.push(`/kml-viewer?url=${encodeURIComponent(dataUri)}`);
+                // Store the KML content in sessionStorage
+                sessionStorage.setItem('kmlContent', content);
+                router.push(`/kml-viewer`);
             } catch (error) {
                 toast({
                     title: 'Error Reading File',

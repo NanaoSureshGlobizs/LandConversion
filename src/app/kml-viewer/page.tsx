@@ -1,13 +1,11 @@
+
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 
 export default function KmlViewerPage() {
-    const searchParams = useSearchParams();
-    const kmlUrl = searchParams.get('url');
     const mapRef = useRef(null);
     const loadingRef = useRef(null);
     const isMapInitialized = useRef(false);
@@ -15,18 +13,24 @@ export default function KmlViewerPage() {
     useEffect(() => {
         const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyC8hH3cmd3-OiH4j0jn8e2i3uECyVKpk-o';
         
-        let map;
+        let map: google.maps.Map;
         let currentKmlLayer: google.maps.KmlLayer | null;
 
-        function loadKMLFromURL(url: string) {
-            if (!url) {
-                console.error('No KML URL provided');
+        function loadKML(kmlContent: string) {
+            if (!kmlContent) {
+                console.error('No KML content found in sessionStorage');
+                alert('No KML data found. Please upload a file first.');
                 return;
             }
 
             clearKML();
 
             try {
+                // Create a Blob from the KML content
+                const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+                // Create an object URL for the Blob
+                const url = URL.createObjectURL(blob);
+
                 currentKmlLayer = new google.maps.KmlLayer({
                     url: url,
                     map: map,
@@ -51,6 +55,8 @@ export default function KmlViewerPage() {
                         alert('KML document not found');
                     } else if (status === google.maps.KmlLayerStatus.OK) {
                         console.log('KML loaded successfully and zoomed to bounds');
+                        // Revoke the object URL after a short delay to ensure it's been loaded
+                        setTimeout(() => URL.revokeObjectURL(url), 500);
                     }
                 });
 
@@ -81,8 +87,14 @@ export default function KmlViewerPage() {
                     center: { lat: 0, lng: 0 }
                 });
 
-                if (kmlUrl) {
-                    loadKMLFromURL(kmlUrl);
+                // Retrieve KML content from sessionStorage
+                const kmlContent = sessionStorage.getItem('kmlContent');
+                if (kmlContent) {
+                    loadKML(kmlContent);
+                    // Clear the content from storage after use
+                    // sessionStorage.removeItem('kmlContent');
+                } else {
+                     alert('No KML data found. Please go back and upload a file.');
                 }
             }
         };
@@ -100,12 +112,12 @@ export default function KmlViewerPage() {
                 document.head.removeChild(script);
                 delete (window as any).initMap;
             };
-        } else if (google.maps && mapRef.current && !isMapInitialized.current) {
+        } else if (typeof google !== 'undefined' && google.maps && mapRef.current && !isMapInitialized.current) {
             // If script is already there, just init the map
             (window as any).initMap();
         }
 
-    }, [kmlUrl]);
+    }, []);
 
     return (
         <>
