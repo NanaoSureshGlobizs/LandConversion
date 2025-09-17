@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { cookies } from 'next/headers';
@@ -877,10 +875,8 @@ export async function getApplicationsByArea(accessToken: string, areaType: 'less
 
 
 export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
-    let url = `/applications/view?id=${id}`;
-    if (workflow_sequence_id) {
-      url += `&workflow_sequence_id=${workflow_sequence_id}`;
-    }
+    let url = `/applications/view?id=${id}&workflow_sequence_id=${workflow_sequence_id ?? ''}`;
+    
     const { data, debugLog } = await fetchFromApi(url, token);
     
     if (data && (data.conversion_applications || data.diversion_applications)) {
