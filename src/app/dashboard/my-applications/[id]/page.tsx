@@ -15,8 +15,8 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     redirect('/');
   }
 
-  // Fetch data on the server
-  const { data: application, log } = await getApplicationById(accessToken, id);
+  // Fetch data on the server, ensuring workflow_sequence_id is null for citizen view
+  const { data: application, log } = await getApplicationById(accessToken, id, null);
   const { data: statuses, log: statusesLog } = await getApplicationStatuses(accessToken);
 
   // Pass server-fetched data to the client component
