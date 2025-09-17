@@ -11,7 +11,7 @@ import { format, parse } from 'date-fns';
 import { Loader2, Mountain, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { submitApplication, getDistrictsByLandType } from '@/app/actions';
+import { submitApplication, getDistrictsByLandType, submitHillApplication } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { FullApplicationResponse } from '@/lib/definitions';
@@ -46,11 +46,12 @@ const baseFormSchema = z.object({
   original_area_of_plot: z.coerce.number().min(0.00001, "Area must be a positive number"),
   area_unit_id: z.string().min(1, "Area unit is required."),
   area_applied_for_conversion: z.coerce.number().min(0.00001, "Area must be a positive number"),
-  application_area_unit_id: z.string().min(1, "Area unit is required."),
+  application_area_unit_id: z.string().optional(), // Optional for hill
 
   land_classification_id: z.string().optional(),
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
   other_entry: z.string().optional(),
+  land_address: z.string().optional(),
 
   // Optional fields for Hill type
   circle_id: z.string().optional(),
@@ -94,7 +95,14 @@ const normalFormSchema = baseFormSchema.extend({
   dag_no: z.string().min(1, 'Dag number is required.'),
   location_type_id: z.string().min(1, 'Location type is required.'),
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
+  application_area_unit_id: z.string().min(1, "Area unit is required."),
 });
+
+// For Hill type, these fields are required
+const hillFormSchema = baseFormSchema.extend({
+  land_address: z.string().min(1, "Land address is required"),
+  application_area_unit_id: z.string().min(1, "Area unit is required."),
+})
 
 
 export type FormValues = z.infer<typeof baseFormSchema>;
@@ -167,6 +175,7 @@ const getInitialValues = (
       change_of_land_use_id: '',
       purpose_id: '',
       other_entry: '',
+      land_address: '',
       relatives: [],
       others_relevant_document: [],
     };
@@ -200,6 +209,7 @@ const getInitialValues = (
     change_of_land_use_id: application.change_of_land_use_id.toString() || '',
     purpose_id: application.purpose_id.toString() || '',
     other_entry: '',
+    land_address: '', // Assuming not present in existing app response for now
     relatives: [], // Existing app data doesn't contain this yet
     others_relevant_document: [],
   };
@@ -208,7 +218,7 @@ const getInitialValues = (
 const steps = [
   { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'sub_division_id', 'circle_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
-  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry', 'exact_build_up_area', 'exact_build_up_area_unit_id', 'previously_occupied_area', 'previously_occupied_area_unit_id'] },
+  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry', 'land_address'] },
   { id: 'Step 4', name: 'Document Upload', fields: [] },
   { id: 'Step 5', name: 'Preview & Submit', fields: [] },
 ]
@@ -238,7 +248,7 @@ export function MultiStepForm({
   const [districts, setDistricts] = useState<District[]>(initialDistricts);
   const [isFetchingDistricts, setIsFetchingDistricts] = useState(false);
 
-  const finalSchema = (formType === 'normal' ? normalFormSchema : baseFormSchema).superRefine((data, ctx) => {
+  const finalSchema = (formType === 'normal' ? normalFormSchema : hillFormSchema).superRefine((data, ctx) => {
     const otherPurpose = purposes.find(p => p.name === 'Other');
     if (otherPurpose && data.purpose_id === otherPurpose.id.toString()) {
       if (!data.other_entry || data.other_entry.trim() === '') {
@@ -250,11 +260,13 @@ export function MultiStepForm({
       }
     }
 
-    const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === data.change_of_land_use_id);
-    const isDiversion = selectedOption?.name.includes('Before');
+    if (formType === 'normal') {
+      const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === data.change_of_land_use_id);
+      const isDiversion = selectedOption?.name.includes('Before');
 
-    if (isDiversion) {
-      // Validation for diversion can be added here if needed
+      if (isDiversion) {
+        // Validation for diversion can be added here if needed
+      }
     }
   });
   
@@ -327,7 +339,7 @@ export function MultiStepForm({
       'district_id', 'circle_id', 'sub_division_id', 'village_id', 
       'location_type_id', 'area_unit_id', 'application_area_unit_id', 
       'land_classification_id', 'land_purpose_id', 'change_of_land_use_id', 
-      'purpose_id', 'exact_build_up_area_unit_id', 'previously_occupied_area_unit_id'
+      'purpose_id'
     ];
     integerFields.forEach(field => {
         if (payload[field]) payload[field] = parseInt(payload[field]);
@@ -367,15 +379,10 @@ export function MultiStepForm({
     if (!otherPurpose || payload.purpose_id !== otherPurpose.id) {
       delete payload.other_entry;
     }
-
-     if(documentType !== 'land_diversion') {
-        delete payload.exact_build_up_area;
-        delete payload.exact_build_up_area_unit_id;
-        delete payload.previously_occupied_area;
-        delete payload.previously_occupied_area_unit_id;
-    }
     
-    const result = await submitApplication(payload, accessToken);
+    const result = formType === 'hill' 
+        ? await submitHillApplication(payload, accessToken)
+        : await submitApplication(payload, accessToken);
     
     if (result.debugLog) {
         addLog(result.debugLog);
@@ -538,3 +545,6 @@ export function MultiStepForm({
     </div>
   );
 }
+
+
+  

@@ -306,63 +306,19 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   )}
                 />
               )}
-
-              {/* {documentType === 'land_diversion' && (
-                <>
-                    <Separator className="md:col-span-2 my-4" />
-                     <div className="space-y-2">
-                        <FormLabel>Exact build up area</FormLabel>
-                        <div className="grid grid-cols-3 gap-2">
-                            <FormField
-                                control={control}
-                                name="exact_build_up_area"
-                                render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
-                            />
-                            <FormField
-                                control={control}
-                                name="exact_build_up_area_unit_id"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <FormLabel>Previously Occupied area</FormLabel>
-                        <div className="grid grid-cols-3 gap-2">
-                            <FormField
-                                control={control}
-                                name="previously_occupied_area"
-                                render={({ field }) => (<FormItem className="col-span-2"><FormControl><Input type="number" placeholder="Enter area" {...field} /></FormControl><FormMessage /></FormItem>)}
-                            />
-                            <FormField
-                                control={control}
-                                name="previously_occupied_area_unit_id"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        {areaUnits.map((unit) => (<SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>))}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
-                </>
-              )} */}
+               {formType === 'hill' && (
+                <FormField
+                  control={control}
+                  name="land_address"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Land Address</FormLabel>
+                      <FormControl><Textarea placeholder="Enter land address" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+               )}
 
           </div>
         </CardContent>
@@ -370,3 +326,5 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
     </div>
   );
 }
+
+  

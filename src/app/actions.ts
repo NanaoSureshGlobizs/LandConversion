@@ -357,6 +357,44 @@ export async function submitApplication(formData: any, token: string | undefined
   }
 }
 
+export async function submitHillApplication(formData: any, token: string | undefined) {
+  if (!token) {
+    return { success: false, message: 'Authentication token not found.', data: null, debugLog: 'submitHillApplication Error: No auth token provided.' };
+  }
+
+  const url = `${API_BASE_URL}/land-details-for-hill/create`;
+  let debugLog = '--- Submitting Hill Area Application ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(formData, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '---------------------------\n';
+    
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
+    }
+
+    return { ...result, debugLog };
+  } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '---------------------------\n';
+    console.error('submitHillApplication error:', error);
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
+  }
+}
+
 
 export async function uploadFile(
   formData: FormData,
@@ -919,3 +957,6 @@ function addLog(log: string) {
 
 
 
+
+
+  
