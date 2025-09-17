@@ -227,15 +227,15 @@ export async function checkAuth() {
   }
   
   const role = cookieStore.get('userRole');
-  const access = cookieStore.get('userAccess');
+  const accessCookie = cookieStore.get('userAccess');
   const userId = cookieStore.get('userId');
 
   try {
-    const accessArray = access ? JSON.parse(access.value) : [];
+    const access = accessCookie ? JSON.parse(accessCookie.value) : [];
     return { 
       isAuthenticated: true, 
       role: role?.value || null, 
-      access: accessArray,
+      access: access,
       userId: userId?.value || null
     };
   } catch (error) {
@@ -749,8 +749,20 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
 
     // This handles the standard response structure for most lists
     if (data && (data.conversion_applications || data.diversion_applications)) {
-        const conversionApps = Array.isArray(data.conversion_applications) ? data.conversion_applications : [];
-        const diversionApps = Array.isArray(data.diversion_applications) ? data.diversion_applications : [];
+        let conversionApps: any[] = [];
+        if (data.conversion_applications) {
+            conversionApps = Array.isArray(data.conversion_applications) 
+                ? data.conversion_applications 
+                : Object.values(data.conversion_applications).filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item);
+        }
+
+        let diversionApps: any[] = [];
+        if (data.diversion_applications) {
+             diversionApps = Array.isArray(data.diversion_applications) 
+                ? data.diversion_applications 
+                : Object.values(data.diversion_applications).filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item);
+        }
+
         const allApps = [...conversionApps, ...diversionApps];
 
         return { 
@@ -762,20 +774,21 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
         };
     }
     
-    // This handles the specific nested structure seen for workflow_sequence_id=2
+    // This handles the specific nested structure seen for workflow_sequence_id=2 and the main list
     if (data && data['0'] && (data['0'].conversion_applications || data['0'].diversion_applications)) {
         const appsData = data['0'];
         let conversionApps: any[] = [];
-        if (Array.isArray(appsData.conversion_applications)) {
-            conversionApps = appsData.conversion_applications;
+        if (appsData.conversion_applications) {
+            conversionApps = Array.isArray(appsData.conversion_applications) 
+                ? appsData.conversion_applications
+                : Object.values(appsData.conversion_applications).filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item);
         }
 
         let diversionApps: any[] = [];
         if (appsData.diversion_applications) {
-            // It's an object, not an array, so we convert it.
-            diversionApps = Object.values(appsData.diversion_applications).filter(
-                (item: any): item is object => typeof item === 'object' && item !== null && 'id' in item
-            );
+            diversionApps = Array.isArray(appsData.diversion_applications)
+                ? appsData.diversion_applications
+                : Object.values(appsData.diversion_applications).filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item);
         }
         
         const allApps = [...conversionApps, ...diversionApps];
