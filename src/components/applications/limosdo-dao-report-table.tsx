@@ -65,8 +65,8 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
     }
   }, [isNearScreen, loadMoreApplications]);
 
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/sdo-dao-report`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-report&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   return (
@@ -85,7 +85,7 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                    <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
@@ -95,7 +95,7 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
                   <TableCell className="text-right">
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-report`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdo-dao-report&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
                         {/* <UpdateStatusForm
                             applicationId={app.id.toString()}

@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { ApplicationListItem, PaginatedApplications } from '@/lib/definitions';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableHeader,
@@ -13,35 +12,44 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, CalendarIcon } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
+import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import Link from 'next/link';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
+import { Label } from '../ui/label';
 
-interface UnprocessedApplicationsTableProps {
+interface SdaoEnquiriesTableProps {
   initialData: PaginatedApplications | null;
   accessToken: string;
 }
 
-export function UnprocessedApplicationsTable({ initialData, accessToken }: UnprocessedApplicationsTableProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateRange, setDateRange] = useState('');
-  const [status, setStatus] = useState('');
+export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTableProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type') || 'conversion';
+
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  
+  const [fromDate, setFromDate] = useState<Date | undefined>();
+  const [toDate, setToDate] = useState<Date | undefined>();
+  const [status, setStatus] = useState('');
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
     once: false,
   });
-  
+
   // This effect resets the state when the initial data prop changes.
   // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
   useEffect(() => {
@@ -75,85 +83,98 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
     }
   }, [isNearScreen, loadMoreApplications]);
 
-
-  const filteredData = useMemo(() => {
-    if (!searchTerm) return applications;
-    const lowercasedFilter = searchTerm.toLowerCase();
-    return applications.filter(
-      (item) =>
-        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
-        item.patta_no.toLowerCase().includes(lowercasedFilter)
-    );
-  }, [applications, searchTerm]);
-
   const handleRowClick = (app: ApplicationListItem) => {
-    router.push(`/dashboard/my-applications/${app.id}?from=/dashboard/unprocessed-applications&workflow_sequence_id=${app.workflow_sequence_id}`);
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative flex-grow sm:flex-grow-0 sm:min-w-[300px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-            placeholder="Search by App ID, Patta No."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-            />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+            <Label>From Date</Label>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant={'outline'}
+                        className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !fromDate && 'text-muted-foreground'
+                        )}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {fromDate ? format(fromDate, 'PPP') : <span>Select Date</span>}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
+                </PopoverContent>
+            </Popover>
         </div>
-        <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Date Range" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="yesterday">Yesterday</SelectItem>
-                <SelectItem value="last7">Last 7 days</SelectItem>
-                <SelectItem value="last30">Last 30 days</SelectItem>
-                <SelectItem value="this_month">This month</SelectItem>
-            </SelectContent>
-        </Select>
-         <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="in_review">In Review</SelectItem>
-                <SelectItem value="processed">Processed</SelectItem>
-            </SelectContent>
-        </Select>
+        <div className="space-y-2">
+            <Label>To Date</Label>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant={'outline'}
+                        className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !toDate && 'text-muted-foreground'
+                        )}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {toDate ? format(toDate, 'PPP') : <span>Select Date</span>}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
+                </PopoverContent>
+            </Popover>
+        </div>
+        <div className="space-y-2">
+            <Label>Status</Label>
+            <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="review">In Review</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
       </div>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>App ID</TableHead>
+              <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
               <TableHead>Applied Area</TableHead>
+              <TableHead>District</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.length > 0 ? (
-              filteredData.map((app) => (
+            {applications.length > 0 ? (
+              applications.map((app) => (
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
+                  <TableCell>{app.district.name}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/my-applications/${app.id}?from=/dashboard/unprocessed-applications&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
+                        <Link href={`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`}>View Details</Link>
                     </Button>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  No unprocessed applications found.
+                <TableCell colSpan={5} className="h-24 text-center">
+                  No enquiries found.
                 </TableCell>
               </TableRow>
             )}

@@ -71,8 +71,8 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
     }
   }, [isNearScreen, loadMoreApplications]);
   
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/decision-and-fees`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/decision-and-fees&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   return (
@@ -92,7 +92,7 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app, index) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{mockOwners[index % mockOwners.length]}</TableCell>
                    <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
@@ -103,7 +103,7 @@ export function DecisionAndFeesTable({ initialData, accessToken, statuses }: Dec
                   <TableCell className="text-right">
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/decision-and-fees`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/decision-and-fees&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
                         {/* <UpdateStatusForm
                             applicationId={app.id.toString()}

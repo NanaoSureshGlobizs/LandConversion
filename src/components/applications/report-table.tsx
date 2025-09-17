@@ -151,8 +151,8 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
     return applications;
   }, [applications]);
 
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/application/${appId}?from=/dashboard/report`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/report&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   const isAllSelected = applications.length > 0 && selectedIds.length === applications.length;
@@ -187,7 +187,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                         checked={selectedRows[app.id] || false}
@@ -204,7 +204,7 @@ export function ReportTable({ initialData, accessToken, statuses }: ReportTableP
                   </TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/application/${app.id}?from=/dashboard/report`}>View</Link>
+                      <Link href={`/dashboard/application/${app.id}?from=/dashboard/report&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

@@ -78,8 +78,8 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     );
   }, [applications, searchTerm]);
 
-  const handleRowClick = (appId: number) => {
-    router.push(`/dashboard/my-applications/${appId}`);
+  const handleRowClick = (app: ApplicationListItem) => {
+    router.push(`/dashboard/my-applications/${app.id}?workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
   return (
@@ -107,7 +107,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
                   <TableCell>{app.patta_no}</TableCell>
                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
@@ -120,7 +120,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/my-applications/${app.id}`}>View</Link>
+                            <Link href={`/dashboard/my-applications/${app.id}?workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
                         <Button variant="default" size="sm" asChild>
                            <Link href={`/dashboard/my-applications/${app.id}/track`}>Track</Link>
