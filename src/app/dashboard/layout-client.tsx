@@ -1,10 +1,9 @@
 
-
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -22,6 +21,11 @@ export default function DashboardLayoutClient({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const allowedRoutes = useMemo(() => {
     const getAllowedRoutesRecursive = (items: typeof allMenuItems): string[] => {
@@ -59,8 +63,8 @@ export default function DashboardLayoutClient({
   }, [access]);
 
   useEffect(() => {
-    if (isLoading) {
-      return; // Wait until the auth state is confirmed
+    if (!isClient || isLoading) {
+      return; // Wait until the auth state is confirmed and we are on the client
     }
 
     if (!isAuthenticated) {
@@ -105,17 +109,9 @@ export default function DashboardLayoutClient({
     }
 
 
-  }, [isAuthenticated, isLoading, router, pathname, allowedRoutes, searchParams]);
+  }, [isAuthenticated, isLoading, router, pathname, allowedRoutes, searchParams, isClient]);
 
-  const isAuthenticating = isLoading;
-  // Determine if we are about to redirect. Show loader to prevent content flash.
-  const isRedirecting = !isLoading && isAuthenticated && (
-    (pathname === '/dashboard' && allowedRoutes.length > 0 && allowedRoutes[0] !== '/dashboard') ||
-    (allowedRoutes.length > 0 && !pathname.startsWith('/dashboard/application/') && !pathname.startsWith('/dashboard/my-applications/') && !allowedRoutes.some(route => pathname.startsWith(route)))
-  );
-
-
-  if (isAuthenticating) {
+  if (!isClient || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -123,7 +119,8 @@ export default function DashboardLayoutClient({
     );
   }
   
-  if (isRedirecting) {
+  // If we've confirmed we're not authenticated on the client, show loader until redirect happens.
+  if (isClient && !isAuthenticated) {
        return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
