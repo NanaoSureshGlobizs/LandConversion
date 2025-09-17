@@ -60,7 +60,7 @@ export default async function LegacyDataDetailPage({ params }: { params: { id: s
     <>
       <ServerLogHandler logs={[log]} />
       <div className="flex-1 space-y-6 px-4 md:px-8">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 no-print">
             <Button variant="outline" size="icon" asChild>
                 <Link href="/dashboard/legacy-data">
                     <ArrowLeft />
@@ -128,7 +128,7 @@ export default async function LegacyDataDetailPage({ params }: { params: { id: s
                     </div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="no-print">
                 <CardHeader>
                     <CardTitle>Actions</CardTitle>
                 </CardHeader>
