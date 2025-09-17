@@ -80,8 +80,9 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
   const [kmlFile, setKmlFile] = useState<File | null>(null);
   const [remarks, setRemarks] = useState('');
   const [landSchedule, setLandSchedule] = useState('');
-  const [sendToDc, setSendToDc] = useState(false);
-  const [sendToSdao, setSendToSdao] = useState(false);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+
 
   const formType = application.form_type as keyof typeof surveyChecklists;
   const checklist = useMemo(() => surveyChecklists[formType] || [], [formType]);
@@ -94,8 +95,8 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
     setKmlFile(null);
     setRemarks('');
     setLandSchedule('');
-    setSendToDc(false);
-    setSendToSdao(false);
+    setLatitude('');
+    setLongitude('');
   }
 
   const handleCheckboxChange = (id: string, checked: boolean) => {
@@ -146,7 +147,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         uploadedKmlFileName = uploadResult.data.filename;
     }
 
-    const fullRemarks = `Land Schedule: ${landSchedule}\n\nChecklist: ${JSON.stringify(checkboxes)}\n\nKML File: ${uploadedKmlFileName}\n\nRemarks: ${remarks}`;
+    const fullRemarks = `Land Schedule: ${landSchedule}\n\nChecklist: ${JSON.stringify(checkboxes)}\n\nKML File: ${uploadedKmlFileName}\n\nLatitude: ${latitude}\nLongitude: ${longitude}\n\nRemarks: ${remarks}`;
     
     const payload = {
         application_details_id: application.id,
@@ -193,6 +194,23 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
                 </div>
             )}
 
+            {formType === 'KML_Survey' && (
+              <>
+                <div className='space-y-2'>
+                    <Label htmlFor="latitude">Latitude</Label>
+                    <Input id="latitude" placeholder="Enter latitude" value={latitude} onChange={(e) => setLatitude(e.target.value)} />
+                </div>
+                <div className='space-y-2'>
+                    <Label htmlFor="longitude">Longitude</Label>
+                    <Input id="longitude" placeholder="Enter longitude" value={longitude} onChange={(e) => setLongitude(e.target.value)} />
+                </div>
+                <div className='space-y-2'>
+                    <Label htmlFor="upload-kml">Upload KML File (Optional)</Label>
+                    <Input id="upload-kml" type="file" onChange={(e) => setKmlFile(e.target.files?.[0] || null)} accept=".kml" />
+                </div>
+              </>
+            )}
+
             <div className='space-y-2'>
                 <Label htmlFor="land_schedule">Land Schedule</Label>
                 <Textarea id="land_schedule" placeholder="Enter land schedule details..." value={landSchedule} onChange={(e) => setLandSchedule(e.target.value)} />
@@ -210,26 +228,9 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
                 <Label htmlFor="upload-report">Upload Report (Optional)</Label>
                 <Input id="upload-report" type="file" onChange={(e) => setReportFile(e.target.files?.[0] || null)} accept="application/pdf,image/*" />
             </div>
-             {formType === 'KML_Survey' && (
-                <div className='space-y-2'>
-                    <Label htmlFor="upload-kml">Upload KML File (Optional)</Label>
-                    <Input id="upload-kml" type="file" onChange={(e) => setKmlFile(e.target.files?.[0] || null)} accept=".kml" />
-                </div>
-            )}
             <div className='space-y-2'>
                 <Label htmlFor="remarks">Remarks</Label>
                 <Textarea id="remarks" placeholder="Enter remarks..." value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-            </div>
-            <div className="space-y-3">
-                <Label className='font-semibold'>Auto-Email</Label>
-                <div className="flex items-center space-x-2">
-                    <Checkbox id="send-dc" checked={sendToDc} onCheckedChange={(checked) => setSendToDc(!!checked)} />
-                    <Label htmlFor="send-dc">Send to DCs of valley/surveyed districts</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <Checkbox id="send-sdao" checked={sendToSdao} onCheckedChange={(checked) => setSendToSdao(!!checked)} />
-                    <Label htmlFor="send-sdao">Send to SDAO</Label>
-                </div>
             </div>
         </div>
         <div className="flex justify-end gap-2 pt-4 border-t">
