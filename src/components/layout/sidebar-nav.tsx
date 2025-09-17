@@ -292,14 +292,16 @@ export function SidebarNav() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <div className="flex items-center space-x-2 p-2">
-          <Label htmlFor="debug-mode">Debug Mode</Label>
-          <Switch
-            id="debug-mode"
-            checked={isDebugMode}
-            onCheckedChange={setIsDebugMode}
-          />
-        </div>
+        {process.env.NEXT_PUBLIC_DEBUG_MODE === 'true' && (
+          <div className="flex items-center space-x-2 p-2">
+            <Label htmlFor="debug-mode">Debug Mode</Label>
+            <Switch
+              id="debug-mode"
+              checked={isDebugMode}
+              onCheckedChange={setIsDebugMode}
+            />
+          </div>
+        )}
         <SidebarSeparator />
         <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
           <LogOut className="size-4" />

@@ -14,7 +14,7 @@ interface DebugContextType {
 const DebugContext = createContext<DebugContextType | undefined>(undefined);
 
 export function DebugProvider({ children }: { children: ReactNode }) {
-  const [isDebugMode, setIsDebugMode] = useState(true);
+  const [isDebugMode, setIsDebugMode] = useState(process.env.NEXT_PUBLIC_DEBUG_MODE === 'true');
   const [logs, setLogs] = useState<string[]>([]);
 
   const addLog = useCallback((log: string) => {
