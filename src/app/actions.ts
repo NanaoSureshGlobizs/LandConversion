@@ -502,7 +502,7 @@ export async function forwardApplication(payload: any, token: string | undefined
     return { success: false, message: 'Authentication token not found.', debugLog: 'forwardApplication Error: No auth token provided.' };
   }
 
-  const url = `${API-BASE-URL}/workflow`;
+  const url = `${API_BASE_URL}/workflow`;
   let debugLog = '--- Forwarding Application ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
@@ -970,3 +970,5 @@ function addLog(log: string) {
 
 
   
+
+    
