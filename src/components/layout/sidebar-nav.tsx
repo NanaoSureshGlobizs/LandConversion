@@ -189,39 +189,56 @@ export function SidebarNav() {
   
  const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
-    
-    const hasAccessToAnySubItem = (subItems: any[]): boolean => {
-        return subItems.some(sub => !sub.accessKey || userAccessSet.has(sub.accessKey));
-    }
+    const finalItems: (typeof allMenuItems[0])[] = [];
 
-    return allMenuItems.map(item => {
-      // Grant access to parent menus if any child is accessible
-      const hasAccessToParent = !item.accessKey 
-          || userAccessSet.has(item.accessKey)
-          || (item.subItems && hasAccessToAnySubItem(item.subItems));
+    allMenuItems.forEach(item => {
+        // If it's a top-level link without sub-items
+        if (!item.subItems) {
+            if (!item.accessKey || userAccessSet.has(item.accessKey)) {
+                finalItems.push(item);
+            }
+            return;
+        }
 
-      if (item.subItems) {
+        // If it has sub-items, filter them first
         const visibleSubItems = item.subItems.filter(subItem => 
             !subItem.accessKey || userAccessSet.has(subItem.accessKey)
         );
 
+        // Special handling for MARSAC role to show MARSAC Report as top-level
+        if (role === 'MARSAC' && visibleSubItems.length > 0) {
+            const marsacItem = visibleSubItems.find(sub => sub.accessKey === 'marsac_report');
+            if (marsacItem && !finalItems.some(fi => fi.href === marsacItem.href)) {
+                 finalItems.push({
+                    href: marsacItem.href,
+                    label: 'MARSAC Report',
+                    icon: Trees,
+                    accessKey: 'marsac_report'
+                });
+            }
+            return; // Stop processing this parent item (Conversion/Diversion)
+        }
+
+
         if (visibleSubItems.length > 0) {
-            return { ...item, subItems: visibleSubItems };
+            // If there's more than one sub-item, or the parent itself is a menu group, show the parent.
+            if (visibleSubItems.length > 1 || !item.href) {
+                finalItems.push({ ...item, subItems: visibleSubItems });
+            } else {
+                // If only one sub-item is visible, promote it to a top-level item
+                const singleSubItem = visibleSubItems[0];
+                finalItems.push({
+                    ...singleSubItem,
+                    label: singleSubItem.label,
+                    icon: item.icon, // Use parent icon
+                    href: singleSubItem.type ? `${singleSubItem.href}?type=${singleSubItem.type}` : singleSubItem.href
+                });
+            }
         }
-        
-        if (hasAccessToParent && item.href) {
-            const newItem = {...item};
-            delete newItem.subItems;
-            return newItem;
-        }
-        return null;
-      }
-      
-      return hasAccessToParent ? item : null;
+    });
 
-    }).filter(Boolean) as (typeof allMenuItems[0])[];
-
-  }, [access]);
+    return finalItems;
+}, [access, role]);
 
 
   return (
