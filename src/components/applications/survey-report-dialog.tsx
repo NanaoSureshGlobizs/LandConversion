@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -152,6 +153,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         verification_status_id: parseInt(status),
         remark: fullRemarks,
         attachment: uploadedFileName,
+        kml: uploadedKmlFileName, // Add kml file to payload
         status: 1,
     };
 

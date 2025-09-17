@@ -1,3 +1,4 @@
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -29,7 +30,7 @@ interface SignUpResponse extends BaseApiResponse {
 }
 
 
-const API_BASE_URL = 'https://conversionapi.globizsapp.com/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://conversionapi.globizsapp.com/api';
 
 // --- CITIZEN ACTIONS ---
 
@@ -501,7 +502,7 @@ export async function forwardApplication(payload: any, token: string | undefined
     return { success: false, message: 'Authentication token not found.', debugLog: 'forwardApplication Error: No auth token provided.' };
   }
 
-  const url = `${API_BASE_URL}/workflow`;
+  const url = `${API-BASE-URL}/workflow`;
   let debugLog = '--- Forwarding Application ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
