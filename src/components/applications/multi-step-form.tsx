@@ -38,9 +38,9 @@ const baseFormSchema = z.object({
   email: z.string().email('Invalid email address.'),
   
   district_id: z.string().min(1, 'District is required.'),
-  patta_no: z.string().min(1, 'Patta number is required.'),
-  dag_no: z.string().min(1, 'Dag number is required.'),
-  location_type_id: z.string().min(1, 'Location type is required.'),
+  patta_no: z.string().optional(),
+  dag_no: z.string().optional(),
+  location_type_id: z.string().optional(),
   sub_division_id: z.string().min(1, 'Sub Division is required.'),
   
   original_area_of_plot: z.coerce.number().min(0.00001, "Area must be a positive number"),
@@ -48,7 +48,7 @@ const baseFormSchema = z.object({
   area_applied_for_conversion: z.coerce.number().min(0.00001, "Area must be a positive number"),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
 
-  land_classification_id: z.string().min(1, 'Present land classification is required.'),
+  land_classification_id: z.string().optional(),
   purpose_id: z.string().min(1, 'Purpose for which conversion is requested is required.'),
   other_entry: z.string().optional(),
 
@@ -90,6 +90,10 @@ const normalFormSchema = baseFormSchema.extend({
   village_id: z.string().min(1, 'Village is required.'),
   land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
   change_of_land_use_id: z.string().min(1, 'Date of change of land use is required.'),
+  patta_no: z.string().min(1, 'Patta number is required.'),
+  dag_no: z.string().min(1, 'Dag number is required.'),
+  location_type_id: z.string().min(1, 'Location type is required.'),
+  land_classification_id: z.string().min(1, 'Present land classification is required.'),
 });
 
 
@@ -458,6 +462,7 @@ export function MultiStepForm({
                 landPurposes={landPurposes}
                 purposes={purposes}
                 documentType={documentType}
+                formType={formType!}
             />
             )}
             {currentStep === 4 && (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useFormContext } from 'react-hook-form';
@@ -23,9 +24,10 @@ interface Step3Props {
     landPurposes: LandPurpose[];
     purposes: Purpose[];
     documentType: 'land_diversion' | 'land_conversion';
+    formType: 'normal' | 'hill';
 }
 
-export function Step3Details({ locationTypes, areaUnits, landClassifications, landPurposes, purposes, documentType }: Step3Props) {
+export function Step3Details({ locationTypes, areaUnits, landClassifications, landPurposes, purposes, documentType, formType }: Step3Props) {
   const { control, watch } = useFormContext<FormValues>();
 
   const watchedPurposeId = watch('purpose_id');
@@ -172,33 +174,37 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                  control={control}
-                  name="patta_no"
-                  render={({ field }) => (<FormItem><FormLabel>Patta No.</FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
-              />
-              <FormField
-                  control={control}
-                  name="dag_no"
-                  render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
-              />
-              <FormField
-                  control={control}
-                  name="location_type_id"
-                  render={({ field }) => (
-                  <FormItem>
-                      <FormLabel>Location Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select Location Type" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                          {locationTypes.map((loc) => (<SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>))}
-                      </SelectContent>
-                      </Select>
-                      <FormMessage />
-                  </FormItem>
-                  )}
-              />
-              <div></div>
+              {formType === 'normal' && (
+                <>
+                    <FormField
+                        control={control}
+                        name="patta_no"
+                        render={({ field }) => (<FormItem><FormLabel>Patta No.</FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
+                    />
+                    <FormField
+                        control={control}
+                        name="dag_no"
+                        render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
+                    />
+                    <FormField
+                        control={control}
+                        name="location_type_id"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Location Type</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select Location Type" /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                {locationTypes.map((loc) => (<SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>))}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <div></div>
+                </>
+              )}
               <div className="space-y-2">
                   <FormLabel>Original area of plot</FormLabel>
                   <div className="grid grid-cols-3 gap-2">
@@ -251,22 +257,24 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   </div>
               </div>
 
-              <FormField
-                  control={control}
-                  name="land_classification_id"
-                  render={({ field }) => (
-                  <FormItem>
-                      <FormLabel>Present Land Classification</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select classification" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                          {landClassifications.map((lc) => (<SelectItem key={lc.id} value={lc.id.toString()}>{lc.name}</SelectItem>))}
-                      </SelectContent>
-                      </Select>
-                      <FormMessage />
-                  </FormItem>
-                  )}
-              />
+              {formType === 'normal' && (
+                <FormField
+                    control={control}
+                    name="land_classification_id"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Present Land Classification</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select classification" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            {landClassifications.map((lc) => (<SelectItem key={lc.id} value={lc.id.toString()}>{lc.name}</SelectItem>))}
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              )}
               <FormField
                   control={control}
                   name="purpose_id"
