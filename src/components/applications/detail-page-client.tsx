@@ -114,11 +114,12 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                 </div>
             );
         case 'Survey':
+        case 'KML_Survey':
              return (
                 <SurveyReportDialog application={application!} statuses={statuses} accessToken={accessToken} onSuccess={refreshData}>
                    <Button variant="default">
                       <FileText className="mr-2"/>
-                      Survey Report
+                      {application?.button_name || 'Survey Report'}
                    </Button>
                 </SurveyReportDialog>
              );
