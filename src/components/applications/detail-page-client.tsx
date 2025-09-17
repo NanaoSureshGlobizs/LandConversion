@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useSearchParams } from 'next/navigation';
@@ -46,7 +45,7 @@ function DetailItem({
 }
 
 // This is the Client Component that handles rendering and interactivity.
-export function DetailPageClient({ id, accessToken, initialApplication, initialLog, statuses, areaUnits }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: (string | undefined)[], statuses: ApplicationStatusOption[], areaUnits: AreaUnit[] }) {
+export function DetailPageClient({ id, accessToken, initialApplication, initialLog, statuses, areaUnits }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: (string | undefined)[], statuses: ApplicationStatusOption[], areaUnits?: AreaUnit[] }) {
   const { role } = useAuth();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
@@ -60,8 +59,9 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
 
   const refreshData = useCallback(async () => {
     setIsLoading(true);
+    const workflowSequenceId = searchParams.get('workflow_sequence_id');
     const [{ data: appData, log: appLog }, { data: workflowData, log: workflowLog }] = await Promise.all([
-        getApplicationById(accessToken, id),
+        getApplicationById(accessToken, id, workflowSequenceId),
         getApplicationWorkflow(accessToken, id)
     ]);
     
@@ -69,7 +69,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
     setWorkflow(workflowData as WorkflowItem[] | null);
     setLog(prev => [...prev, appLog, workflowLog]);
     setIsLoading(false);
-  },[accessToken, id]);
+  },[accessToken, id, searchParams]);
 
 
   useEffect(() => {
@@ -125,7 +125,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
              );
         case 'MARSAC_Report':
             return (
-                <MarsacReportDialog application={application!} accessToken={accessToken} onSuccess={refreshData} areaUnits={areaUnits}>
+                <MarsacReportDialog application={application!} accessToken={accessToken} onSuccess={refreshData} areaUnits={areaUnits || []}>
                     <Button variant="default">
                         <FileText className="mr-2" />
                         {application?.button_name || 'MARSAC Report'}
@@ -319,7 +319,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                           <CardTitle>Actions</CardTitle>
                       </CardHeader>
                       <CardContent className="flex flex-col gap-2">
-                          <Button variant="outline">
+                          <Button variant="outline" onClick={() => window.print()}>
                             <Printer className="mr-2"/>
                             Print Application
                           </Button>

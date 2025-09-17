@@ -1,4 +1,5 @@
 
+'use client';
 
 import { getLegacyDataById } from "@/app/actions";
 import { cookies } from "next/headers";
@@ -132,7 +133,7 @@ export default async function LegacyDataDetailPage({ params }: { params: { id: s
                     <CardTitle>Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2">
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => window.print()}>
                         <Printer className="mr-2"/>
                         Print Record
                     </Button>
