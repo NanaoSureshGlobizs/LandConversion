@@ -118,41 +118,6 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
   const handleRowClick = (app: ApplicationListItem) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
-  
-  const renderActions = (app: ApplicationListItem) => {
-    switch (app.form_type) {
-      case 'Forward':
-        return (
-          <>
-            <ForwardForm applicationId={app.id.toString()} accessToken={accessToken} onSuccess={refreshData}>
-              <Button variant="default" size="sm">{app.button_name || 'Forward'}</Button>
-            </ForwardForm>
-            <RejectForm applicationId={app.id.toString()} accessToken={accessToken} onSuccess={refreshData}>
-              <Button variant="destructive" size="sm">Reject</Button>
-            </RejectForm>
-          </>
-        );
-      case 'Survey':
-         return (
-             <SurveyReportDialog 
-                application={app as any} // Cast needed but be cautious, ensure list item has enough data for dialog if used directly
-                statuses={statuses} 
-                accessToken={accessToken} 
-                onSuccess={refreshData}
-            >
-                <Button variant="default" size="sm">
-                   <FileText className="mr-2 h-4 w-4"/>
-                   Survey Report
-                </Button>
-            </SurveyReportDialog>
-         );
-      case 'LLMC_Report':
-          return <Button variant="default" size="sm" disabled>LLMC Report</Button>;
-
-      default:
-        return null;
-    }
-  }
 
 
   return (
@@ -239,7 +204,6 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                       {renderActions(app)}
                        <Button variant="outline" size="sm" asChild>
                          <Link href={`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}&workflow_sequence_id=${app.workflow_sequence_id}`}>View Details</Link>
                        </Button>
