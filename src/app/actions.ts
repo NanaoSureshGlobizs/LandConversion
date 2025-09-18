@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -922,6 +923,51 @@ export async function getDashboardStats(token: string) {
     const { data, debugLog } = await fetchFromApi(`/workflow/pending-with-me`, token);
     return { data, log: debugLog };
 }
+
+// --- FEE ACTIONS ---
+
+export async function getFeeActualAmount(applicationId: string, token: string) {
+    const url = `/fee-payment/actual_amount?application_id=${applicationId}`;
+    const { data, debugLog } = await fetchFromApi(url, token);
+    return { data, log: debugLog };
+}
+
+export async function overwriteFeeAmount(applicationId: string, amount: number, token: string) {
+  const url = `${API_BASE_URL}/fee-payment/overwrite_amount?application_id=${applicationId}`;
+  const payload = { overwrite_fees: amount };
+  let debugLog = '--- Overwriting Fee Amount ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '----------------------------\n';
+    
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+    }
+
+    return { ...result, debugLog };
+  } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '----------------------------\n';
+    console.error('overwriteFeeAmount error:', error);
+    return { success: false, message: 'An unexpected error occurred.', debugLog };
+  }
+}
+
+
 
 function addLog(log: string) {
   // This is a placeholder for a real logging implementation.

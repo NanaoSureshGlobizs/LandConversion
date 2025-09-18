@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useSearchParams } from 'next/navigation';
@@ -25,6 +26,7 @@ import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
 import { TrackingTimeline } from '@/components/applications/tracking-timeline';
 import { MarsacReportDialog } from './marsac-report-dialog';
+import { FeeOverwriteDialog } from './fee-overwrite-dialog';
 
 
 function DetailItem({
@@ -134,7 +136,16 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                         {application?.button_name || 'MARSAC Report'}
                     </Button>
                 </MarsacReportDialog>
-            )
+            );
+        case 'Fee_report':
+             return (
+                <FeeOverwriteDialog application={application!} accessToken={accessToken} onSuccess={refreshData}>
+                    <Button variant="default">
+                        <FileText className="mr-2" />
+                        {application?.button_name || 'Fee Report'}
+                    </Button>
+                </FeeOverwriteDialog>
+             );
         case 'LLMC_Report':
             // Logic for LLMC Report if needed
             return null; // Or a specific button
