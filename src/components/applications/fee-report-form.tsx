@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { uploadFile } from '@/app/actions';
+import { uploadFile, forwardApplication } from '@/app/actions';
 import { Loader2, Calendar as CalendarIcon } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
@@ -33,18 +33,11 @@ interface FeeReportFormProps {
     applicationId: string;
     accessToken: string;
     statuses: ApplicationStatusOption[];
-}
-
-// Placeholder for the new server action
-async function submitFeeReport(payload: any, token: string) {
-    console.log('Submitting fee report with payload:', payload);
-    // In a real scenario, this would make an API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { success: true, message: 'Fee Report submitted successfully.', debugLog: `--- Submitting Fee Report ---\nPayload: ${JSON.stringify(payload, null, 2)}\n--------------------------` };
+    onSuccess?: () => void;
 }
 
 
-export function FeeReportForm({ children, applicationId, accessToken, statuses }: FeeReportFormProps) {
+export function FeeReportForm({ children, applicationId, accessToken, statuses, onSuccess }: FeeReportFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -98,26 +91,28 @@ export function FeeReportForm({ children, applicationId, accessToken, statuses }
         uploadedFileName = uploadResult.data.filename;
     }
 
-    // Step 2: Submit the fee report details
+    // Step 2: Submit the fee report details using forwardApplication
+    const fullRemark = `Fee Report: Payable amount Rs. ${payableAmount}. ${remark}`;
     const payload = {
-        application_id: applicationId,
-        remark,
-        image: uploadedFileName,
-        status: parseInt(status),
+        application_details_id: parseInt(applicationId),
+        verification_status_id: parseInt(status),
+        remark: fullRemark,
+        attachment: uploadedFileName,
+        status: 1,
         date: format(date, 'yyyy-MM-dd'),
-        payable_amount: parseFloat(payableAmount),
     };
 
-    const submitResult = await submitFeeReport(payload, accessToken);
+    const submitResult = await forwardApplication(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
     if (submitResult.success) {
         toast({
             title: 'Action Successful',
-            description: submitResult.message
+            description: submitResult.message || 'Fee report has been submitted.'
         });
         resetForm();
         setIsOpen(false);
+        onSuccess?.();
     } else {
         toast({
             title: 'Submission Failed',
@@ -213,7 +208,7 @@ export function FeeReportForm({ children, applicationId, accessToken, statuses }
                     id="upload-image" 
                     type="file" 
                     onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                    accept="image/*"
+                    accept="image/*,application/pdf"
                 />
             </div>
         </div>
