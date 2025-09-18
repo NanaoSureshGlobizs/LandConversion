@@ -115,6 +115,9 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
             );
         case 'Survey':
         case 'KML_Survey':
+        case 'Survey_2':
+        case 'Survey_3':
+        case 'Survey_4':
              return (
                 <SurveyReportDialog application={application!} statuses={statuses} accessToken={accessToken} onSuccess={refreshData}>
                    <Button variant="default">
