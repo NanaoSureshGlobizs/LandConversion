@@ -122,7 +122,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/my-applications/${app.id}?workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
-                        <Button variant="default" size="sm" asChild>
+                         <Button variant="default" size="sm" asChild>
                            <Link href={`/dashboard/my-applications/${app.id}/track`}>Track</Link>
                         </Button>
                     </div>

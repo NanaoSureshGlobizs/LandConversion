@@ -17,7 +17,6 @@ import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { UpdateStatusForm } from './update-status-form';
 import { useRouter } from 'next/navigation';
 
 interface DfoReportTableProps {
@@ -99,13 +98,6 @@ export function DfoReportTable({ initialData, accessToken, statuses }: DfoReport
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/dfo-report&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
-                        {/* <UpdateStatusForm
-                            applicationId={app.id.toString()}
-                            accessToken={accessToken}
-                            statuses={statuses}
-                        >
-                            <Button variant="default" size="sm">Update Status</Button>
-                        </UpdateStatusForm> */}
                     </div>
                   </TableCell>
                 </TableRow>
