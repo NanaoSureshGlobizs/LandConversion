@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase, Trees, Map, Library, AreaChart } from 'lucide-react';
+import { FilePlus2, Files, LogOut, Home, FileBarChart, ThumbsUp, FileSearch, ShieldCheck, FileText, Gavel, ChevronDown, History, Users, Building2, Briefcase, Trees, Map, Library, AreaChart, Mountain } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -48,6 +48,11 @@ export const allMenuItems = [
     label: 'New Application',
     icon: FilePlus2,
     accessKey: 'create_application',
+  },
+   {
+    href: '/dashboard/hill-applications',
+    label: 'Hill Applications',
+    icon: Mountain,
   },
   {
     href: '/dashboard/user-management',

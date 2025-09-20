@@ -1,15 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -213,4 +201,33 @@ export interface Circle {
     id: number;
     name: string;
     sub_division_id: number;
+}
+
+export interface HillApplicationListItem {
+  id: number;
+  created_at: string;
+  district_id: number;
+  district_name: string;
+  sub_division_id: number;
+  sub_division_name: string;
+  applied_area: string;
+  applied_area_unit_name: string;
+  application_id: string;
+  status_name: string;
+  workflow_sequence_id: number;
+  original_area_of_plot: string;
+  original_area_of_plot_unit_name: string;
+  land_address: string;
+  lattitute: string;
+  longitute: string;
+}
+
+export interface PaginatedHillApplications {
+  applications: HillApplicationListItem[];
+  pagination: {
+    totalCount: number;
+    pageCount: number;
+    currentPage: number;
+    perPage: number;
+  };
 }

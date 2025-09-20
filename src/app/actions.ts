@@ -805,6 +805,28 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     return { data, log: debugLog };
 }
 
+export async function getHillApplications(accessToken: string, page = 1, limit = 10) {
+    if (!accessToken) {
+      return { data: null, log: "No access token found" };
+    }
+    const url = `/applications/lists_for_hills?page=${page}&limit=${limit}`;
+    const { data, debugLog } = await fetchFromApi(url, accessToken);
+
+    if (data && data['0']) {
+        const applications = data['0'];
+        const pagination = data.pagination;
+        return {
+            data: {
+                applications: Array.isArray(applications) ? applications : [],
+                pagination,
+            },
+            log: debugLog,
+        };
+    }
+    
+    return { data: null, log: debugLog };
+}
+
 export async function getLlmcApplications(accessToken: string, page = 1, limit = 10) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
