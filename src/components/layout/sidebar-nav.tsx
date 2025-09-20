@@ -53,6 +53,7 @@ export const allMenuItems = [
     href: '/dashboard/hill-applications',
     label: 'Hill Applications',
     icon: Mountain,
+    accessKey: 'hill_application',
   },
   {
     href: '/dashboard/user-management',
