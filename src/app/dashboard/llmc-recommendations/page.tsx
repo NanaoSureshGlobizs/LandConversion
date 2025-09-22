@@ -1,5 +1,5 @@
 
-import { DlcRecommendationsTable } from '@/components/applications/dlc-recommendations-table';
+import { LlmcRecommendationsTable } from '@/components/applications/llmc-recommendations-table';
 import { getApplications, getApplicationStatuses } from '@/app/actions';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -32,7 +32,7 @@ export default async function LlmcRecommendationsPage({ searchParams }: { search
         <div className="flex items-center justify-between space-y-2">
           <h1 className="text-3xl font-bold tracking-tight font-headline">LLMC Recommendations ({type === 'conversion' ? 'Conversion' : 'Diversion'})</h1>
         </div>
-        <DlcRecommendationsTable 
+        <LlmcRecommendationsTable 
           initialData={initialApplicationsData} 
           accessToken={accessToken} 
           statuses={statuses}

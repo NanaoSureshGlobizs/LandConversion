@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -14,14 +15,12 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
-import { getLlmcApplications, forwardApplication } from '@/app/actions';
+import { getApplications, forwardApplication } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { LlmcReportDialog } from './llmc-report-dialog';
-import { Badge } from '../ui/badge';
 
 interface LlmcRecommendationsTableProps {
   initialData: PaginatedApplications | null;
@@ -50,8 +49,8 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
 
   const refreshData = useCallback(async () => {
     setIsLoading(true);
-    const { data: newData, log } = await getLlmcApplications(accessToken, 1);
-    addLog(log || "Log for getLlmcApplications refresh");
+    const { data: newData, log } = await getApplications(accessToken, 1, 10, 27);
+    addLog(log || "Log for getApplications refresh");
 
     if (newData && Array.isArray(newData.applications)) {
         setApplications(newData.applications);
@@ -74,8 +73,8 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getLlmcApplications(accessToken, nextPage);
-    addLog(log || "Log for getLlmcApplications in LLMC Recommendations");
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, 27);
+    addLog(log || "Log for getApplications in LLMC Recommendations");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);
@@ -177,10 +176,6 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
   const handleRowClick = (app: ApplicationListItem) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/llmc-recommendations&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
-
-  const getTypeVariant = (type: string) => {
-      return type.includes('After') ? 'destructive' : 'default';
-  }
   
   const isAllSelected = applications.length > 0 && selectedIds.length === applications.length;
 
@@ -214,8 +209,7 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
               </TableHead>
               <TableHead>App-ID</TableHead>
               <TableHead>Patta No.</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Area Unit</TableHead>
+              <TableHead>Applied Area</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -232,31 +226,19 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
                   </TableCell>
                   <TableCell className="font-medium font-mono cursor-pointer" onClick={() => handleRowClick(app)}>{app.application_id || 'N/A'}</TableCell>
                   <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.patta_no}</TableCell>
-                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>
-                      <Badge variant={getTypeVariant(app.change_of_land_use_type)}>
-                          {app.change_of_land_use_type.includes('After') ? 'Conversion' : 'Diversion'}
-                      </Badge>
-                  </TableCell>
-                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.area_type}</TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell className="text-right">
                     <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/llmc-recommendations&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
-                         <LlmcReportDialog
-                            applicationId={app.id.toString()}
-                            accessToken={accessToken}
-                            onSuccess={refreshData}
-                        >
-                            <Button variant="default" size="sm">LLMC Report</Button>
-                        </LlmcReportDialog>
                     </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
