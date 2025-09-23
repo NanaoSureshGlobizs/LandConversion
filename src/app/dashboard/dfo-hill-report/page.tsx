@@ -29,7 +29,7 @@ export default async function DfoHillReportPage({ searchParams }: { searchParams
       <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">DFO Hill Report</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">DFO Change of land use</h1>
         </div>
         <DfoHillReportTable
             initialData={initialApplicationsData as any} 

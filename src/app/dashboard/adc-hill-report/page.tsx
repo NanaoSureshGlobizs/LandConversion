@@ -29,7 +29,7 @@ export default async function AdcHillReportPage({ searchParams }: { searchParams
       <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">ADC Hill Report</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">ADC Change of land use</h1>
         </div>
         <AdcHillReportTable
             initialData={initialApplicationsData as any} 

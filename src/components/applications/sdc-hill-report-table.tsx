@@ -48,7 +48,7 @@ export function SdcHillReportTable({ initialData, accessToken, statuses }: SdcHi
     setIsLoading(true);
     const nextPage = page + 1;
     const { data: newData, log } = await getApplications(accessToken, nextPage, 10, WORKFLOW_ID);
-    addLog(log || "Log for getApplications in SDC Hill Report");
+    addLog(log || "Log for getApplications in SDC Change of land use");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);

@@ -56,17 +56,17 @@ export const allMenuItems = [
     accessKey: 'hill_application',
   },
   {
-    label: 'Hill Reports',
+    label: 'Change of land use',
     icon: Mountain,
     accessKey: 'hill_reports',
     subItems: [
-        { href: '/dashboard/pending-enquiries-hill', label: 'Pending Enquiries', accessKey: 'pending_enquiries_hill' },
-        { href: '/dashboard/sdo-hill-report', label: 'SDO Hill Report', accessKey: 'sdo_hill_report' },
-        { href: '/dashboard/sdc-hill-report', label: 'SDC Hill Report', accessKey: 'sdc_hill_report' },
-        { href: '/dashboard/dfo-hill-report', label: 'DFO Hill Report', accessKey: 'dfo_hill_report' },
-        { href: '/dashboard/adc-hill-report', label: 'ADC Hill Report', accessKey: 'adc_hill_report' },
-        { href: '/dashboard/dc-hill-report', label: 'DC Hill Report', accessKey: 'dc_hill_report' },
-        { href: '/dashboard/lrd-hill-report', label: 'LRD Hill Report', accessKey: 'lrd_hill_report' },
+        { href: '/dashboard/pending-enquiries-hill', label: 'Pending Enquiries (Change of land use)', accessKey: 'pending_enquiries_hill' },
+        { href: '/dashboard/sdo-hill-report', label: 'SDO Change of land use', accessKey: 'sdo_hill_report' },
+        { href: '/dashboard/sdc-hill-report', label: 'SDC Change of land use', accessKey: 'sdc_hill_report' },
+        { href: '/dashboard/dfo-hill-report', label: 'DFO Change of land use', accessKey: 'dfo_hill_report' },
+        { href: '/dashboard/adc-hill-report', label: 'ADC Change of land use', accessKey: 'adc_hill_report' },
+        { href: '/dashboard/dc-hill-report', label: 'DC Change of land use', accessKey: 'dc_hill_report' },
+        { href: '/dashboard/lrd-hill-report', label: 'LRD Change of land use', accessKey: 'lrd_hill_report' },
     ]
   },
   {
@@ -344,5 +344,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-
-    

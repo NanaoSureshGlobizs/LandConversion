@@ -48,7 +48,7 @@ export function AdcHillReportTable({ initialData, accessToken, statuses }: AdcHi
     setIsLoading(true);
     const nextPage = page + 1;
     const { data: newData, log } = await getApplications(accessToken, nextPage, 10, WORKFLOW_ID);
-    addLog(log || "Log for getApplications in ADC Hill Report");
+    addLog(log || "Log for getApplications in ADC Change of land use");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);
