@@ -49,7 +49,7 @@ const hillAreaDocs = [
   'Hill House Tax Receipt',
   'Sale Deed/Title Deed/Partial Deed',
   'Affidavit/Encumbrance Certificate',
-  'NOC From ADC',
+  'NOC (From ADC)',
 ];
 
 interface Step2Props {

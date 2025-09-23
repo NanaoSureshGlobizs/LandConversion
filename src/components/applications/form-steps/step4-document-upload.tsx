@@ -32,7 +32,7 @@ const getDocumentCategories = (formType: 'normal' | 'hill') => {
       { id: 'tax_receipt', title: isHill ? 'Hill House Tax Receipt' : 'Tax Receipt', description: 'Upload the latest tax receipt' },
       { id: 'deed_certificate', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
       { id: 'affidavit_certificate', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
-      { id: 'noc_certificate', title: isHill ? 'NOC from ADC' : 'NOC', description: isHill ? 'Upload the NOC from the ADC' : 'From Co-owner, Municipal Council or GP' },
+      { id: 'noc_certificate', title: 'NOC', description: isHill ? 'From ADC' : 'From Co-owner, Municipal Council or GP' },
       { id: 'others_relevant_document', title: 'Other Relevant Documents', description: 'Upload any other supporting documents', isMultiple: true },
     ];
 };
