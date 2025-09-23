@@ -2,7 +2,7 @@
 
 To enable full backend control over the sidebar navigation, the frontend expects an API endpoint (e.g., `/api/user-menu`) that returns a JSON array of menu item objects tailored to the authenticated user's role.
 
-The frontend will recursively render this structure to build the main menus and sub-menus.
+The frontend will recursively render this structure to build the main menus and sub-menus. The frontend will map the `accessKey` provided for each item to the correct Next.js route and perform access control.
 
 ## JSON Object Structure
 
@@ -12,7 +12,7 @@ Each object in the array represents a single menu item and should conform to the
 {
   "label": "string",
   "icon": "string",
-  "href": "string | null",
+  "accessKey": "string",
   "type": "string | null",
   "workflowId": "number | null",
   "subItems": "Array<MenuItem> | null"
@@ -23,8 +23,8 @@ Each object in the array represents a single menu item and should conform to the
 
 - **`label`** (string, required): The text displayed for the menu item (e.g., "Dashboard", "Conversion").
 - **`icon`** (string, required): A key representing the icon. The frontend maps this to a specific icon component. See the list of available icon keys below.
-- **`href`** (string | null): The URL path for the link (e.g., `/dashboard/pending-enquiries`). This should be `null` for parent items that only act as collapsible group headers.
-- **`type`** (string | null): Used as a query parameter for pages that differentiate content, like "conversion" or "diversion". Results in a URL like `/dashboard/pending-enquiries?type=conversion`.
+- **`accessKey`** (string, required): A unique key for the menu item (e.g., `dashboard`, `pending_enquiries`). The frontend uses this to look up the correct route and manage permissions.
+- **`type`** (string | null): Used as a query parameter for pages that differentiate content, like "conversion" or "diversion".
 - **`workflowId`** (number | null): The specific `workflow_sequence_id` associated with the page, which the frontend can use for subsequent API calls.
 - **`subItems`** (Array | null): An array of `MenuItem` objects to create a nested submenu. If the item has no submenu, this should be `null` or omitted.
 
@@ -39,7 +39,7 @@ This example shows the JSON response for a user with the "SDO/DAO" role. This us
   {
     "label": "Dashboard",
     "icon": "Home",
-    "href": "/dashboard",
+    "accessKey": "dashboard",
     "type": null,
     "workflowId": null,
     "subItems": null
@@ -47,14 +47,14 @@ This example shows the JSON response for a user with the "SDO/DAO" role. This us
   {
     "label": "Conversion",
     "icon": "FileText",
-    "href": null,
+    "accessKey": "conversion",
     "type": null,
     "workflowId": null,
     "subItems": [
       {
         "label": "SDO/DAO Report",
         "icon": null,
-        "href": "/dashboard/sdo-dao-report",
+        "accessKey": "sdo_dao_report",
         "type": "conversion",
         "workflowId": 25,
         "subItems": null
@@ -62,7 +62,7 @@ This example shows the JSON response for a user with the "SDO/DAO" role. This us
       {
         "label": "LLMC Recommendations",
         "icon": null,
-        "href": "/dashboard/llmc-recommendations",
+        "accessKey": "llmc_recommendations",
         "type": "conversion",
         "workflowId": 27,
         "subItems": null
@@ -72,14 +72,14 @@ This example shows the JSON response for a user with the "SDO/DAO" role. This us
   {
     "label": "Diversion",
     "icon": "ShieldCheck",
-    "href": null,
+    "accessKey": "diversion",
     "type": null,
     "workflowId": null,
     "subItems": [
       {
         "label": "SDO/DAO Report",
         "icon": null,
-        "href": "/dashboard/sdo-dao-report",
+        "accessKey": "sdo_dao_report",
         "type": "diversion",
         "workflowId": 18,
         "subItems": null
