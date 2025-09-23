@@ -1,0 +1,286 @@
+
+{
+  "menuConfig": [
+    {
+      "label": "Dashboard",
+      "href": "/dashboard",
+      "accessKey": "dashboard",
+      "workflowId": null
+    },
+    {
+      "label": "My Applications",
+      "href": "/dashboard/my-applications",
+      "accessKey": "view_application",
+      "workflowId": null
+    },
+    {
+      "label": "New Application",
+      "href": "/dashboard/new-application",
+      "accessKey": "create_application",
+      "workflowId": null
+    },
+    {
+      "label": "Hill Applications",
+      "href": "/dashboard/hill-applications",
+      "accessKey": "hill_application",
+      "workflowId": null
+    },
+    {
+      "label": "User Management",
+      "href": "/dashboard/user-management",
+      "accessKey": "user_management",
+      "workflowId": null
+    },
+    {
+      "label": "Legacy Data",
+      "href": "/dashboard/legacy-data",
+      "accessKey": "legacy_data",
+      "workflowId": null
+    },
+    {
+      "label": "Conversion",
+      "accessKey": "conversion",
+      "subItems": [
+        {
+          "label": "Pending Enquiries",
+          "href": "/dashboard/pending-enquiries",
+          "type": "conversion",
+          "accessKey": "pending_enquiries",
+          "workflowId": 6
+        },
+        {
+          "label": "Enquiries",
+          "href": "/dashboard/enquiries",
+          "type": "conversion",
+          "accessKey": "enquiries",
+          "workflowId": 7
+        },
+        {
+          "label": "SDAO Enquiries",
+          "href": "/dashboard/sdao-enquiries",
+          "type": "conversion",
+          "accessKey": "SDAO_enquiries",
+          "workflowId": 8
+        },
+        {
+          "label": "LLMC Review",
+          "href": "/dashboard/llmc-review",
+          "type": "conversion",
+          "accessKey": "llmc_review",
+          "workflowId": 9
+        },
+        {
+            "label": "SDO/DAO Report",
+            "href": "/dashboard/sdo-dao-report",
+            "type": "conversion",
+            "accessKey": "sdo_dao_report",
+            "workflowId": 25
+        },
+        {
+          "label": "LLMC Recommendations",
+          "href": "/dashboard/llmc-recommendations",
+          "type": "conversion",
+          "accessKey": "llmc_recommendations",
+          "workflowId": 27
+        },
+        {
+          "label": "Report",
+          "href": "/dashboard/report",
+          "type": "conversion",
+          "accessKey": "report",
+          "workflowId": 22
+        },
+        {
+          "label": "DLC Recommendations",
+          "href": "/dashboard/dlc-recommendations",
+          "type": "conversion",
+          "accessKey": "dlc_recommendations",
+          "workflowId": 23
+        },
+        {
+          "label": "LRD Decision",
+          "href": "/dashboard/lrd-decision",
+          "type": "conversion",
+          "accessKey": "lrd_decision",
+          "workflowId": 24
+        },
+        {
+            "label": "LRD Report",
+            "href": "/dashboard/lrd-report",
+            "type": "conversion",
+            "accessKey": "conversion_lrd_report",
+            "workflowId": 16
+        },
+        {
+          "label": "Decision & Fees",
+          "href": "/dashboard/decision-and-fees",
+          "type": "conversion",
+          "accessKey": "decision_and_fees",
+          "workflowId": 16
+        },
+        {
+          "label": "DC Office",
+          "href": "/dashboard/dc-office",
+          "type": "conversion",
+          "accessKey": "dc_office",
+          "workflowId": 24
+        },
+        {
+          "label": "DFO Report",
+          "href": "/dashboard/dfo-report",
+          "type": "conversion",
+          "accessKey": "dfo_report",
+          "workflowId": 26
+        },
+        {
+          "label": "SDC Report",
+          "href": "/dashboard/sdc-report",
+          "type": "conversion",
+          "accessKey": "sdc_report",
+          "workflowId": 28
+        },
+        {
+          "label": "MARSAC Report",
+          "href": "/dashboard/marsac-report",
+          "type": "conversion",
+          "accessKey": "marsac_report",
+          "workflowId": 30
+        },
+        {
+          "label": "Unprocessed Applications",
+          "href": "/dashboard/unprocessed-applications",
+          "type": "conversion",
+          "accessKey": "unprocessed_applications",
+          "workflowId": 15
+        }
+      ]
+    },
+    {
+      "label": "Diversion",
+      "accessKey": "diversion",
+      "subItems": [
+        {
+          "label": "Pending Enquiries",
+          "href": "/dashboard/pending-enquiries",
+          "type": "diversion",
+          "accessKey": "pending_enquiries",
+          "workflowId": 2
+        },
+        {
+          "label": "SDC Report",
+          "href": "/dashboard/sdc-report",
+          "type": "diversion",
+          "accessKey": "sdc_report",
+          "workflowId": 3
+        },
+        {
+          "label": "DC Office",
+          "href": "/dashboard/dc-office",
+          "type": "diversion",
+          "accessKey": "dc_office",
+          "workflowId": 4
+        },
+        {
+          "label": "SDO/DAO Report",
+          "href": "/dashboard/sdo-dao-report",
+          "type": "diversion",
+          "accessKey": "sdo_dao_report",
+          "workflowId": 18
+        },
+        {
+          "label": "SDAO Enquiries",
+          "href": "/dashboard/sdao-enquiries",
+          "type": "diversion",
+          "accessKey": "SDAO_enquiries",
+          "workflowId": 19
+        },
+        {
+          "label": "DLC Recommendations",
+          "href": "/dashboard/dlc-recommendations",
+          "type": "diversion",
+          "accessKey": "dlc_recommendations",
+          "workflowId": 20
+        },
+        {
+          "label": "Final Orders",
+          "href": "/dashboard/final-orders",
+          "type": "diversion",
+          "accessKey": "final_order",
+          "workflowId": 21
+        },
+        {
+          "label": "MARSAC Report",
+          "href": "/dashboard/marsac-report",
+          "type": "diversion",
+          "accessKey": "marsac_report",
+          "workflowId": 30
+        },
+        {
+          "label": "Cabinet",
+          "href": "/dashboard/cabinet",
+          "type": "diversion",
+          "accessKey": "cabinet",
+          "workflowId": 31
+        },
+        {
+            "label": "LRD Report",
+            "href": "/dashboard/lrd-report",
+            "type": "diversion",
+            "accessKey": "diversion_lrd_report",
+            "workflowId": 17
+        },
+        {
+          "label": "Unprocessed Applications",
+          "href": "/dashboard/unprocessed-applications",
+          "type": "diversion",
+          "accessKey": "unprocessed_applications",
+          "workflowId": 15
+        },
+        {
+          "label": "Enquiries",
+          "href": "/dashboard/enquiries",
+          "type": "diversion",
+          "accessKey": "enquiries",
+          "workflowId": 3
+        }
+      ]
+    },
+    {
+      "label": "< 0.5 Hectare",
+      "href": "/dashboard/area-lesser",
+      "accessKey": "less_than",
+      "workflowId": null
+    },
+    {
+      "label": "> 0.5 Hectare",
+      "href": "/dashboard/area-greater",
+      "accessKey": "greater_than",
+      "workflowId": null
+    },
+    {
+      "label": "Area-wise List (All)",
+      "href": "/dashboard/area",
+      "accessKey": "both_hectare",
+      "workflowId": null
+    },
+    {
+      "label": "LLMC",
+      "accessKey": "llmc_menu",
+      "subItems": [
+        {
+          "label": "LLMC Review",
+          "href": "/dashboard/llmc-review",
+          "type": "conversion",
+          "accessKey": "llmc_review",
+          "workflowId": 9
+        }
+      ]
+    },
+    {
+      "label": "Reports from DLC",
+      "href": "/dashboard/reports-from-dlc",
+      "accessKey": "dlc_report",
+      "workflowId": null
+    }
+  ]
+}
