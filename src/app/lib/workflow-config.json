@@ -105,6 +105,20 @@
           "workflowId": 24
         },
         {
+            "label": "LRD Report",
+            "href": "/dashboard/lrd-report",
+            "type": "conversion",
+            "accessKey": "conversion_lrd_report",
+            "workflowId": 16
+        },
+        {
+          "label": "DLC Report",
+          "href": "/dashboard/dlc-report",
+          "type": "conversion",
+          "accessKey": "conversion_dlc_report",
+          "workflowId": 15
+        },
+        {
           "label": "Decision & Fees",
           "href": "/dashboard/decision-and-fees",
           "type": "conversion",
@@ -214,6 +228,20 @@
           "type": "diversion",
           "accessKey": "cabinet",
           "workflowId": 31
+        },
+        {
+            "label": "LRD Report",
+            "href": "/dashboard/lrd-report",
+            "type": "diversion",
+            "accessKey": "diversion_lrd_report",
+            "workflowId": 17
+        },
+        {
+          "label": "DLC Report",
+          "href": "/dashboard/dlc-report",
+          "type": "diversion",
+          "accessKey": "diversion_dlc_report",
+          "workflowId": 60
         },
         {
           "label": "Unprocessed Applications",

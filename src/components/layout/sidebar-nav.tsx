@@ -82,6 +82,7 @@ export const allMenuItems = [
         { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'conversion', accessKey: 'dlc_recommendations' },
         { href: '/dashboard/lrd-decision', label: 'LRD Decision', type: 'conversion', accessKey: 'lrd_decision' },
         { href: '/dashboard/lrd-report', label: 'LRD Report', type: 'conversion', accessKey: 'conversion_lrd_report' },
+        { href: '/dashboard/dlc-report', label: 'DLC Report', type: 'conversion', accessKey: 'conversion_dlc_report' },
         { href: '/dashboard/decision-and-fees', label: 'Decision & Fees', type: 'conversion', accessKey: 'decision_and_fees' },
         { href: '/dashboard/dc-office', label: 'DC Office', type: 'conversion', accessKey: 'dc_office' },
         { href: '/dashboard/dfo-report', label: 'DFO Report', type: 'conversion', accessKey: 'dfo_report' },
@@ -105,6 +106,7 @@ export const allMenuItems = [
         { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'diversion', accessKey: 'marsac_report' },
         { href: '/dashboard/cabinet', label: 'Cabinet', type: 'diversion', accessKey: 'cabinet' },
         { href: '/dashboard/lrd-report', label: 'LRD Report', type: 'diversion', accessKey: 'diversion_lrd_report' },
+        { href: '/dashboard/dlc-report', label: 'DLC Report', type: 'diversion', accessKey: 'diversion_dlc_report' },
         { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'diversion', accessKey: 'unprocessed_applications' },
         { href: '/dashboard/enquiries', label: 'Enquiries', type: 'diversion', accessKey: 'enquiries' },
     ]
