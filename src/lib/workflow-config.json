@@ -103,6 +103,27 @@
           "workflowId": 6
         },
         {
+          "label": "Report from SDC",
+          "href": "/dashboard/report",
+          "type": "conversion",
+          "accessKey": "report",
+          "workflowId": 22
+        },
+        {
+          "label": "SDO Report",
+          "href": "/dashboard/sdo-dao-report",
+          "type": "conversion",
+          "accessKey": "sdo_dao_report",
+          "workflowId": 25
+        },
+        {
+          "label": "LLMC Recommendations",
+          "href": "/dashboard/llmc-recommendations",
+          "type": "conversion",
+          "accessKey": "llmc_recommendations",
+          "workflowId": 27
+        },
+        {
           "label": "Enquiries",
           "href": "/dashboard/enquiries",
           "type": "conversion",
@@ -122,27 +143,6 @@
           "type": "conversion",
           "accessKey": "llmc_review",
           "workflowId": 9
-        },
-        {
-            "label": "SDO/DAO Report",
-            "href": "/dashboard/sdo-dao-report",
-            "type": "conversion",
-            "accessKey": "sdo_dao_report",
-            "workflowId": 25
-        },
-        {
-          "label": "LLMC Recommendations",
-          "href": "/dashboard/llmc-recommendations",
-          "type": "conversion",
-          "accessKey": "llmc_recommendations",
-          "workflowId": 27
-        },
-        {
-          "label": "Report",
-          "href": "/dashboard/report",
-          "type": "conversion",
-          "accessKey": "report",
-          "workflowId": 22
         },
         {
           "label": "DLC Recommendations",
@@ -242,7 +242,7 @@
           "workflowId": 4
         },
         {
-          "label": "SDO/DAO Report",
+          "label": "SDO Report",
           "href": "/dashboard/sdo-dao-report",
           "type": "diversion",
           "accessKey": "sdo_dao_report",
