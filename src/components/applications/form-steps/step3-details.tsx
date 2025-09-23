@@ -49,8 +49,8 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{formType === 'hill' ? 'Name of the Village' : 'Name of Patta Holder'}</FormLabel>
-                    <FormControl><Input placeholder={formType === 'hill' ? 'Enter village name' : 'Enter full name'} {...field} /></FormControl>
+                    <FormLabel>{formType === 'hill' ? 'Name of the Village Head' : 'Name of Patta Holder'}</FormLabel>
+                    <FormControl><Input placeholder={formType === 'hill' ? 'Enter village head name' : 'Enter full name'} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -328,3 +328,5 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
 }
 
   
+
+    
