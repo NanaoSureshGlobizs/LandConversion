@@ -42,12 +42,23 @@ const landConversionDocs = [
   'NOC (Co-owner, Municipal Council or GP)',
 ];
 
+const hillAreaDocs = [
+  'Aadhaar',
+  'Land Ownership certificate',
+  'Passport Photo',
+  'Hill House Tax Receipt',
+  'Sale Deed/Title Deed/Partial Deed',
+  'Affidavit/Encumbrance Certificate',
+  'NOC From ADC',
+];
+
 interface Step2Props {
   documentType: 'land_diversion' | 'land_conversion' | null;
+  formType: 'normal' | 'hill';
 }
 
-export function Step2DocumentRequirements({ documentType }: Step2Props) {
-  if (!documentType) {
+export function Step2DocumentRequirements({ documentType, formType }: Step2Props) {
+  if (formType === 'normal' && !documentType) {
     return (
         <Alert>
           <AlertTitle>Select a Date</AlertTitle>
@@ -59,7 +70,18 @@ export function Step2DocumentRequirements({ documentType }: Step2Props) {
   }
 
   const isDiversion = documentType === 'land_diversion';
-  const title = `Required Documents for ${isDiversion ? 'Land Diversion' : 'Land Conversion'}`;
+  
+  let docsToShow: string[];
+  let title: string;
+
+  if (formType === 'hill') {
+      docsToShow = hillAreaDocs;
+      title = 'Required Documents for Hill Area Application';
+  } else {
+      docsToShow = isDiversion ? landDiversionDocs : landConversionDocs;
+      title = `Required Documents for ${isDiversion ? 'Land Diversion' : 'Land Conversion'}`;
+  }
+
 
   return (
     <div className="space-y-8">
@@ -70,10 +92,8 @@ export function Step2DocumentRequirements({ documentType }: Step2Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 pt-4">
-        <DocumentList items={isDiversion ? landDiversionDocs : landConversionDocs} />
+        <DocumentList items={docsToShow} />
       </CardContent>
     </div>
   );
 }
-
-    

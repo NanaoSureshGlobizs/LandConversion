@@ -23,27 +23,18 @@ import Image from "next/image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
-const documentCategories = {
-    land_diversion: [
-      { id: 'patta', title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
+const getDocumentCategories = (formType: 'normal' | 'hill') => {
+    const isHill = formType === 'hill';
+    return [
+      { id: 'patta', title: isHill ? 'Land Ownership Certificate' : 'Latest Patta Copy', description: isHill ? 'Upload the land ownership document' : 'Not less than 10 days from the date of filing', isMultiple: true },
       { id: 'applicant_aadhar', title: 'Aadhaar', description: 'Upload a copy of your Aadhaar card' },
       { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
-      { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
+      { id: 'tax_receipt', title: isHill ? 'Hill House Tax Receipt' : 'Tax Receipt', description: 'Upload the latest tax receipt' },
       { id: 'deed_certificate', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
       { id: 'affidavit_certificate', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
-      { id: 'noc_certificate', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
+      { id: 'noc_certificate', title: isHill ? 'NOC from ADC' : 'NOC', description: isHill ? 'Upload the NOC from the ADC' : 'From Co-owner, Municipal Council or GP' },
       { id: 'others_relevant_document', title: 'Other Relevant Documents', description: 'Upload any other supporting documents', isMultiple: true },
-    ],
-    land_conversion: [
-      { id: 'patta', title: 'Latest Patta Copy', description: 'Not less than 10 days from the date of filing', isMultiple: true },
-      { id: 'applicant_aadhar', title: 'Aadhaar', description: 'Upload a copy of your Aadhaar card' },
-      { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
-      { id: 'tax_receipt', title: 'Tax Receipt', description: 'Upload the latest tax receipt' },
-      { id: 'deed_certificate', title: 'Sale Deed/Title Deed/Partial Deed', description: 'Upload the relevant deed document' },
-      { id: 'affidavit_certificate', title: 'Affidavit/Encumbrance Certificate', description: 'Upload the necessary certificates' },
-      { id: 'noc_certificate', title: 'NOC', description: 'From Co-owner, Municipal Council or GP' },
-      { id: 'others_relevant_document', title: 'Other Relevant Documents', description: 'Upload any other supporting documents', isMultiple: true },
-    ],
+    ];
 };
 
 
@@ -51,9 +42,10 @@ interface Step4Props {
   documentType: 'land_diversion' | 'land_conversion';
   accessToken: string;
   relationships: Relationship[];
+  formType: 'normal' | 'hill';
 }
 
-export function Step4DocumentUpload({ documentType, accessToken, relationships }: Step4Props) {
+export function Step4DocumentUpload({ documentType, accessToken, relationships, formType }: Step4Props) {
   const { getValues, setValue } = useFormContext<FormValues>();
   const { toast } = useToast();
   const { addLog } = useDebug();
@@ -68,7 +60,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships }
   const [newAadharFile, setNewAadharFile] = useState<File | null>(null);
   const [newAadharPreview, setNewAadharPreview] = useState<string | null>(null);
 
-  const documents = documentCategories[documentType];
+  const documents = getDocumentCategories(formType);
   const familyMembers = getValues('relatives') || [];
 
   const resetDialog = () => {

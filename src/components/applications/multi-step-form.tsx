@@ -460,7 +460,7 @@ export function MultiStepForm({
                 formType={formType!}
             />
             )}
-            {currentStep === 2 && <Step2DocumentRequirements documentType={documentType} />}
+            {currentStep === 2 && <Step2DocumentRequirements documentType={documentType} formType={formType!} />}
             {currentStep === 3 && (
             <Step3Details
                 locationTypes={locationTypes}
@@ -473,7 +473,12 @@ export function MultiStepForm({
             />
             )}
             {currentStep === 4 && (
-            <Step4DocumentUpload documentType={documentType} accessToken={accessToken} relationships={relationships} />
+            <Step4DocumentUpload 
+                documentType={documentType} 
+                accessToken={accessToken} 
+                relationships={relationships} 
+                formType={formType!} 
+            />
             )}
             {currentStep === 5 && (
                 <Step5Preview
