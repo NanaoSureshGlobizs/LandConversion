@@ -741,11 +741,32 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
-    let url = `/applications/lists?page=${page}&limit=${limit}`;
+
+    const hillWorkflowIds = [63, 64, 65, 66, 67, 68, 69];
+    const isHillWorkflow = workflow_sequence_id !== null && hillWorkflowIds.includes(workflow_sequence_id);
+
+    let url;
+    if (isHillWorkflow) {
+        url = `/applications/lists_for_hills?page=${page}&limit=${limit}`;
+    } else {
+        url = `/applications/lists?page=${page}&limit=${limit}`;
+    }
+
     if(workflow_sequence_id) {
         url += `&workflow_sequence_id=${workflow_sequence_id}`;
     }
+    
     const { data, debugLog } = await fetchFromApi(url, accessToken);
+
+    if (data && isHillWorkflow && data['0'] && Array.isArray(data['0'])) {
+      return {
+          data: {
+              applications: data['0'],
+              pagination: data.pagination
+          },
+          log: debugLog
+      };
+    }
 
     // This handles the standard response structure for most lists
     if (data && (data.conversion_applications || data.diversion_applications)) {
@@ -1076,3 +1097,4 @@ function addLog(log: string) {
 
     
 
+    
