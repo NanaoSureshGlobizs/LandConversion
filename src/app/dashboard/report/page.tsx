@@ -14,6 +14,7 @@ export default async function ReportPage({ searchParams }: { searchParams: { [ke
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
   const type = (searchParams.type || 'conversion') as keyof typeof WORKFLOW_MAP;
+  const pageTitle = type === 'conversion' ? "Reports from SDC" : `Report (${type.charAt(0).toUpperCase() + type.slice(1)})`;
 
   if (!accessToken) {
     redirect('/');
@@ -32,7 +33,7 @@ export default async function ReportPage({ searchParams }: { searchParams: { [ke
       <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Report ({type === 'conversion' ? 'Conversion' : 'Diversion'})</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">{pageTitle}</h1>
         </div>
         <ReportTable 
           initialData={initialApplicationsData} 

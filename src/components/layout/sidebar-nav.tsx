@@ -93,12 +93,12 @@ export const allMenuItems = [
     accessKey: 'conversion',
     subItems: [
         { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'conversion', accessKey: 'pending_enquiries' },
+        { href: '/dashboard/report', label: 'Report from SDC', type: 'conversion', accessKey: 'report' },
         { href: '/dashboard/enquiries', label: 'Enquiries', type: 'conversion', accessKey: 'enquiries' },
         { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'SDAO_enquiries' },
         { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
         { href: '/dashboard/sdo-dao-report', label: 'SDO/DAO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
         { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations' },
-        { href: '/dashboard/report', label: 'Report', type: 'conversion', accessKey: 'report' },
         { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'conversion', accessKey: 'dlc_recommendations' },
         { href: '/dashboard/lrd-decision', label: 'LRD Decision', type: 'conversion', accessKey: 'lrd_decision' },
         { href: '/dashboard/lrd-report', label: 'LRD Report', type: 'conversion', accessKey: 'conversion_lrd_report' },

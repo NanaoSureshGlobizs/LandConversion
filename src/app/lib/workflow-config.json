@@ -86,6 +86,12 @@
       "workflowId": null
     },
     {
+        "label": "Unassigned Applications",
+        "href": "/dashboard/other-applications",
+        "accessKey": "other_list",
+        "workflowId": null
+    },
+    {
       "label": "Conversion",
       "accessKey": "conversion",
       "subItems": [
@@ -95,6 +101,13 @@
           "type": "conversion",
           "accessKey": "pending_enquiries",
           "workflowId": 6
+        },
+        {
+          "label": "Report from SDC",
+          "href": "/dashboard/report",
+          "type": "conversion",
+          "accessKey": "report",
+          "workflowId": 22
         },
         {
           "label": "Enquiries",
@@ -130,13 +143,6 @@
           "type": "conversion",
           "accessKey": "llmc_recommendations",
           "workflowId": 27
-        },
-        {
-          "label": "Report",
-          "href": "/dashboard/report",
-          "type": "conversion",
-          "accessKey": "report",
-          "workflowId": 22
         },
         {
           "label": "DLC Recommendations",
