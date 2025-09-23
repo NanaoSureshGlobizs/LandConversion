@@ -56,6 +56,20 @@ export const allMenuItems = [
     accessKey: 'hill_application',
   },
   {
+    label: 'Hill Reports',
+    icon: Mountain,
+    accessKey: 'hill_reports',
+    subItems: [
+        { href: '/dashboard/pending-enquiries-hill', label: 'Pending Enquiries', accessKey: 'pending_enquiries_hill' },
+        { href: '/dashboard/sdo-hill-report', label: 'SDO Hill Report', accessKey: 'sdo_hill_report' },
+        { href: '/dashboard/sdc-hill-report', label: 'SDC Hill Report', accessKey: 'sdc_hill_report' },
+        { href: '/dashboard/dfo-hill-report', label: 'DFO Hill Report', accessKey: 'dfo_hill_report' },
+        { href: '/dashboard/adc-hill-report', label: 'ADC Hill Report', accessKey: 'adc_hill_report' },
+        { href: '/dashboard/dc-hill-report', label: 'DC Hill Report', accessKey: 'dc_hill_report' },
+        { href: '/dashboard/lrd-hill-report', label: 'LRD Hill Report', accessKey: 'lrd_hill_report' },
+    ]
+  },
+  {
     href: '/dashboard/user-management',
     label: 'User Management',
     icon: Users,
@@ -129,14 +143,6 @@ export const allMenuItems = [
     icon: AreaChart,
     accessKey: 'both_hectare',
   },
-  /*
-  {
-    href: '/dashboard/llmc-meeting',
-    label: 'LLMC Meeting',
-    icon: Library,
-    accessKey: 'llmc_meeting',
-  },
-  */
   {
     label: 'LLMC',
     icon: Library,
@@ -193,7 +199,6 @@ export function SidebarNav() {
       return currentPath === href && currentType === itemType;
     }
     
-    // Fallback for non-exact, non-typed links
     return currentPath === href;
   };
   
@@ -202,7 +207,6 @@ export function SidebarNav() {
     const finalItems: (typeof allMenuItems[0])[] = [];
 
     allMenuItems.forEach(item => {
-        // If it's a top-level link without sub-items
         if (!item.subItems) {
             if (!item.accessKey || userAccessSet.has(item.accessKey)) {
                 finalItems.push(item);
@@ -210,12 +214,10 @@ export function SidebarNav() {
             return;
         }
 
-        // If it has sub-items, filter them first
         const visibleSubItems = item.subItems.filter(subItem => 
             !subItem.accessKey || userAccessSet.has(subItem.accessKey)
         );
 
-        // Special handling for MARSAC role to show MARSAC Report as top-level
         if (role === 'MARSAC' && visibleSubItems.length > 0) {
             const marsacItem = visibleSubItems.find(sub => sub.accessKey === 'marsac_report');
             if (marsacItem && !finalItems.some(fi => fi.href === marsacItem.href)) {
@@ -226,21 +228,19 @@ export function SidebarNav() {
                     accessKey: 'marsac_report'
                 });
             }
-            return; // Stop processing this parent item (Conversion/Diversion)
+            return; 
         }
 
 
         if (visibleSubItems.length > 0) {
-            // If there's more than one sub-item, or the parent itself is a menu group, show the parent.
             if (visibleSubItems.length > 1 || !item.href) {
                 finalItems.push({ ...item, subItems: visibleSubItems });
             } else {
-                // If only one sub-item is visible, promote it to a top-level item
                 const singleSubItem = visibleSubItems[0];
                 finalItems.push({
                     ...singleSubItem,
                     label: singleSubItem.label,
-                    icon: item.icon, // Use parent icon
+                    icon: item.icon, 
                     href: singleSubItem.type ? `${singleSubItem.href}?type=${singleSubItem.type}` : singleSubItem.href
                 });
             }

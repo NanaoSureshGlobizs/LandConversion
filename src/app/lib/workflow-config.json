@@ -26,6 +26,54 @@
       "workflowId": null
     },
     {
+        "label": "Hill Reports",
+        "accessKey": "hill_reports",
+        "subItems": [
+          {
+            "label": "Pending Enquiries",
+            "href": "/dashboard/pending-enquiries-hill",
+            "accessKey": "pending_enquiries_hill",
+            "workflowId": 63
+          },
+          {
+            "label": "SDO Hill Report",
+            "href": "/dashboard/sdo-hill-report",
+            "accessKey": "sdo_hill_report",
+            "workflowId": 69
+          },
+          {
+            "label": "SDC Hill Report",
+            "href": "/dashboard/sdc-hill-report",
+            "accessKey": "sdc_hill_report",
+            "workflowId": 64
+          },
+          {
+            "label": "DFO Hill Report",
+            "href": "/dashboard/dfo-hill-report",
+            "accessKey": "dfo_hill_report",
+            "workflowId": 65
+          },
+          {
+            "label": "ADC Hill Report",
+            "href": "/dashboard/adc-hill-report",
+            "accessKey": "adc_hill_report",
+            "workflowId": 66
+          },
+          {
+            "label": "DC Hill Report",
+            "href": "/dashboard/dc-hill-report",
+            "accessKey": "dc_hill_report",
+            "workflowId": 67
+          },
+          {
+            "label": "LRD Hill Report",
+            "href": "/dashboard/lrd-hill-report",
+            "accessKey": "lrd_hill_report",
+            "workflowId": 68
+          }
+        ]
+    },
+    {
       "label": "User Management",
       "href": "/dashboard/user-management",
       "accessKey": "user_management",
