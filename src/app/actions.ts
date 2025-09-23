@@ -805,6 +805,41 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     return { data, log: debugLog };
 }
 
+export async function getOtherApplications(accessToken: string, page = 1, limit = 10) {
+    if (!accessToken) {
+      return { data: null, log: "No access token found" };
+    }
+    let url = `/applications/other_lists?page=${page}&limit=${limit}`;
+
+    const { data, debugLog } = await fetchFromApi(url, accessToken);
+
+    if (data && data['0']) {
+        const appsData = data['0'];
+        let conversionApps: any[] = [];
+        if (appsData.conversion_applications && typeof appsData.conversion_applications === 'object') {
+            conversionApps = Object.values(appsData.conversion_applications).filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item);
+        }
+
+        let diversionApps: any[] = [];
+        if (appsData.diversion_applications && typeof appsData.diversion_applications === 'object') {
+            diversionApps = Object.values(appsData.diversion_applications).filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item);
+        }
+        
+        const allApps = [...conversionApps, ...diversionApps];
+
+        return { 
+            data: {
+                applications: allApps,
+                pagination: data.pagination
+            }, 
+            log: debugLog 
+        };
+    }
+    
+    return { data, log: debugLog };
+}
+
+
 export async function getHillApplications(accessToken: string, page = 1, limit = 10) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
@@ -1040,3 +1075,4 @@ function addLog(log: string) {
   
 
     
+

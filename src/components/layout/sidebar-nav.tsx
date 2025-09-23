@@ -82,6 +82,12 @@ export const allMenuItems = [
     accessKey: 'legacy_data',
   },
   {
+    href: '/dashboard/other-applications',
+    label: 'Unassigned Applications',
+    icon: FileSearch,
+    accessKey: 'other_list',
+  },
+  {
     label: 'Conversion',
     icon: FileText,
     accessKey: 'conversion',
