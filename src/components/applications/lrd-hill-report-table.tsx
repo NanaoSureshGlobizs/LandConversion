@@ -67,7 +67,7 @@ export function LrdHillReportTable({ initialData, accessToken, statuses }: LrdHi
     }
   }, [isNearScreen, loadMoreApplications]);
 
-  const handleRowClick = (app: ApplicationListItem) => {
+  const handleRowClick = (app: any) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/lrd-hill-report&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
@@ -78,7 +78,7 @@ export function LrdHillReportTable({ initialData, accessToken, statuses }: LrdHi
           <TableHeader>
             <TableRow>
               <TableHead>Application ID</TableHead>
-              <TableHead>Patta No.</TableHead>
+              <TableHead>District</TableHead>
               <TableHead>Applied Area</TableHead>
               <TableHead>Application Date</TableHead>
               <TableHead>Status</TableHead>
@@ -87,14 +87,14 @@ export function LrdHillReportTable({ initialData, accessToken, statuses }: LrdHi
           </TableHeader>
           <TableBody>
             {applications.length > 0 ? (
-              applications.map((app) => (
+              applications.map((app: any) => (
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
-                   <TableCell>{app.patta_no}</TableCell>
-                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
+                   <TableCell>{app.district_name}</TableCell>
+                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.applied_area_unit_name}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{app.application_status.name}</Badge>
+                    <Badge variant="secondary">{app.status_name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                      <div className='flex justify-end items-center gap-2' onClick={(e) => e.stopPropagation()}>
