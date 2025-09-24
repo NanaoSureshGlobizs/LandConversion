@@ -73,10 +73,11 @@ export default function DashboardLayoutClient({
     }
     
     const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
+    const hasDashboardAccess = allowedRoutes.includes('/dashboard');
     const firstAllowedRoute = allowedRoutes.length > 0 ? allowedRoutes[0] : '/dashboard';
 
-    // If on the root dashboard, redirect to the first allowed route if it's not the dashboard itself.
-    if (isRootDashboard && firstAllowedRoute !== '/dashboard') {
+    // If on the root dashboard and the user does NOT have dashboard access, redirect them immediately.
+    if (isRootDashboard && !hasDashboardAccess && firstAllowedRoute !== '/dashboard') {
         router.replace(firstAllowedRoute);
         return;
     }
@@ -127,11 +128,17 @@ export default function DashboardLayoutClient({
       </div>
     );
   }
-
-  // If authenticated but no allowed routes, show a message on the dashboard page.
-  if (isAuthenticated && allowedRoutes.length === 0 && pathname === '/dashboard') {
-     // Children will render the dashboard page, we can show a special message there or here.
-     // For now, let the dashboard page render its "0 stats" view.
+  
+  const isRootDashboard = pathname === '/dashboard' || pathname === '/dashboard/';
+  const hasDashboardAccess = allowedRoutes.includes('/dashboard');
+  
+  // Prevent rendering dashboard content if the user doesn't have access and is on the dashboard path
+  if (isRootDashboard && !hasDashboardAccess && allowedRoutes.length > 0) {
+      return (
+          <div className="flex min-h-screen items-center justify-center bg-background">
+              <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+      );
   }
 
 
