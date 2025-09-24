@@ -147,15 +147,23 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         uploadedKmlFileName = uploadResult.data.filename;
     }
 
-    const fullRemarks = `Land Schedule: ${landSchedule}\n\nChecklist: ${JSON.stringify(checkboxes)}\n\nKML File: ${uploadedKmlFileName}\n\nLatitude: ${latitude}\nLongitude: ${longitude}\n\nRemarks: ${remarks}`;
+    const combinedRemarks = `Checklist: ${JSON.stringify(checkboxes)}\n\nKML File: ${uploadedKmlFileName}\n\nRemarks: ${remarks}`;
     
-    const payload = {
+    const payload:any = {
         application_details_id: application.id,
         verification_status_id: parseInt(status),
-        remark: fullRemarks,
+        remark: combinedRemarks,
         attachment: uploadedFileName,
         status: 1,
+        land_schedule: landSchedule,
     };
+    
+    if (latitude) {
+        payload.latitude = parseFloat(latitude);
+    }
+    if (longitude) {
+        payload.longitude = parseFloat(longitude);
+    }
 
     const submitResult = await forwardApplication(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
