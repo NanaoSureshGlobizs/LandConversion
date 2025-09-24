@@ -396,10 +396,10 @@ export function MultiStepForm({
         description: result.message || `Your application has been ${existingApplication ? 'updated' : 'received'}.`,
       });
 
-      if (!existingApplication) {
-        methods.reset(getInitialValues(null));
-        setCurrentStep(0);
-        setFormType(null);
+      if (!existingApplication && result.data?.application_id) {
+          router.push(`/dashboard/my-applications/${result.data.application_id}`);
+      } else {
+         router.push('/dashboard/my-applications');
       }
     } else {
        toast({

@@ -347,8 +347,11 @@ export async function submitApplication(formData: any, token: string | undefined
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
     }
+    
+    // Pass the new application ID back to the client
+    const application_id = result.data?.application_id || null;
 
-    return { ...result, debugLog };
+    return { ...result, data: { application_id }, debugLog };
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
@@ -385,8 +388,11 @@ export async function submitHillApplication(formData: any, token: string | undef
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
     }
+    
+    // Pass the new application ID back to the client
+    const application_id = result.data?.id || null;
 
-    return { ...result, debugLog };
+    return { ...result, data: { application_id }, debugLog };
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
@@ -758,7 +764,7 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
-    if (data && isHillWorkflow && data['0'] && Array.isArray(data['0'])) {
+    if (data && isHillWorkflow && Array.isArray(data['0'])) {
       return {
           data: {
               applications: data['0'],
