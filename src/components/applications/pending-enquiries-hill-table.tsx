@@ -187,7 +187,7 @@ export function PendingEnquiriesHillTable({ initialData, accessToken, workflowId
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>
-                    <div className="font-medium">{app.district.name}</div>
+                    <div className="font-medium">{app.district?.name}</div>
                     <div className="text-sm text-muted-foreground">{app.village_name}</div>
                   </TableCell>
                   <TableCell>{app.patta_no}</TableCell>
