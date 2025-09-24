@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -194,7 +195,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>
-                    <div className="font-medium">{app.district.name}</div>
+                    <div className="font-medium">{app.district?.name}</div>
                     <div className="text-sm text-muted-foreground">{app.village_name}</div>
                   </TableCell>
                   <TableCell>{app.patta_no}</TableCell>
