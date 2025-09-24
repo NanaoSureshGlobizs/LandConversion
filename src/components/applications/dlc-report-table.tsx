@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import {
   Table,
@@ -12,13 +12,16 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { getApplications } from '@/app/actions';
+import { Loader2, Search } from 'lucide-react';
+import { getApplications, forwardApplication } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Checkbox } from '../ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '../ui/input';
 
 interface DlcReportTableProps {
   initialData: PaginatedApplications | null;
@@ -35,6 +38,12 @@ export function DlcReportTable({ initialData, accessToken, statuses }: DlcReport
   const { addLog } = useDebug();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isForwarding, setIsForwarding] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
+
   const type = searchParams.get('type') || 'conversion';
 
   const { isNearScreen } = useNearScreen({
@@ -72,18 +81,123 @@ export function DlcReportTable({ initialData, accessToken, statuses }: DlcReport
     setApplications(initialData?.applications || []);
     setPage(initialData?.pagination.currentPage || 1);
     setHasMore((initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1));
+    setSelectedRows({});
   }, [initialData]);
 
   const handleRowClick = (app: ApplicationListItem) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/dlc-report&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
+  
+  const handleSelectAll = (checked: boolean) => {
+    const newSelectedRows: Record<string, boolean> = {};
+    if (checked) {
+      filteredData.forEach(app => {
+        newSelectedRows[app.id] = true;
+      });
+    }
+    setSelectedRows(newSelectedRows);
+  };
+
+  const handleSelectRow = (id: string, checked: boolean) => {
+    setSelectedRows(prev => ({
+      ...prev,
+      [id]: checked
+    }));
+  };
+
+  const selectedIds = useMemo(() => {
+      return Object.keys(selectedRows).filter(id => selectedRows[id]);
+  }, [selectedRows]);
+
+  const handleForward = async () => {
+    if (selectedIds.length === 0) {
+      toast({
+        title: "No Applications Selected",
+        description: "Please select at least one application to forward.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsForwarding(true);
+    addLog(`Forwarding applications with IDs: [${selectedIds.join(', ')}] from DLC Report`);
+
+    const results = await Promise.all(
+        selectedIds.map(id => {
+            const payload = {
+                application_details_id: parseInt(id),
+                verification_status_id: 6, // Placeholder for 'Forward'
+                remark: "Forwarded from DLC Report",
+                attachment: "",
+                status: 1, 
+            };
+            return forwardApplication(payload, accessToken);
+        })
+    );
+    
+    const successfulForwards = results.filter(r => r.success).length;
+    const failedForwards = results.length - successfulForwards;
+
+    if (successfulForwards > 0) {
+        toast({
+            title: "Forward Successful",
+            description: `${successfulForwards} application(s) have been forwarded.`
+        });
+        setSelectedRows({});
+        // Refetch data might be needed here
+    }
+
+    if (failedForwards > 0) {
+         toast({
+            title: "Forward Failed",
+            description: `${failedForwards} application(s) could not be forwarded. Check logs for details.`,
+            variant: "destructive"
+        });
+    }
+
+    setIsForwarding(false);
+  };
+  
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return applications;
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return applications.filter(
+      (item) =>
+        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
+        item.patta_no.toLowerCase().includes(lowercasedFilter)
+    );
+  }, [applications, searchTerm]);
+
+  const isAllSelected = filteredData.length > 0 && selectedIds.length === filteredData.length;
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Search by App ID, Patta No."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-md pl-10"
+          />
+        </div>
+         <Button onClick={handleForward} disabled={isForwarding || selectedIds.length === 0}>
+            {isForwarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Forward ({selectedIds.length})
+        </Button>
+      </div>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[50px]">
+                 <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={handleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta No.</TableHead>
               <TableHead>Applied Area</TableHead>
@@ -93,14 +207,21 @@ export function DlcReportTable({ initialData, accessToken, statuses }: DlcReport
             </TableRow>
           </TableHeader>
           <TableBody>
-            {applications.length > 0 ? (
-              applications.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
-                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
-                   <TableCell>{app.patta_no}</TableCell>
-                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
-                  <TableCell>{app.created_at}</TableCell>
-                  <TableCell>
+            {filteredData.length > 0 ? (
+              filteredData.map((app) => (
+                <TableRow key={app.id}>
+                   <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedRows[app.id] || false}
+                      onCheckedChange={(checked) => handleSelectRow(app.id.toString(), !!checked)}
+                      aria-label={`Select row ${app.id}`}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium font-mono cursor-pointer" onClick={() => handleRowClick(app)}>{app.application_id || 'N/A'}</TableCell>
+                   <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.patta_no}</TableCell>
+                   <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.created_at}</TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -114,7 +235,7 @@ export function DlcReportTable({ initialData, accessToken, statuses }: DlcReport
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
