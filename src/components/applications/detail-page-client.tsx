@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Download, FileText, Printer, Edit, Loader2 } from 'lucide-react';
-import { getApplicationById, getApplicationWorkflow } from '@/app/actions';
+import { getApplicationById, getApplicationWorkflow, getSurveyQuestions } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem, AreaUnit } from '@/lib/definitions';
@@ -27,6 +27,8 @@ import { RejectForm } from '@/components/applications/reject-form';
 import { TrackingTimeline } from '@/components/applications/tracking-timeline';
 import { MarsacReportDialog } from './marsac-report-dialog';
 import { FeeOverwriteDialog } from './fee-overwrite-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { useDebug } from '@/context/DebugContext';
 
 
 function DetailItem({
@@ -46,6 +48,11 @@ function DetailItem({
   );
 }
 
+interface SurveyQuestion {
+    id: number;
+    name: string;
+}
+
 // This is the Client Component that handles rendering and interactivity.
 export function DetailPageClient({ id, accessToken, initialApplication, initialLog, statuses, areaUnits }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: (string | undefined)[], statuses: ApplicationStatusOption[], areaUnits?: AreaUnit[] }) {
   const { role } = useAuth();
@@ -54,10 +61,18 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   const type = searchParams.get('type');
   const actionContext = searchParams.get('actionContext');
 
+  const { toast } = useToast();
+  const { addLog } = useDebug();
+
   const [application, setApplication] = useState<FullApplicationResponse | null>(initialApplication);
   const [workflow, setWorkflow] = useState<WorkflowItem[] | null>(null);
   const [log, setLog] = useState<(string|undefined)[]>(initialLog);
   const [isLoading, setIsLoading] = useState(!initialApplication);
+  const [isFetchingQuestions, setIsFetchingQuestions] = useState(false);
+  
+  const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
+  const [isSurveyDialogOpen, setIsSurveyDialogOpen] = useState(false);
+
 
   const refreshData = useCallback(async () => {
     setIsLoading(true);
@@ -87,8 +102,37 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
     }
   }, [id, accessToken, initialApplication, refreshData]);
 
-  const canShowSurveyButton = (role === 'Admin' || role === 'SDAO') && from === '/dashboard/pending-enquiries';
-  
+  const handleOpenSurveyDialog = async () => {
+    if (!application || !role) {
+        toast({ title: "Error", description: "Application data or user role not available.", variant: "destructive" });
+        return;
+    }
+
+    setIsFetchingQuestions(true);
+
+    try {
+        const workflowSequenceId = searchParams.get('workflow_sequence_id');
+        // change_of_land_use_id is 1 for diversion, 2 for conversion
+        const purposeType = application.change_of_land_use_id === 1 ? 2 : 1; 
+
+        const { data, log } = await getSurveyQuestions(role, purposeType, parseInt(workflowSequenceId!), accessToken);
+        addLog(log || "Log for getSurveyQuestions");
+
+        if (data) {
+            setSurveyQuestions(data as SurveyQuestion[]);
+        } else {
+            setSurveyQuestions([]); // Ensure it's an empty array if API returns null/undefined
+        }
+        setIsSurveyDialogOpen(true); // Open dialog after fetching
+    } catch (error) {
+        toast({ title: "Failed to Fetch Questions", description: "Could not load survey questions from the server.", variant: "destructive" });
+        setSurveyQuestions([]);
+    } finally {
+        setIsFetchingQuestions(false);
+    }
+  };
+
+
   let backHref = '/dashboard/my-applications';
   if (from) {
       backHref = from;
@@ -121,12 +165,23 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
         case 'Survey_3':
         case 'Survey_4':
              return (
-                <SurveyReportDialog application={application!} statuses={statuses} accessToken={accessToken} onSuccess={refreshData}>
-                   <Button variant="default">
-                      <FileText className="mr-2"/>
+                <>
+                  <Button variant="default" onClick={handleOpenSurveyDialog} disabled={isFetchingQuestions}>
+                      {isFetchingQuestions ? <Loader2 className="mr-2 animate-spin" /> : <FileText className="mr-2"/>}
                       {application?.button_name || 'Survey Report'}
                    </Button>
-                </SurveyReportDialog>
+                   {application && (
+                     <SurveyReportDialog
+                        isOpen={isSurveyDialogOpen}
+                        onOpenChange={setIsSurveyDialogOpen}
+                        application={application} 
+                        questions={surveyQuestions}
+                        statuses={statuses} 
+                        accessToken={accessToken} 
+                        onSuccess={refreshData}
+                     />
+                   )}
+                </>
              );
         case 'MARSAC_Report':
             return (

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -7,7 +8,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
   DialogDescription,
 } from '@/components/ui/dialog';
@@ -29,34 +29,20 @@ import { uploadFile, forwardApplication } from '@/app/actions';
 import type { FullApplicationResponse, ApplicationStatusOption } from '@/lib/definitions';
 import { Loader2 } from 'lucide-react';
 
+interface SurveyQuestion {
+    id: number;
+    name: string;
+}
+
 interface SurveyReportDialogProps {
-    children: React.ReactNode;
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
     application: FullApplicationResponse;
+    questions: SurveyQuestion[];
     statuses: ApplicationStatusOption[];
     accessToken: string;
     onSuccess?: () => void;
 }
-
-const surveyChecklists = {
-    'Survey': [
-        { id: 'land_acquisition', label: 'The land is affected by land acquisition' }
-    ],
-    'KML_Survey': [
-        { id: 'land_acquisition', label: 'The land is affected by land acquisition' }
-    ],
-    'Survey_2': [
-        { id: 'adverse_ecology', label: 'The reclamation of paddy land shall not adversely affect the ecological condition and the agricultural activities in the adjoining paddy land' },
-        { id: 'surrounded_by_paddy', label: 'The said land is not surrounded on all four sides by paddy land' }
-    ],
-    'Survey_3': [
-        { id: 'forest_area', label: 'Land falls under forest area' },
-        { id: 'violates_master_plan', label: 'The proposal violates the Greater Imphal Master Plan 2043' }
-    ],
-    'Survey_4': [
-        { id: 'adverse_ecology_2', label: 'The reclamation of paddy land shall not adversely affect the ecological condition and the agricultural activities in the adjoining paddy land' },
-        { id: 'surrounded_by_paddy_2', label: 'The said land is not surrounded on all four sides by paddy land' }
-    ]
-};
 
 const surveyTitles = {
     'Survey': 'Land Acquisition Check',
@@ -67,8 +53,7 @@ const surveyTitles = {
 }
 
 
-export function SurveyReportDialog({ children, application, statuses, accessToken, onSuccess }: SurveyReportDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function SurveyReportDialog({ isOpen, onOpenChange, application, questions, statuses, accessToken, onSuccess }: SurveyReportDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const { toast } = useToast();
@@ -84,8 +69,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
   const [longitude, setLongitude] = useState('');
 
 
-  const formType = application.form_type as keyof typeof surveyChecklists;
-  const checklist = useMemo(() => surveyChecklists[formType] || [], [formType]);
+  const formType = application.form_type as keyof typeof surveyTitles;
   const dialogTitle = useMemo(() => surveyTitles[formType] || 'Survey Report', [formType]);
   
   const resetForm = () => {
@@ -99,7 +83,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
     setLongitude('');
   }
 
-  const handleCheckboxChange = (id: string, checked: boolean) => {
+  const handleCheckboxChange = (id: number, checked: boolean) => {
     setCheckboxes(prev => ({ ...prev, [id]: checked }));
   }
 
@@ -169,7 +153,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
     if (submitResult.success) {
         toast({ title: 'Survey Report Submitted', description: 'The report has been sent successfully.'});
         resetForm();
-        setIsOpen(false);
+        onOpenChange(false);
         onSuccess?.();
     } else {
         toast({ title: 'Submission Failed', description: submitResult.message || 'Could not submit the survey report.', variant: 'destructive' });
@@ -179,8 +163,7 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
   }
   
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-headline">{dialogTitle}</DialogTitle>
@@ -188,12 +171,12 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         </DialogHeader>
         <div className="space-y-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
             
-            {checklist.length > 0 && (
+            {questions && questions.length > 0 && (
                 <div className="space-y-4 rounded-md border p-4">
-                    {checklist.map(item => (
+                    {questions.map(item => (
                         <div key={item.id} className="flex items-start justify-between">
-                            <Label htmlFor={item.id} className="flex-1 pr-4">{item.label}</Label>
-                            <Checkbox id={item.id} checked={checkboxes[item.id] || false} onCheckedChange={(checked) => handleCheckboxChange(item.id, !!checked)} />
+                            <Label htmlFor={item.id.toString()} className="flex-1 pr-4">{item.name}</Label>
+                            <Checkbox id={item.id.toString()} checked={checkboxes[item.id] || false} onCheckedChange={(checked) => handleCheckboxChange(item.id, !!checked)} />
                         </div>
                     ))}
                 </div>

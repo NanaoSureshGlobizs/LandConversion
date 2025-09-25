@@ -1052,6 +1052,12 @@ export async function overwriteFeeAmount(applicationId: string, amount: number, 
 }
 
 
+export async function getSurveyQuestions(itemName: string, purposeType: number, workSequenceId: number, token: string) {
+    const endpoint = `/survey/common-survey-details?item_name=${itemName}&purpose_type=${purposeType}&work_sequence_id=${workSequenceId}`;
+    const { data, debugLog } = await fetchFromApi(endpoint, token);
+    return { data, log: debugLog };
+}
+
 
 function addLog(log: string) {
   // This is a placeholder for a real logging implementation.
@@ -1104,3 +1110,4 @@ function addLog(log: string) {
     
 
     
+
