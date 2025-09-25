@@ -112,18 +112,20 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
 
     try {
         const workflowSequenceId = searchParams.get('workflow_sequence_id');
-        // change_of_land_use_id is 1 for diversion, 2 for conversion
-        const purposeType = application.change_of_land_use_id === 1 ? 2 : 1; 
-
-        const { data, log } = await getSurveyQuestions(role, purposeType, parseInt(workflowSequenceId!), accessToken);
+        if (!workflowSequenceId) {
+            toast({ title: "Error", description: "Workflow ID is missing from the URL.", variant: "destructive" });
+            return;
+        }
+        
+        const { data, log } = await getSurveyQuestions(role, application.land_purpose_id, parseInt(workflowSequenceId), accessToken);
         addLog(log || "Log for getSurveyQuestions");
 
         if (data) {
             setSurveyQuestions(data as SurveyQuestion[]);
         } else {
-            setSurveyQuestions([]); // Ensure it's an empty array if API returns null/undefined
+            setSurveyQuestions([]);
         }
-        setIsSurveyDialogOpen(true); // Open dialog after fetching
+        setIsSurveyDialogOpen(true);
     } catch (error) {
         toast({ title: "Failed to Fetch Questions", description: "Could not load survey questions from the server.", variant: "destructive" });
         setSurveyQuestions([]);
