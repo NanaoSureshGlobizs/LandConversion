@@ -146,13 +146,11 @@ export function SurveyReportDialog({ children, application, statuses, accessToke
         }
         uploadedKmlFileName = uploadResult.data.filename;
     }
-
-    const combinedRemarks = `Checklist: ${JSON.stringify(checkboxes)}\n\nKML File: ${uploadedKmlFileName}\n\nRemarks: ${remarks}`;
     
     const payload:any = {
         application_details_id: application.id,
         verification_status_id: parseInt(status),
-        remark: combinedRemarks,
+        remark: remarks,
         attachment: uploadedFileName,
         status: 1,
         land_schedule: landSchedule,
