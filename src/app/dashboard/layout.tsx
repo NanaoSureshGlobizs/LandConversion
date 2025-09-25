@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Suspense } from 'react';
 import DashboardLayoutClient from './layout-client';
 import Loading from './loading';
