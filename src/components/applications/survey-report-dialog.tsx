@@ -99,7 +99,7 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     
     setIsLoading(true);
 
-    let uploadedFileName: string | null = null;
+    let uploadedReportFileName: string | null = null;
     if (reportFile) {
         const formData = new FormData();
         formData.append('survey_report_file', reportFile);
@@ -112,10 +112,10 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
             setIsLoading(false);
             return;
         }
-        uploadedFileName = uploadResult.data.filename;
+        uploadedReportFileName = uploadResult.data.filename;
     }
     
-    // KML file upload is separate if needed for the KML_Survey type
+    let uploadedKmlFileName: string | null = null;
     if (formType === 'KML_Survey' && kmlFile) {
         const formData = new FormData();
         formData.append('survey_kml_file', kmlFile);
@@ -128,8 +128,7 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
             setIsLoading(false);
             return;
         }
-        // In a real scenario, you might need another field in the payload for this.
-        // For now, it's not being added to the final payload.
+        uploadedKmlFileName = uploadResult.data.filename;
     }
     
     const surveyDetails = questions.map(q => ({
@@ -143,7 +142,8 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
         survey_status_id: parseInt(status),
-        attachment: uploadedFileName, // Using 'attachment' as requested
+        attachment: uploadedReportFileName,
+        survey_kml_file: uploadedKmlFileName,
         survey_details: surveyDetails,
         remark: remarks,
     };
