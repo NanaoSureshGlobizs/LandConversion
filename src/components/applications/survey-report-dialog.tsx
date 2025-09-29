@@ -99,7 +99,7 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     
     setIsLoading(true);
 
-    let uploadedReportFileName: string | null = null;
+    let uploadedFileName: string | null = null;
     if (reportFile) {
         const formData = new FormData();
         formData.append('survey_report_file', reportFile);
@@ -112,11 +112,11 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
             setIsLoading(false);
             return;
         }
-        uploadedReportFileName = uploadResult.data.filename;
+        uploadedFileName = uploadResult.data.filename;
     }
     
-    let uploadedKmlFileName: string | null = null;
-    if (kmlFile) {
+    // KML file upload is separate if needed for the KML_Survey type
+    if (formType === 'KML_Survey' && kmlFile) {
         const formData = new FormData();
         formData.append('survey_kml_file', kmlFile);
         const uploadResult = await uploadFile(formData, accessToken);
@@ -128,7 +128,8 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
             setIsLoading(false);
             return;
         }
-        uploadedKmlFileName = uploadResult.data.filename;
+        // In a real scenario, you might need another field in the payload for this.
+        // For now, it's not being added to the final payload.
     }
     
     const surveyDetails = questions.map(q => ({
@@ -142,10 +143,9 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
         survey_status_id: parseInt(status),
-        survey_report_file: uploadedReportFileName,
-        survey_kml_file: uploadedKmlFileName,
+        attachment: uploadedFileName, // Using 'attachment' as requested
         survey_details: surveyDetails,
-        remark: remarks, // Added remarks to payload
+        remark: remarks,
     };
 
     const submitResult = await submitSurveyReport(payload, accessToken);
@@ -237,5 +237,7 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     </Dialog>
   );
 }
+
+    
 
     
