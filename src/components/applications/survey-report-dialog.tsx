@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { uploadFile, forwardApplication } from '@/app/actions';
+import { uploadFile, submitSurveyReport } from '@/app/actions';
 import type { FullApplicationResponse, ApplicationStatusOption } from '@/lib/definitions';
 import { Loader2 } from 'lucide-react';
 
@@ -99,10 +99,10 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     
     setIsLoading(true);
 
-    let uploadedFileName = '';
+    let uploadedReportFileName: string | null = null;
     if (reportFile) {
         const formData = new FormData();
-        formData.append('workflow_attachment', reportFile);
+        formData.append('survey_report_file', reportFile);
         const uploadResult = await uploadFile(formData, accessToken);
 
         if(uploadResult.debugLog) addLog(uploadResult.debugLog);
@@ -112,13 +112,13 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
             setIsLoading(false);
             return;
         }
-        uploadedFileName = uploadResult.data.filename;
+        uploadedReportFileName = uploadResult.data.filename;
     }
     
-    let uploadedKmlFileName = '';
+    let uploadedKmlFileName: string | null = null;
     if (kmlFile) {
         const formData = new FormData();
-        formData.append('kml_file', kmlFile);
+        formData.append('survey_kml_file', kmlFile);
         const uploadResult = await uploadFile(formData, accessToken);
 
         if(uploadResult.debugLog) addLog(uploadResult.debugLog);
@@ -131,23 +131,24 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
         uploadedKmlFileName = uploadResult.data.filename;
     }
     
-    const payload:any = {
-        application_details_id: application.id,
-        verification_status_id: parseInt(status),
-        remark: remarks,
-        attachment: uploadedFileName,
-        status: 1,
-        land_schedule: landSchedule,
-    };
-    
-    if (latitude) {
-        payload.latitude = parseFloat(latitude);
-    }
-    if (longitude) {
-        payload.longitude = parseFloat(longitude);
-    }
+    const surveyDetails = questions.map(q => ({
+        survey_details_id: q.id,
+        is_checked: checkboxes[q.id] ? 1 : 0
+    }));
 
-    const submitResult = await forwardApplication(payload, accessToken);
+    const payload = {
+        application_details_id: application.id,
+        land_schedule: landSchedule,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
+        survey_status_id: parseInt(status),
+        survey_report_file: uploadedReportFileName,
+        survey_kml_file: uploadedKmlFileName,
+        survey_details: surveyDetails,
+        remark: remarks, // Added remarks to payload
+    };
+
+    const submitResult = await submitSurveyReport(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
     if (submitResult.success) {
@@ -236,3 +237,5 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     </Dialog>
   );
 }
+
+    
