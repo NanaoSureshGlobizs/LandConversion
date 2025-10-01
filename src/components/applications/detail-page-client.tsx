@@ -261,6 +261,8 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
         </>
     );
   }
+  
+  const isHillApplication = application.application_type === 'hill';
 
   return (
     <>
@@ -307,13 +309,23 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                     <CardContent className="space-y-3">
                         <DetailItem label="District" value={application.district?.name} />
                         <Separator />
-                        <DetailItem label="Circle" value={application.circle_name} />
-                        <Separator />
-                         <DetailItem label="Sub-Division" value={application.sub_division?.name} />
-                        <Separator />
-                        <DetailItem label="Village" value={application.village_name} />
-                        <Separator />
-                        <DetailItem label="Location Type" value={application.location_name} />
+                        <DetailItem label="Sub-Division" value={application.sub_division?.name} />
+                        {!isHillApplication && (
+                            <>
+                                <Separator />
+                                <DetailItem label="Circle" value={application.circle_name} />
+                                <Separator />
+                                <DetailItem label="Village" value={application.village_name} />
+                                <Separator />
+                                <DetailItem label="Location Type" value={application.location_name} />
+                            </>
+                        )}
+                         {isHillApplication && (
+                            <>
+                               <Separator />
+                               <DetailItem label="Land Address" value={application.land_address} />
+                            </>
+                         )}
                     </CardContent>
                 </Card>
 
@@ -321,16 +333,24 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                     <CardHeader>
                         <CardTitle>Plot & Purpose Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3">
-                        <DetailItem label="Patta No." value={application.patta_no} />
-                        <Separator />
-                        <DetailItem label="Dag No." value={application.dag_no} />
-                        <Separator />
+                     <CardContent className="space-y-3">
+                        {!isHillApplication && (
+                            <>
+                                <DetailItem label="Patta No." value={application.patta_no} />
+                                <Separator />
+                                <DetailItem label="Dag No." value={application.dag_no} />
+                                <Separator />
+                            </>
+                        )}
                         <DetailItem label="Original Area of Plot" value={`${application.original_area_of_plot} ${application.land_area_unit_name}`} />
                         <Separator />
                         <DetailItem label="Area for Change" value={`${application.area_applied_for_conversion} ${application.application_area_unit_name}`} />
-                        <Separator />
-                        <DetailItem label="Present Land Classification" value={application.land_classification} />
+                        {!isHillApplication && (
+                             <>
+                                <Separator />
+                                <DetailItem label="Present Land Classification" value={application.land_classification} />
+                             </>
+                        )}
                     </CardContent>
                 </Card>
                 

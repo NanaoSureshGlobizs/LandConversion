@@ -981,10 +981,10 @@ export async function getApplicationById(token: string, id: string, workflow_seq
     
     const { data, debugLog } = await fetchFromApi(url, token);
     
-    if (isHillWorkflow && data && data['0'] && Array.isArray(data['0'])) {
+    if (isHillWorkflow && data && data['0'] && Array.isArray(data['0']) && data['0'].length > 0) {
         const hillData = data['0'][0];
         const standardizedData = {
-            id: hillData.id,
+            id: hillData.application_id, // Use application_id as the primary ID
             application_no: hillData.application_no,
             applicant_name: hillData.applicant_name,
             phone_number: hillData.applicant_phone,
@@ -993,9 +993,9 @@ export async function getApplicationById(token: string, id: string, workflow_seq
             aadhar_no: hillData.applicant_aadhar_no,
             date_of_birth: hillData.applicant_dob,
             area_applied_for_conversion: hillData.area_applied_for_conversion,
-            application_area_unit_name: hillData.applied_area_unit_name,
+            application_area_unit_name: hillData.application_area_unit_name,
             original_area_of_plot: hillData.original_area_of_plot,
-            land_area_unit_name: hillData.original_area_of_plot_unit_name,
+            land_area_unit_name: hillData.land_area_unit_name,
             land_address: hillData.land_address,
             form_type: hillData.form_type,
             button_name: hillData.button_name,
@@ -1008,16 +1008,19 @@ export async function getApplicationById(token: string, id: string, workflow_seq
             sub_division: hillData.sub_division,
             upload_files: data.upload_files || [],
 
+            // Add the type flag for the client
+            application_type: 'hill',
+
             // Fields not present in hill response, providing default/null values
-            applicant_details_id: hillData.id,
+            applicant_details_id: hillData.application_details_id,
             land_purpose_id: hillData.purpose_id || 1, // Defaulting as it's missing
             change_of_land_use_id: hillData.change_of_land_use_id,
-            application_area_unit_id: hillData.applied_area_unit_id || 1, // Defaulting
+            application_area_unit_id: hillData.application_area_unit_id || 1, // Defaulting
             purpose_id: hillData.purpose_id || 1, // Defaulting
             patta_no: 'N/A',
             dag_no: 'N/A',
             sheet_no: null,
-            land_area_unit_id: hillData.original_area_of_plot_unit_id || 1, // Defaulting
+            land_area_unit_id: hillData.land_area_unit_id || 1, // Defaulting
             location_type_id: 0, 
             location_name: 'N/A', 
             land_classification_id: 0,

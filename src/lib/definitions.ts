@@ -67,6 +67,8 @@ export interface Application {
   can_forward: boolean;
   highlight: boolean;
   can_edit: boolean;
+  land_address: string; // Added for hill applications
+  application_type?: 'hill' | 'normal'; // Added to distinguish application types
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
