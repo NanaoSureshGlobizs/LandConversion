@@ -59,7 +59,6 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const type = searchParams.get('type');
-  const actionContext = searchParams.get('actionContext');
 
   const { toast } = useToast();
   const { addLog } = useDebug();
@@ -148,16 +147,17 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   }
 
   const renderActionButtons = () => {
-    // Prioritize actionContext from the URL. This is the source of truth for actions on this page.
-    const currentAction = actionContext || application?.form_type;
+    if (!application) return null;
 
-    switch (currentAction) {
+    const { form_type, button_name, can_forward } = application;
+    
+    switch (form_type) {
         case 'Forward':
             return (
                 <div className='flex gap-2'>
                     <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
-                        <Button variant="default" className="flex-1">
-                            {application?.button_name || 'Forward'}
+                        <Button variant="default" className="flex-1" disabled={!can_forward}>
+                            {button_name || 'Forward'}
                         </Button>
                     </ForwardForm>
                     <RejectForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
@@ -172,47 +172,41 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
         case 'Survey_4':
              return (
                 <>
-                  <Button variant="default" onClick={handleOpenSurveyDialog} disabled={isFetchingQuestions}>
+                  <Button variant="default" onClick={handleOpenSurveyDialog} disabled={isFetchingQuestions || !can_forward}>
                       {isFetchingQuestions ? <Loader2 className="mr-2 animate-spin" /> : <FileText className="mr-2"/>}
-                      {application?.button_name || 'Survey Report'}
+                      {button_name || 'Survey Report'}
                    </Button>
-                   {application && (
-                     <SurveyReportDialog
-                        isOpen={isSurveyDialogOpen}
-                        onOpenChange={setIsSurveyDialogOpen}
-                        application={application} 
-                        questions={surveyQuestions}
-                        statuses={statuses} 
-                        accessToken={accessToken} 
-                        onSuccess={refreshData}
-                     />
-                   )}
+                   <SurveyReportDialog
+                      isOpen={isSurveyDialogOpen}
+                      onOpenChange={setIsSurveyDialogOpen}
+                      application={application} 
+                      questions={surveyQuestions}
+                      statuses={statuses} 
+                      accessToken={accessToken} 
+                      onSuccess={refreshData}
+                   />
                 </>
              );
         case 'MARSAC_Report':
             return (
-                <MarsacReportDialog application={application!} accessToken={accessToken} onSuccess={refreshData} areaUnits={areaUnits || []}>
-                    <Button variant="default">
+                <MarsacReportDialog application={application} accessToken={accessToken} onSuccess={refreshData} areaUnits={areaUnits || []}>
+                    <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
-                        {application?.button_name || 'MARSAC Report'}
+                        {button_name || 'MARSAC Report'}
                     </Button>
                 </MarsacReportDialog>
             );
         case 'Fee_report':
              return (
-                <FeeOverwriteDialog application={application!} accessToken={accessToken} onSuccess={refreshData}>
-                    <Button variant="default">
+                <FeeOverwriteDialog application={application} accessToken={accessToken} onSuccess={refreshData}>
+                    <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
-                        {application?.button_name || 'Fee Report'}
+                        {button_name || 'Fee Report'}
                     </Button>
                 </FeeOverwriteDialog>
              );
-        case 'LLMC_Report':
-            // Logic for LLMC Report if needed
-            return null; // Or a specific button
         default:
-            // Fallback for general application view actions, like edit
-            if (application?.can_edit) {
+            if (application.can_edit) {
                  return (
                      <Button variant="default" asChild>
                         <Link href={`/dashboard/my-applications/${id}/edit`}>
