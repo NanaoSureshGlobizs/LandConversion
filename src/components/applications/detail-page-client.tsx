@@ -20,7 +20,7 @@ import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem, Ar
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
@@ -72,6 +72,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   
   const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
   const [isSurveyDialogOpen, setIsSurveyDialogOpen] = useState(false);
+  const hasFetched = useRef(false);
 
 
   const refreshData = useCallback(async () => {
@@ -90,6 +91,9 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
 
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     // If data wasn't passed from server, fetch it on the client
     if (!initialApplication) {
         refreshData();
