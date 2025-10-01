@@ -194,16 +194,16 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
                     <Input id="longitude" placeholder="Enter longitude" value={longitude} onChange={(e) => setLongitude(e.target.value)} />
                 </div>
                 <div className='space-y-2'>
+                    <Label htmlFor="land_schedule">Land Schedule</Label>
+                    <Textarea id="land_schedule" placeholder="Enter land schedule details..." value={landSchedule} onChange={(e) => setLandSchedule(e.target.value)} />
+                </div>
+                <div className='space-y-2'>
                     <Label htmlFor="upload-kml">Upload KML File (Optional)</Label>
                     <Input id="upload-kml" type="file" onChange={(e) => setKmlFile(e.target.files?.[0] || null)} accept=".kml" />
                 </div>
               </>
             )}
 
-            <div className='space-y-2'>
-                <Label htmlFor="land_schedule">Land Schedule</Label>
-                <Textarea id="land_schedule" placeholder="Enter land schedule details..." value={landSchedule} onChange={(e) => setLandSchedule(e.target.value)} />
-            </div>
             <div className='space-y-2'>
                 <Label htmlFor="status">Status</Label>
                 <Select value={status} onValueChange={setStatus}>
@@ -237,7 +237,3 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     </Dialog>
   );
 }
-
-    
-
-    
