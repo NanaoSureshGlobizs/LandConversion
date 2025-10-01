@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { cookies } from 'next/headers';
@@ -764,14 +763,20 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
-    if (data && isHillWorkflow && Array.isArray(data['0'])) {
-      return {
-          data: {
-              applications: data['0'],
-              pagination: data.pagination
-          },
-          log: debugLog
-      };
+    if (data && isHillWorkflow && Array.isArray(data.applications)) {
+      const hillAppsObject = data.applications[0];
+      if (typeof hillAppsObject === 'object' && hillAppsObject !== null) {
+          const applications = Object.values(hillAppsObject).filter(
+              (item: any): item is object => typeof item === 'object' && item !== null && 'id' in item
+          );
+          return {
+              data: {
+                  applications: applications,
+                  pagination: data.pagination
+              },
+              log: debugLog
+          };
+      }
     }
 
     // This handles the standard response structure for most lists
