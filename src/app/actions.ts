@@ -248,7 +248,7 @@ export async function checkAuth() {
 async function fetchFromApi(endpoint: string, token: string | undefined) {
   const url = `${API_BASE_URL}${endpoint}`;
   let debugLog = `--- Fetching from API ---\n`;
-  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request URL: GET ${url}\n`;
 
   if (!token) {
     debugLog += `Authentication token not found for endpoint: ${endpoint}\n`;
@@ -257,13 +257,15 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
     return { data: null, debugLog };
   }
 
+  const headers = {
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  debugLog += `Headers: ${JSON.stringify(headers, null, 2)}\n`;
+
+
   try {
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    });
+    const response = await fetch(url, { headers });
     
     const responseText = await response.text();
 
@@ -967,7 +969,7 @@ export async function getApplicationsByArea(accessToken: string, areaType: 'less
 
 export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
     const hillWorkflowIds = [63, 64, 65, 66, 67, 68, 69];
-    const isHillWorkflow = workflow_sequence_id !== null && hillWorkflowIds.includes(parseInt(workflow_sequence_id));
+    const isHillWorkflow = workflow_sequence_id !== null && workflow_sequence_id !== undefined && hillWorkflowIds.includes(parseInt(workflow_sequence_id));
 
     let url: string;
     if (isHillWorkflow) {
@@ -1175,5 +1177,7 @@ function addLog(log: string) {
 
     
 
+
+    
 
     
