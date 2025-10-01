@@ -966,20 +966,75 @@ export async function getApplicationsByArea(accessToken: string, areaType: 'less
 
 
 export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
-    let url = `/applications/view?id=${id}&workflow_sequence_id=${workflow_sequence_id ?? ''}`;
+    const hillWorkflowIds = [63, 64, 65, 66, 67, 68, 69];
+    const isHillWorkflow = workflow_sequence_id !== null && hillWorkflowIds.includes(parseInt(workflow_sequence_id));
+
+    let url: string;
+    if (isHillWorkflow) {
+        url = `/land-details-for-hill/view?id=${id}`;
+    } else {
+        url = `/applications/view?id=${id}&workflow_sequence_id=${workflow_sequence_id ?? ''}`;
+    }
     
     const { data, debugLog } = await fetchFromApi(url, token);
     
+    if (isHillWorkflow && data) {
+        // Standardize the hill application response to match FullApplicationResponse
+        const hillData = data;
+        const standardizedData = {
+            id: hillData.id,
+            application_no: hillData.application_id,
+            applicant_name: hillData.name,
+            phone_number: hillData.phone_number,
+            email: hillData.email,
+            address: hillData.address,
+            aadhar_no: hillData.aadhar_no,
+            date_of_birth: hillData.date_of_birth,
+            area_applied_for_conversion: hillData.applied_area,
+            application_area_unit_name: hillData.applied_area_unit_name,
+            original_area_of_plot: hillData.original_area_of_plot,
+            land_area_unit_name: hillData.original_area_of_plot_unit_name,
+            land_address: hillData.land_address,
+            form_type: hillData.form_type,
+            button_name: hillData.button_name,
+            can_forward: hillData.can_forward,
+            highlight: hillData.highlight,
+            can_edit: hillData.can_edit,
+            created_at: hillData.created_at,
+            application_status: hillData.application_status,
+            district: hillData.district,
+            sub_division: hillData.sub_division,
+            upload_files: hillData.upload_files || [],
+
+            // Fields not present in hill response, providing default/null values
+            applicant_details_id: hillData.id,
+            land_purpose_id: hillData.purpose_id,
+            change_of_land_use_id: hillData.change_of_land_use_id,
+            application_area_unit_id: hillData.applied_area_unit_id,
+            purpose_id: hillData.purpose_id,
+            patta_no: 'N/A',
+            dag_no: 'N/A',
+            sheet_no: null,
+            land_area_unit_id: hillData.original_area_of_plot_unit_id,
+            location_type_id: 0, // Placeholder
+            location_name: 'N/A', // Placeholder
+            land_classification_id: 0, // Placeholder
+            land_classification: 'N/A', // Placeholder
+            circle_id: 0, // Placeholder
+            circle_name: 'N/A', // Placeholder
+            village_id: 0, // Placeholder
+            village_name: 'N/A', // Placeholder
+        };
+        return { data: standardizedData, log: debugLog };
+    }
+    
     if (data && (data.conversion_applications || data.diversion_applications)) {
         let applicationData = null;
-        // The API returns an array for some endpoints, but an object for others.
-        // We need to handle both cases to find the first application record.
         if (data.conversion_applications && Array.isArray(data.conversion_applications) && data.conversion_applications.length > 0) {
             applicationData = data.conversion_applications[0];
         } else if (data.diversion_applications && Array.isArray(data.diversion_applications) && data.diversion_applications.length > 0) {
             applicationData = data.diversion_applications[0];
         } else if (data.conversion_applications && typeof data.conversion_applications === 'object' && Object.keys(data.conversion_applications).length > 0) {
-            // Handle case where it's an object instead of an array
             applicationData = Object.values(data.conversion_applications).find(
                 (item: any): item is object => typeof item === 'object' && item !== null && 'id' in item
             );
@@ -990,7 +1045,6 @@ export async function getApplicationById(token: string, id: string, workflow_seq
         }
         
         if (applicationData) {
-            // Merge the upload_files from the parent data object into the application data
             (applicationData as any).upload_files = data.upload_files || [];
             return { data: applicationData, log: debugLog };
         }
@@ -1117,6 +1171,9 @@ function addLog(log: string) {
     
 
 
+
+
+    
 
 
     
