@@ -153,10 +153,11 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
     
     switch (form_type) {
         case 'Forward':
+            if (!can_forward) return null;
             return (
                 <div className='flex gap-2'>
                     <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
-                        <Button variant="default" className="flex-1" disabled={!can_forward}>
+                        <Button variant="default" className="flex-1">
                             {button_name || 'Forward'}
                         </Button>
                     </ForwardForm>
