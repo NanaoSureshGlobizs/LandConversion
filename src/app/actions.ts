@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -980,19 +981,18 @@ export async function getApplicationById(token: string, id: string, workflow_seq
     
     const { data, debugLog } = await fetchFromApi(url, token);
     
-    if (isHillWorkflow && data) {
-        // Standardize the hill application response to match FullApplicationResponse
-        const hillData = data;
+    if (isHillWorkflow && data && data['0'] && Array.isArray(data['0'])) {
+        const hillData = data['0'][0];
         const standardizedData = {
             id: hillData.id,
-            application_no: hillData.application_id,
-            applicant_name: hillData.name,
-            phone_number: hillData.phone_number,
-            email: hillData.email,
-            address: hillData.address,
-            aadhar_no: hillData.aadhar_no,
-            date_of_birth: hillData.date_of_birth,
-            area_applied_for_conversion: hillData.applied_area,
+            application_no: hillData.application_no,
+            applicant_name: hillData.applicant_name,
+            phone_number: hillData.applicant_phone,
+            email: hillData.applicant_email,
+            address: hillData.applicant_address,
+            aadhar_no: hillData.applicant_aadhar_no,
+            date_of_birth: hillData.applicant_dob,
+            area_applied_for_conversion: hillData.area_applied_for_conversion,
             application_area_unit_name: hillData.applied_area_unit_name,
             original_area_of_plot: hillData.original_area_of_plot,
             land_area_unit_name: hillData.original_area_of_plot_unit_name,
@@ -1006,26 +1006,26 @@ export async function getApplicationById(token: string, id: string, workflow_seq
             application_status: hillData.application_status,
             district: hillData.district,
             sub_division: hillData.sub_division,
-            upload_files: hillData.upload_files || [],
+            upload_files: data.upload_files || [],
 
             // Fields not present in hill response, providing default/null values
             applicant_details_id: hillData.id,
-            land_purpose_id: hillData.purpose_id,
+            land_purpose_id: hillData.purpose_id || 1, // Defaulting as it's missing
             change_of_land_use_id: hillData.change_of_land_use_id,
-            application_area_unit_id: hillData.applied_area_unit_id,
-            purpose_id: hillData.purpose_id,
+            application_area_unit_id: hillData.applied_area_unit_id || 1, // Defaulting
+            purpose_id: hillData.purpose_id || 1, // Defaulting
             patta_no: 'N/A',
             dag_no: 'N/A',
             sheet_no: null,
-            land_area_unit_id: hillData.original_area_of_plot_unit_id,
-            location_type_id: 0, // Placeholder
-            location_name: 'N/A', // Placeholder
-            land_classification_id: 0, // Placeholder
-            land_classification: 'N/A', // Placeholder
-            circle_id: 0, // Placeholder
-            circle_name: 'N/A', // Placeholder
-            village_id: 0, // Placeholder
-            village_name: 'N/A', // Placeholder
+            land_area_unit_id: hillData.original_area_of_plot_unit_id || 1, // Defaulting
+            location_type_id: 0, 
+            location_name: 'N/A', 
+            land_classification_id: 0,
+            land_classification: 'N/A', 
+            circle_id: 0, 
+            circle_name: 'N/A', 
+            village_id: 0, 
+            village_name: 'N/A', 
         };
         return { data: standardizedData, log: debugLog };
     }
