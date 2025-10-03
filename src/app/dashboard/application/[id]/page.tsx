@@ -1,3 +1,4 @@
+
 // This is the parent Server Component that fetches data.
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';

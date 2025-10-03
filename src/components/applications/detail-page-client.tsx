@@ -19,7 +19,7 @@ import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem, Ar
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
