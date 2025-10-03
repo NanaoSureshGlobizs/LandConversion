@@ -14,13 +14,13 @@ interface DebugContextType {
 const DebugContext = createContext<DebugContextType | undefined>(undefined);
 
 export function DebugProvider({ children }: { children: ReactNode }) {
-  const [isDebugMode, setIsDebugMode] = useState(process.env.NODE_ENV === 'development');
+  const [isDebugMode, setIsDebugMode] = useState(process.env.NEXT_PUBLIC_DEBUG_MODE === 'true');
   const [logs, setLogs] = useState<string[]>([]);
 
   const addLog = useCallback((log: string) => {
     const newLog = `[${new Date().toLocaleTimeString()}] ${log}`;
     // Log to the browser console for easy access in dev tools
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
       console.log('API DEBUG:', newLog);
     }
     // Add to the state for the Debug Panel UI
