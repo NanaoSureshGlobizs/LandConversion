@@ -1233,7 +1233,6 @@ export async function getSurveyQuestions(itemName: string, purposeType: number, 
 
 
 function addLog(log: string) {
-  if (IS_PRODUCTION) return;
   // This is a placeholder for a real logging implementation.
   // In a real app, this would send logs to a logging service.
   console.log(log);
@@ -1296,6 +1295,7 @@ function addLog(log: string) {
     
 
       
+
 
 
 
