@@ -36,6 +36,7 @@ export function LrdReportTable({ initialData, accessToken, statuses }: LrdReport
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get('type') || 'conversion';
+  const isInitialLoad = useRef(true);
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -63,6 +64,10 @@ export function LrdReportTable({ initialData, accessToken, statuses }: LrdReport
   }, [page, hasMore, isLoading, addLog, accessToken, type]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

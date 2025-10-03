@@ -51,5 +51,3 @@ export function useNearScreen({ distance = '100px', externalRef, once = true }: 
 
   return { isNearScreen, fromRef };
 }
-
-    

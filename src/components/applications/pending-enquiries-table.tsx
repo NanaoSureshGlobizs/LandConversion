@@ -48,6 +48,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const isInitialLoad = useRef(true);
   
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
@@ -99,6 +100,10 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
   }, [page, hasMore, isLoading, addLog, accessToken, workflowId]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

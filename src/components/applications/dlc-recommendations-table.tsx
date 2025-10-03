@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -43,6 +44,8 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
 
   const externalRef = useRef(null);
+  const isInitialLoad = useRef(true);
+  
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
     once: false,
@@ -82,6 +85,10 @@ export function DlcRecommendationsTable({ initialData, accessToken, statuses }: 
   }, [page, hasMore, isLoading, addLog, accessToken, type, WORKFLOW_MAP]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

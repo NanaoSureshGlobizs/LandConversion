@@ -43,6 +43,7 @@ export function DlcReportTable({ initialData, accessToken, statuses }: DlcReport
   const [searchTerm, setSearchTerm] = useState('');
   const [isForwarding, setIsForwarding] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
+  const isInitialLoad = useRef(true);
 
   const type = searchParams.get('type') || 'conversion';
 
@@ -72,6 +73,10 @@ export function DlcReportTable({ initialData, accessToken, statuses }: DlcReport
   }, [page, hasMore, isLoading, addLog, accessToken, type]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

@@ -40,6 +40,7 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
   const [isLoading, setIsLoading] = useState(false);
   const [isForwarding, setIsForwarding] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
+  const isInitialLoad = useRef(true);
   
   const externalRef = useRef(null);
   const { isNearScreen } = useNearScreen({
@@ -88,6 +89,10 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

@@ -36,6 +36,7 @@ export function DfoHillReportTable({ initialData, accessToken, statuses }: DfoHi
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
+  const isInitialLoad = useRef(true);
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -62,6 +63,10 @@ export function DfoHillReportTable({ initialData, accessToken, statuses }: DfoHi
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

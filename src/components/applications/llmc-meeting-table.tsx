@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -39,6 +40,7 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
+  const isInitialLoad = useRef(true);
   
   const externalRef = useRef(null);
   const { isNearScreen } = useNearScreen({
@@ -87,6 +89,10 @@ export function LlmcMeetingTable({ initialData, accessToken, statuses }: LlmcMee
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

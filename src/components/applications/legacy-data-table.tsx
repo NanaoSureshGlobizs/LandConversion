@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -39,6 +40,7 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
+  const isInitialLoad = useRef(true);
 
   const [legacyType, setLegacyType] = useState('all');
   const [date, setDate] = useState<Date | undefined>();
@@ -69,6 +71,10 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreData();
     }

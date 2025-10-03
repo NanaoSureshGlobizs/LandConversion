@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -40,6 +41,7 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const isInitialLoad = useRef(true);
   
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
@@ -78,6 +80,10 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -35,6 +36,7 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get('type') || 'conversion';
+  const isInitialLoad = useRef(true);
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -62,6 +64,10 @@ export function SdoDaoReportTable({ initialData, accessToken, statuses }: SdoDao
   }, [page, hasMore, isLoading, addLog, accessToken, type]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

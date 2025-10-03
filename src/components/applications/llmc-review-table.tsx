@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -40,6 +41,7 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
   const [isForwarding, setIsForwarding] = useState(false);
   
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
+  const isInitialLoad = useRef(true);
 
   const externalRef = useRef(null);
   const { isNearScreen } = useNearScreen({ externalRef: isLoading ? null : externalRef, once: false });
@@ -73,6 +75,10 @@ export function LlmcReviewTable({ initialData, accessToken, statuses }: LlmcRevi
   }, [page, hasMore, isLoading, addLog, accessToken, type]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

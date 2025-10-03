@@ -36,6 +36,7 @@ export function AdcHillReportTable({ initialData, accessToken, statuses }: AdcHi
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
+  const isInitialLoad = useRef(true);
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -62,6 +63,10 @@ export function AdcHillReportTable({ initialData, accessToken, statuses }: AdcHi
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

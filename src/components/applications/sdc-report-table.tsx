@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -33,6 +34,7 @@ export function SdcReportTable({ initialData, accessToken, statuses }: SdcReport
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
+  const isInitialLoad = useRef(true);
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -59,6 +61,10 @@ export function SdcReportTable({ initialData, accessToken, statuses }: SdcReport
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

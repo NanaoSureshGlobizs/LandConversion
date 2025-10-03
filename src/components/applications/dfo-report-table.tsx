@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -33,6 +34,7 @@ export function DfoReportTable({ initialData, accessToken, statuses }: DfoReport
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
+  const isInitialLoad = useRef(true);
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -59,6 +61,10 @@ export function DfoReportTable({ initialData, accessToken, statuses }: DfoReport
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

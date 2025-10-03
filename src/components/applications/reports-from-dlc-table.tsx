@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -41,6 +42,7 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const isInitialLoad = useRef(true);
   
   const [district, setDistrict] = useState('');
   const [fromDate, setFromDate] = useState<Date | undefined>();
@@ -71,6 +73,10 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
   }, [page, hasMore, isLoading, addLog, accessToken]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

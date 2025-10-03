@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -33,6 +34,7 @@ export function DcOfficeTable({ initialData, accessToken, statuses }: DcOfficeTa
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
+  const isInitialLoad = useRef(true);
 
   const { isNearScreen } = useNearScreen({
     externalRef: isLoading ? null : externalRef,
@@ -49,6 +51,10 @@ export function DcOfficeTable({ initialData, accessToken, statuses }: DcOfficeTa
   }, [isLoading, hasMore]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }

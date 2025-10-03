@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -41,6 +42,7 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const isInitialLoad = useRef(true);
   
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
@@ -80,6 +82,10 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
   }, [page, hasMore, isLoading, addLog, accessToken, workflowId]);
   
   useEffect(() => {
+    if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        return;
+    }
     if (isNearScreen) {
         loadMoreApplications();
     }
