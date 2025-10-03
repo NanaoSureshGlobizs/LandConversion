@@ -868,9 +868,13 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     if (data && isHillWorkflow && data.applications && Array.isArray(data.applications) && data.applications.length > 0) {
       const hillAppsObject = data.applications[0];
       if (typeof hillAppsObject === 'object' && hillAppsObject !== null) {
-          const applications = Object.values(hillAppsObject).filter(
-              (item: any): item is object => typeof item === 'object' && item !== null && 'id' in item
-          );
+          const applications = Object.values(hillAppsObject)
+            .filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item)
+            .map((item: any) => ({
+                ...item,
+                district_name: item.district?.name || 'N/A',
+                status_name: item.application_status?.name || 'N/A',
+            }));
           return {
               data: {
                   applications: applications,
@@ -1293,3 +1297,4 @@ function addLog(log: string) {
     
 
       
+
