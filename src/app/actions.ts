@@ -864,7 +864,6 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
-    // This handles the specific nested structure for hill applications
     if (data && isHillWorkflow && data.applications && Array.isArray(data.applications) && data.applications.length > 0) {
       const hillAppsObject = data.applications[0];
       if (typeof hillAppsObject === 'object' && hillAppsObject !== null) {
@@ -1073,7 +1072,12 @@ export async function getApplicationsByArea(accessToken: string, areaType: 'less
 
 export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
     const hillWorkflowIds = [63, 64, 65, 66, 67, 68, 69];
-    const isHillWorkflow = workflow_sequence_id !== null && workflow_sequence_id !== undefined && hillWorkflowIds.includes(parseInt(workflow_sequence_id));
+    
+    // First, check the workflow to determine if it's a hill application, regardless of the passed workflow_sequence_id
+    const { data: workflowHistory } = await getApplicationWorkflow(token, id);
+    const isHillApplicationFromHistory = workflowHistory?.some(item => hillWorkflowIds.includes(item.workflow_sequence_id));
+
+    const isHillWorkflow = isHillApplicationFromHistory || (workflow_sequence_id !== null && workflow_sequence_id !== undefined && hillWorkflowIds.includes(parseInt(workflow_sequence_id)));
 
     let url: string;
     if (isHillWorkflow) {
@@ -1297,4 +1301,5 @@ function addLog(log: string) {
     
 
       
+
 

@@ -83,7 +83,7 @@ export function SdcHillReportTable({ initialData, accessToken, statuses }: SdcHi
           <TableHeader>
             <TableRow>
               <TableHead>Application ID</TableHead>
-              <TableHead>District</TableHead>
+              <TableHead>Location</TableHead>
               <TableHead>Applied Area</TableHead>
               <TableHead>Application Date</TableHead>
               <TableHead>Status</TableHead>
