@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useSearchParams } from 'next/navigation';
@@ -13,14 +12,14 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Download, FileText, Printer, Edit, Loader2 } from 'lucide-react';
-import { getApplicationById, getApplicationWorkflow, getSurveyQuestions } from '@/app/actions';
+import { getSurveyQuestions } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem, AreaUnit } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
@@ -54,7 +53,23 @@ interface SurveyQuestion {
 }
 
 // This is the Client Component that handles rendering and interactivity.
-export function DetailPageClient({ id, accessToken, initialApplication, initialLog, statuses, areaUnits }: { id: string, accessToken: string, initialApplication: FullApplicationResponse | null, initialLog: (string | undefined)[], statuses: ApplicationStatusOption[], areaUnits?: AreaUnit[] }) {
+export function DetailPageClient({ 
+  id, 
+  accessToken, 
+  initialApplication, 
+  initialWorkflow,
+  initialLog, 
+  statuses, 
+  areaUnits 
+}: { 
+  id: string, 
+  accessToken: string, 
+  initialApplication: FullApplicationResponse | null, 
+  initialWorkflow: WorkflowItem[] | null,
+  initialLog: (string | undefined)[], 
+  statuses: ApplicationStatusOption[], 
+  areaUnits?: AreaUnit[] 
+}) {
   const { role } = useAuth();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
@@ -64,46 +79,13 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
   const { addLog } = useDebug();
 
   const [application, setApplication] = useState<FullApplicationResponse | null>(initialApplication);
-  const [workflow, setWorkflow] = useState<WorkflowItem[] | null>(null);
+  const [workflow, setWorkflow] = useState<WorkflowItem[] | null>(initialWorkflow);
   const [log, setLog] = useState<(string|undefined)[]>(initialLog);
-  const [isLoading, setIsLoading] = useState(!initialApplication);
   const [isFetchingQuestions, setIsFetchingQuestions] = useState(false);
   
   const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
   const [isSurveyDialogOpen, setIsSurveyDialogOpen] = useState(false);
-  const hasFetched = useRef(false);
-
-
-  const refreshData = useCallback(async () => {
-    setIsLoading(true);
-    const workflowSequenceId = searchParams.get('workflow_sequence_id');
-    const [{ data: appData, log: appLog }, { data: workflowData, log: workflowLog }] = await Promise.all([
-        getApplicationById(accessToken, id, workflowSequenceId),
-        getApplicationWorkflow(accessToken, id)
-    ]);
-    
-    setApplication(appData as FullApplicationResponse | null);
-    setWorkflow(workflowData as WorkflowItem[] | null);
-    setLog(prev => [...prev, appLog, workflowLog]);
-    setIsLoading(false);
-  },[accessToken, id, searchParams]);
-
-
-  useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
-
-    // If data wasn't passed from server, fetch it on the client
-    if (!initialApplication) {
-        refreshData();
-    } else {
-        // Fetch workflow data even if application data is present
-        getApplicationWorkflow(accessToken, id).then(({ data, log }) => {
-            setWorkflow(data as WorkflowItem[] | null);
-            setLog(prev => [...prev, log]);
-        })
-    }
-  }, [id, accessToken, initialApplication, refreshData]);
+  
 
   const handleOpenSurveyDialog = async () => {
     if (!application || !role) {
@@ -156,12 +138,12 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
             if (!can_forward) return null;
             return (
                 <div className='flex gap-2'>
-                    <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
+                    <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={() => {}}>
                         <Button variant="default" className="flex-1">
                             {button_name || 'Forward'}
                         </Button>
                     </ForwardForm>
-                    <RejectForm applicationId={id} accessToken={accessToken} onSuccess={refreshData}>
+                    <RejectForm applicationId={id} accessToken={accessToken} onSuccess={() => {}}>
                         <Button variant="destructive">Reject</Button>
                     </RejectForm>
                 </div>
@@ -184,13 +166,13 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
                       questions={surveyQuestions}
                       statuses={statuses} 
                       accessToken={accessToken} 
-                      onSuccess={refreshData}
+                      onSuccess={() => {}}
                    />
                 </>
              );
         case 'MARSAC_Report':
             return (
-                <MarsacReportDialog application={application} accessToken={accessToken} onSuccess={refreshData} areaUnits={areaUnits || []}>
+                <MarsacReportDialog application={application} accessToken={accessToken} onSuccess={() => {}} areaUnits={areaUnits || []}>
                     <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
                         {button_name || 'MARSAC Report'}
@@ -199,7 +181,7 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
             );
         case 'Fee_report':
              return (
-                <FeeOverwriteDialog application={application} accessToken={accessToken} onSuccess={refreshData}>
+                <FeeOverwriteDialog application={application} accessToken={accessToken} onSuccess={() => {}}>
                     <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
                         {button_name || 'Fee Report'}
@@ -221,17 +203,6 @@ export function DetailPageClient({ id, accessToken, initialApplication, initialL
     }
   };
 
-
-  if (isLoading) {
-    return (
-        <div className="flex-1 space-y-6 px-4 md:px-8 flex items-center justify-center min-h-[50vh]">
-            <Loader2 className='h-8 w-8 animate-spin' />
-            <h1 className="text-xl font-bold tracking-tight font-headline ml-4">
-                Loading Application...
-            </h1>
-        </div>
-    )
-  }
 
   if (!application) {
     return (
