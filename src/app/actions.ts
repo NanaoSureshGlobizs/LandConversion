@@ -1072,12 +1072,7 @@ export async function getApplicationsByArea(accessToken: string, areaType: 'less
 
 export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
     const hillWorkflowIds = [63, 64, 65, 66, 67, 68, 69];
-    
-    // First, check the workflow to determine if it's a hill application, regardless of the passed workflow_sequence_id
-    const { data: workflowHistory } = await getApplicationWorkflow(token, id);
-    const isHillApplicationFromHistory = workflowHistory?.some(item => hillWorkflowIds.includes(item.workflow_sequence_id));
-
-    const isHillWorkflow = isHillApplicationFromHistory || (workflow_sequence_id !== null && workflow_sequence_id !== undefined && hillWorkflowIds.includes(parseInt(workflow_sequence_id)));
+    const isHillWorkflow = workflow_sequence_id !== null && workflow_sequence_id !== undefined && hillWorkflowIds.includes(parseInt(workflow_sequence_id));
 
     let url: string;
     if (isHillWorkflow) {
@@ -1301,5 +1296,6 @@ function addLog(log: string) {
     
 
       
+
 
 
