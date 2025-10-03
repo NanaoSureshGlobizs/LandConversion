@@ -19,8 +19,8 @@ export function DebugProvider({ children }: { children: ReactNode }) {
 
   const addLog = useCallback((log: string) => {
     const newLog = `[${new Date().toLocaleTimeString()}] ${log}`;
-    // Log to the browser console for easy access in dev tools
-    if (isDebugMode) {
+    // Log to the browser console for easy access in dev tools, only in development
+    if (isDebugMode && process.env.NODE_ENV === 'development') {
       console.log('API DEBUG:', newLog);
     }
     // Add to the state for the Debug Panel UI
