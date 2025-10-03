@@ -864,7 +864,7 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
-    if (data && isHillWorkflow && Array.isArray(data.applications)) {
+    if (data && isHillWorkflow && Array.isArray(data.applications) && data.applications.length > 0) {
       const hillAppsObject = data.applications[0];
       if (typeof hillAppsObject === 'object' && hillAppsObject !== null) {
           const applications = Object.values(hillAppsObject).filter(
