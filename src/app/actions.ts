@@ -864,7 +864,8 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
-    if (data && isHillWorkflow && Array.isArray(data.applications) && data.applications.length > 0) {
+    // This handles the specific nested structure for hill applications
+    if (data && isHillWorkflow && data.applications && Array.isArray(data.applications) && data.applications.length > 0) {
       const hillAppsObject = data.applications[0];
       if (typeof hillAppsObject === 'object' && hillAppsObject !== null) {
           const applications = Object.values(hillAppsObject).filter(
@@ -1079,8 +1080,9 @@ export async function getApplicationById(token: string, id: string, workflow_seq
     
     const { data, debugLog } = await fetchFromApi(url, token);
     
-    if (isHillWorkflow && data && data['0'] && Array.isArray(data['0']) && data['0'].length > 0) {
-        const hillData = data['0'][0];
+    // Handle the specific structure for a single hill application view
+    if (isHillWorkflow && data && data['0']) {
+        const hillData = data['0'];
         const standardizedData = {
             id: hillData.application_id, // Use application_id as the primary ID
             application_no: hillData.application_no,
