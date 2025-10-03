@@ -10,7 +10,7 @@ export default async function ApplicationDetailPage({ params, searchParams }: { 
   const { id } = params;
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
-  const workflowSequenceId = searchParams.workflow_sequence_id as string | undefined;
+  const workflowSequenceId = searchParams?.workflow_sequence_id as string | undefined;
 
   if (!accessToken) {
     redirect('/');

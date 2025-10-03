@@ -19,7 +19,7 @@ import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem, Ar
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { SurveyReportDialog } from '@/components/applications/survey-report-dialog';
 import { ForwardForm } from '@/components/applications/forward-form';
 import { RejectForm } from '@/components/applications/reject-form';
@@ -78,9 +78,6 @@ export function DetailPageClient({
   const { toast } = useToast();
   const { addLog } = useDebug();
 
-  const [application, setApplication] = useState<FullApplicationResponse | null>(initialApplication);
-  const [workflow, setWorkflow] = useState<WorkflowItem[] | null>(initialWorkflow);
-  const [log, setLog] = useState<(string|undefined)[]>(initialLog);
   const [isFetchingQuestions, setIsFetchingQuestions] = useState(false);
   
   const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
@@ -88,7 +85,7 @@ export function DetailPageClient({
   
 
   const handleOpenSurveyDialog = async () => {
-    if (!application || !role) {
+    if (!initialApplication || !role) {
         toast({ title: "Error", description: "Application data or user role not available.", variant: "destructive" });
         return;
     }
@@ -102,7 +99,7 @@ export function DetailPageClient({
             return;
         }
         
-        const { data, log } = await getSurveyQuestions(role, application.land_purpose_id, parseInt(workflowSequenceId), accessToken);
+        const { data, log } = await getSurveyQuestions(role, initialApplication.land_purpose_id, parseInt(workflowSequenceId), accessToken);
         addLog(log || "Log for getSurveyQuestions");
 
         if (data) {
@@ -129,9 +126,9 @@ export function DetailPageClient({
   }
 
   const renderActionButtons = () => {
-    if (!application) return null;
+    if (!initialApplication) return null;
 
-    const { form_type, button_name, can_forward } = application;
+    const { form_type, button_name, can_forward } = initialApplication;
     
     switch (form_type) {
         case 'Forward':
@@ -162,7 +159,7 @@ export function DetailPageClient({
                    <SurveyReportDialog
                       isOpen={isSurveyDialogOpen}
                       onOpenChange={setIsSurveyDialogOpen}
-                      application={application} 
+                      application={initialApplication} 
                       questions={surveyQuestions}
                       statuses={statuses} 
                       accessToken={accessToken} 
@@ -172,7 +169,7 @@ export function DetailPageClient({
              );
         case 'MARSAC_Report':
             return (
-                <MarsacReportDialog application={application} accessToken={accessToken} onSuccess={() => {}} areaUnits={areaUnits || []}>
+                <MarsacReportDialog application={initialApplication} accessToken={accessToken} onSuccess={() => {}} areaUnits={areaUnits || []}>
                     <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
                         {button_name || 'MARSAC Report'}
@@ -181,7 +178,7 @@ export function DetailPageClient({
             );
         case 'Fee_report':
              return (
-                <FeeOverwriteDialog application={application} accessToken={accessToken} onSuccess={() => {}}>
+                <FeeOverwriteDialog application={initialApplication} accessToken={accessToken} onSuccess={() => {}}>
                     <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
                         {button_name || 'Fee Report'}
@@ -189,7 +186,7 @@ export function DetailPageClient({
                 </FeeOverwriteDialog>
              );
         default:
-            if (application.can_edit) {
+            if (initialApplication.can_edit) {
                  return (
                      <Button variant="default" asChild>
                         <Link href={`/dashboard/my-applications/${id}/edit`}>
@@ -204,10 +201,10 @@ export function DetailPageClient({
   };
 
 
-  if (!application) {
+  if (!initialApplication) {
     return (
         <>
-            <ServerLogHandler logs={log} />
+            <ServerLogHandler logs={initialLog} />
             <div className="flex-1 space-y-6 px-4 md:px-8">
                  <div className="flex items-center gap-4">
                     <Button variant="outline" size="icon" asChild>
@@ -234,11 +231,11 @@ export function DetailPageClient({
     );
   }
   
-  const isHillApplication = application.application_type === 'hill';
+  const isHillApplication = initialApplication.application_type === 'hill';
 
   return (
     <>
-      <ServerLogHandler logs={log} />
+      <ServerLogHandler logs={initialLog} />
       <div className="flex-1 space-y-6 px-4 md:px-8">
           <div className="flex items-center gap-4 no-print">
               <Button variant="outline" size="icon" asChild>
@@ -260,17 +257,17 @@ export function DetailPageClient({
                         <CardTitle>Applicant Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <DetailItem label="Applicant Name" value={application.applicant_name} />
+                        <DetailItem label="Applicant Name" value={initialApplication.applicant_name} />
                         <Separator />
-                        <DetailItem label="Date of Birth" value={application.date_of_birth} />
+                        <DetailItem label="Date of Birth" value={initialApplication.date_of_birth} />
                          <Separator />
-                        <DetailItem label="Aadhaar Number" value={application.aadhar_no} />
+                        <DetailItem label="Aadhaar Number" value={initialApplication.aadhar_no} />
                          <Separator />
-                        <DetailItem label="Phone Number" value={application.phone_number} />
+                        <DetailItem label="Phone Number" value={initialApplication.phone_number} />
                          <Separator />
-                        <DetailItem label="Email" value={application.email} />
+                        <DetailItem label="Email" value={initialApplication.email} />
                          <Separator />
-                        <DetailItem label="Address" value={application.address} />
+                        <DetailItem label="Address" value={initialApplication.address} />
                     </CardContent>
                 </Card>
 
@@ -279,23 +276,23 @@ export function DetailPageClient({
                         <CardTitle>Land & Location Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <DetailItem label="District" value={application.district?.name} />
+                        <DetailItem label="District" value={initialApplication.district?.name} />
                         <Separator />
-                        <DetailItem label="Sub-Division" value={application.sub_division?.name} />
+                        <DetailItem label="Sub-Division" value={initialApplication.sub_division?.name} />
                         {!isHillApplication && (
                             <>
                                 <Separator />
-                                <DetailItem label="Circle" value={application.circle_name} />
+                                <DetailItem label="Circle" value={initialApplication.circle_name} />
                                 <Separator />
-                                <DetailItem label="Village" value={application.village_name} />
+                                <DetailItem label="Village" value={initialApplication.village_name} />
                                 <Separator />
-                                <DetailItem label="Location Type" value={application.location_name} />
+                                <DetailItem label="Location Type" value={initialApplication.location_name} />
                             </>
                         )}
                          {isHillApplication && (
                             <>
                                <Separator />
-                               <DetailItem label="Land Address" value={application.land_address} />
+                               <DetailItem label="Land Address" value={initialApplication.land_address} />
                             </>
                          )}
                     </CardContent>
@@ -308,19 +305,19 @@ export function DetailPageClient({
                      <CardContent className="space-y-3">
                         {!isHillApplication && (
                             <>
-                                <DetailItem label="Patta No." value={application.patta_no} />
+                                <DetailItem label="Patta No." value={initialApplication.patta_no} />
                                 <Separator />
-                                <DetailItem label="Dag No." value={application.dag_no} />
+                                <DetailItem label="Dag No." value={initialApplication.dag_no} />
                                 <Separator />
                             </>
                         )}
-                        <DetailItem label="Original Area of Plot" value={`${application.original_area_of_plot} ${application.land_area_unit_name}`} />
+                        <DetailItem label="Original Area of Plot" value={`${initialApplication.original_area_of_plot} ${initialApplication.land_area_unit_name}`} />
                         <Separator />
-                        <DetailItem label="Area for Change" value={`${application.area_applied_for_conversion} ${application.application_area_unit_name}`} />
+                        <DetailItem label="Area for Change" value={`${initialApplication.area_applied_for_conversion} ${initialApplication.application_area_unit_name}`} />
                         {!isHillApplication && (
                              <>
                                 <Separator />
-                                <DetailItem label="Present Land Classification" value={application.land_classification} />
+                                <DetailItem label="Present Land Classification" value={initialApplication.land_classification} />
                              </>
                         )}
                     </CardContent>
@@ -334,9 +331,9 @@ export function DetailPageClient({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {application.upload_files && application.upload_files.length > 0 ? (
+                        {initialApplication.upload_files && initialApplication.upload_files.length > 0 ? (
                             <div className="space-y-2">
-                                {application.upload_files.map((file, index) => (
+                                {initialApplication.upload_files.map((file, index) => (
                                     <div key={index} className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
                                         <div className="flex items-center gap-3">
                                             <FileText className="text-muted-foreground" />
@@ -367,11 +364,11 @@ export function DetailPageClient({
                       <CardContent className="space-y-4">
                           <div>
                             <p className="text-sm text-muted-foreground">Application ID</p>
-                            <p className="font-semibold text-lg font-mono">{application.application_no}</p>
+                            <p className="font-semibold text-lg font-mono">{initialApplication.application_no}</p>
                           </div>
                            <div>
                             <p className="text-sm text-muted-foreground">Status</p>
-                            <Badge variant="secondary" className="text-base mt-1">{application.application_status?.name}</Badge>
+                            <Badge variant="secondary" className="text-base mt-1">{initialApplication.application_status?.name}</Badge>
                           </div>
                       </CardContent>
                   </Card>
@@ -387,13 +384,13 @@ export function DetailPageClient({
                           {renderActionButtons()}
                       </CardContent>
                   </Card>
-                  {workflow && (
+                  {initialWorkflow && (
                     <Card>
                         <CardHeader>
                           <CardTitle>History</CardTitle>
                         </CardHeader>
                         <CardContent>
-                           <TrackingTimeline items={workflow} />
+                           <TrackingTimeline items={initialWorkflow} />
                         </CardContent>
                     </Card>
                   )}
