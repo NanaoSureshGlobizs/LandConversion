@@ -20,12 +20,12 @@ export function DebugProvider({ children }: { children: ReactNode }) {
   const addLog = useCallback((log: string) => {
     const newLog = `[${new Date().toLocaleTimeString()}] ${log}`;
     // Log to the browser console for easy access in dev tools
-    if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
+    if (isDebugMode) {
       console.log('API DEBUG:', newLog);
     }
     // Add to the state for the Debug Panel UI
     setLogs((prevLogs) => [...prevLogs, newLog]);
-  }, []);
+  }, [isDebugMode]);
 
   const clearLogs = useCallback(() => {
     setLogs([]);
