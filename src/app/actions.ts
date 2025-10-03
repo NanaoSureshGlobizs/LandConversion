@@ -32,15 +32,18 @@ interface SignUpResponse extends BaseApiResponse {
 
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://conversionapi.globizsapp.com/api';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // --- CITIZEN ACTIONS ---
 
 export async function citizenSignUp(username: string, email: string): Promise<SignUpResponse> {
   const url = `${API_BASE_URL}/citizen/sign-up`;
   const payload = { username, email };
-  let debugLog = '--- Citizen Sign Up ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Citizen Sign Up ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -53,8 +56,10 @@ export async function citizenSignUp(username: string, email: string): Promise<Si
     });
 
     const data = await response.json();
-    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
-    debugLog += '-------------------';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+      debugLog += '-------------------';
+    }
 
     if (!response.ok) {
       return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
@@ -65,16 +70,21 @@ export async function citizenSignUp(username: string, email: string): Promise<Si
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
-    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog: `Error: ${error}\n-------------------` };
+    if (!IS_PRODUCTION) {
+        debugLog += `Error: ${error}\n-------------------`;
+    }
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
 
 export async function citizenSendOtp(username: string): Promise<SendOtpResponse> {
   const url = `${API_BASE_URL}/citizen/send-otp`;
   const payload = { username };
-  let debugLog = '--- Citizen Sending OTP ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Citizen Sending OTP ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -87,8 +97,10 @@ export async function citizenSendOtp(username: string): Promise<SendOtpResponse>
     });
 
     const data = await response.json();
-    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
-    debugLog += '-------------------';
+    if (!IS_PRODUCTION) {
+        debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+        debugLog += '-------------------';
+    }
 
     if (!response.ok) {
       return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
@@ -98,7 +110,10 @@ export async function citizenSendOtp(username: string): Promise<SendOtpResponse>
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
-    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog: `Error: ${error}\n-------------------` };
+     if (!IS_PRODUCTION) {
+        debugLog += `Error: ${error}\n-------------------`;
+    }
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
 
@@ -114,9 +129,11 @@ export async function citizenVerifyOtp(username: string, otp: string): Promise<V
 export async function sendOtp(username: string): Promise<SendOtpResponse> {
   const url = `${API_BASE_URL}/auth/send-otp`;
   const payload = { username };
-  let debugLog = '--- Admin/Staff Sending OTP ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Admin/Staff Sending OTP ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -129,8 +146,10 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
     });
 
     const data = await response.json();
-    debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
-    debugLog += '-------------------';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+      debugLog += '-------------------';
+    }
 
     if (!response.ok) {
       return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
@@ -142,7 +161,10 @@ export async function sendOtp(username: string): Promise<SendOtpResponse> {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
-    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog: `Error: ${error}\n-------------------` };
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n-------------------`;
+    }
+    return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
 
@@ -156,9 +178,11 @@ export async function verifyOtp(username: string, otp: string): Promise<VerifyOt
 // --- SHARED & GENERIC ACTIONS ---
 
 async function handleOtpVerification(url: string, payload: { username: string; otp_code: string }, userType: 'Admin/Staff' | 'Citizen'): Promise<VerifyOtpResponse> {
-    let debugLog = `--- Verifying OTP (${userType}) ---\n`;
-    debugLog += `Request URL: ${url}\n`;
-    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+    let debugLog = IS_PRODUCTION ? '' : `--- Verifying OTP (${userType}) ---\n`;
+    if (!IS_PRODUCTION) {
+      debugLog += `Request URL: ${url}\n`;
+      debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+    }
 
     try {
         const response = await fetch(url, {
@@ -171,16 +195,20 @@ async function handleOtpVerification(url: string, payload: { username: string; o
         });
 
         const data = await response.json();
-        debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+        if (!IS_PRODUCTION) {
+            debugLog += `API Response: ${JSON.stringify(data, null, 2)}\n`;
+        }
         
         if (!response.ok) {
-            debugLog += '---------------------\n';
+            if (!IS_PRODUCTION) debugLog += '---------------------\n';
             return { success: false, message: data.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
         }
 
         if (data.success && data.data?.accessToken) {
             const decodedToken = jose.decodeJwt(data.data.accessToken);
-            debugLog += `Decoded JWT: ${JSON.stringify(decodedToken, null, 2)}\n`;
+            if (!IS_PRODUCTION) {
+                debugLog += `Decoded JWT: ${JSON.stringify(decodedToken, null, 2)}\n`;
+            }
 
             const cookieOptions = {
                 httpOnly: true,
@@ -196,14 +224,16 @@ async function handleOtpVerification(url: string, payload: { username: string; o
             }
         }
         
-        debugLog += '---------------------\n';
+        if (!IS_PRODUCTION) debugLog += '---------------------\n';
         const responseData = data as VerifyOtpResponse;
         responseData.debugLog = debugLog;
         return responseData;
 
     } catch (error) {
-        debugLog += `Error: ${error}\n`;
-        debugLog += '---------------------\n';
+        if (!IS_PRODUCTION) {
+            debugLog += `Error: ${error}\n`;
+            debugLog += '---------------------\n';
+        }
         const errorMessage = error instanceof Error ? error.message : String(error);
         addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
         return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
@@ -248,12 +278,17 @@ export async function checkAuth() {
 
 async function fetchFromApi(endpoint: string, token: string | undefined) {
   const url = `${API_BASE_URL}${endpoint}`;
-  let debugLog = `--- Fetching from API ---\n`;
-  debugLog += `Request URL: GET ${url}\n`;
+  let debugLog = IS_PRODUCTION ? '' : `--- Fetching from API ---\n`;
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: GET ${url}\n`;
+  }
+
 
   if (!token) {
-    debugLog += `Authentication token not found for endpoint: ${endpoint}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Authentication token not found for endpoint: ${endpoint}\n`;
+      debugLog += '---------------------------\n';
+    }
     console.error(`Authentication token not found for endpoint: ${endpoint}`);
     return { data: null, debugLog };
   }
@@ -262,7 +297,10 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
     'Accept': 'application/json',
     'Authorization': `Bearer ${token}`
   };
-  debugLog += `Headers: ${JSON.stringify(headers, null, 2)}\n`;
+  
+  if (!IS_PRODUCTION) {
+    debugLog += `Headers: ${JSON.stringify(headers, null, 2)}\n`;
+  }
 
 
   try {
@@ -273,21 +311,27 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
     if (!response.ok) {
       const errorMessage = `HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${responseText}`;
       console.error(errorMessage);
-      debugLog += `API Error: ${errorMessage}\n`;
-      debugLog += '---------------------------\n';
+      if (!IS_PRODUCTION) {
+        debugLog += `API Error: ${errorMessage}\n`;
+        debugLog += '---------------------------\n';
+      }
       return { data: null, debugLog };
     }
 
     if (!responseText) {
+      if (!IS_PRODUCTION) {
         debugLog += 'API returned an empty response.\n';
         debugLog += '---------------------------\n';
-        return { data: null, debugLog };
+      }
+      return { data: null, debugLog };
     }
 
     try {
         const result = JSON.parse(responseText);
-        debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-        debugLog += '---------------------------\n';
+        if (!IS_PRODUCTION) {
+            debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+            debugLog += '---------------------------\n';
+        }
         
         if (result.success) {
             // The workflow API has a nested data object, so we handle that here.
@@ -307,14 +351,18 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
     } catch (jsonError) {
         const errorMessage = `Failed to parse JSON from ${endpoint}. Response text: ${responseText}`;
         console.error(errorMessage, jsonError);
-        debugLog += `Error: ${errorMessage}\n`;
-        debugLog += '---------------------------\n';
+        if (!IS_PRODUCTION) {
+          debugLog += `Error: ${errorMessage}\n`;
+          debugLog += '---------------------------\n';
+        }
         return { data: null, debugLog };
     }
 
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '---------------------------\n';
+    }
     console.error(`Failed to fetch from ${endpoint}:`, error);
     return { data: null, debugLog };
   }
@@ -327,9 +375,11 @@ export async function submitApplication(formData: any, token: string | undefined
   }
 
   const url = `${API_BASE_URL}/applications`;
-  let debugLog = '--- Submitting Application ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(formData, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Submitting Application ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(formData, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -343,8 +393,10 @@ export async function submitApplication(formData: any, token: string | undefined
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '---------------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
@@ -355,8 +407,10 @@ export async function submitApplication(formData: any, token: string | undefined
 
     return { ...result, data: { application_id }, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '---------------------------\n';
+    }
     console.error('submitApplication error:', error);
     return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
@@ -368,9 +422,11 @@ export async function submitHillApplication(formData: any, token: string | undef
   }
 
   const url = `${API_BASE_URL}/land-details-for-hill/create`;
-  let debugLog = '--- Submitting Hill Area Application ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(formData, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Submitting Hill Area Application ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(formData, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -384,8 +440,10 @@ export async function submitHillApplication(formData: any, token: string | undef
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '---------------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, data: null, debugLog };
@@ -396,8 +454,10 @@ export async function submitHillApplication(formData: any, token: string | undef
 
     return { ...result, data: { application_id }, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '---------------------------\n';
+    }
     console.error('submitHillApplication error:', error);
     return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
@@ -408,15 +468,17 @@ export async function uploadFile(
   formData: FormData,
   token: string | undefined
 ) {
-  let debugLog = "--- Uploading File ---\n";
+  let debugLog = IS_PRODUCTION ? '' : "--- Uploading File ---\n";
   try {
     if (!token) {
       throw new Error("Authentication token not found.");
     }
 
     const url = `${API_BASE_URL}/upload-file`;
-    debugLog += `Request URL: ${url}\n`;
-    debugLog += `Request Payload (FormData keys): ${JSON.stringify(Array.from(formData.keys()), null, 2)}\n`;
+    if (!IS_PRODUCTION) {
+      debugLog += `Request URL: ${url}\n`;
+      debugLog += `Request Payload (FormData keys): ${JSON.stringify(Array.from(formData.keys()), null, 2)}\n`;
+    }
 
     const response = await fetch(url, {
       method: "POST",
@@ -428,11 +490,13 @@ export async function uploadFile(
     });
     
     const responseText = await response.text();
-    debugLog += `Raw API Response: ${responseText}\n`;
+    if (!IS_PRODUCTION) {
+      debugLog += `Raw API Response: ${responseText}\n`;
+    }
 
     if (!response.ok) {
       const message = `File upload failed with status: ${response.status}. Response: ${responseText}`;
-      debugLog += `Error: ${message}\n----------------------\n`;
+      if (!IS_PRODUCTION) debugLog += `Error: ${message}\n----------------------\n`;
       // Try to parse error message from API if it's JSON, otherwise use the raw text.
       try {
         const errorJson = JSON.parse(responseText);
@@ -444,8 +508,10 @@ export async function uploadFile(
 
     try {
       const result = JSON.parse(responseText);
-      debugLog += `Parsed API Response: ${JSON.stringify(result, null, 2)}\n`;
-      debugLog += "----------------------\n";
+      if (!IS_PRODUCTION) {
+        debugLog += `Parsed API Response: ${JSON.stringify(result, null, 2)}\n`;
+        debugLog += "----------------------\n";
+      }
       // Ensure the returned object has the 'success' property.
       if (typeof result.success === 'undefined') {
           // If 'success' is missing, we assume it failed to prevent downstream errors.
@@ -454,14 +520,16 @@ export async function uploadFile(
       return { ...result, debugLog };
     } catch (error) {
         const message = `Failed to parse JSON response from file upload. Raw response: ${responseText}`;
-        debugLog += `Error: ${message}\n----------------------\n`;
+        if (!IS_PRODUCTION) debugLog += `Error: ${message}\n----------------------\n`;
         return { success: false, message, data: null, debugLog };
     }
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    debugLog += `File Upload Catch Block Error: ${errorMessage}\n`;
-    debugLog += "----------------------\n";
+    if (!IS_PRODUCTION) {
+      debugLog += `File Upload Catch Block Error: ${errorMessage}\n`;
+      debugLog += "----------------------\n";
+    }
     console.error("uploadFile error:", error);
     return { success: false, message: "An unexpected error occurred during file upload.", data: null, debugLog };
   }
@@ -474,9 +542,11 @@ export async function submitSurveyReport(payload: any, token: string | undefined
   }
 
   const url = `${API_BASE_URL}/department-survey-record`;
-  let debugLog = '--- Submitting Survey Report ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Submitting Survey Report ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -490,8 +560,10 @@ export async function submitSurveyReport(payload: any, token: string | undefined
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '----------------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
@@ -499,8 +571,10 @@ export async function submitSurveyReport(payload: any, token: string | undefined
 
     return { ...result, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '----------------------------\n';
+    }
     console.error('submitSurveyReport error:', error);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
@@ -512,9 +586,11 @@ export async function forwardApplication(payload: any, token: string | undefined
   }
 
   const url = `${API_BASE_URL}/workflow`;
-  let debugLog = '--- Forwarding Application ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Forwarding Application ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -528,8 +604,10 @@ export async function forwardApplication(payload: any, token: string | undefined
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '----------------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
@@ -537,8 +615,10 @@ export async function forwardApplication(payload: any, token: string | undefined
 
     return { ...result, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '----------------------------\n';
+    }
     console.error('forwardApplication error:', error);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
@@ -551,9 +631,11 @@ export async function submitMarsacReport(payload: any, token: string | undefined
   }
 
   const url = `${API_BASE_URL}/marsac-entry`;
-  let debugLog = '--- Submitting MARSAC Report ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Submitting MARSAC Report ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -567,8 +649,10 @@ export async function submitMarsacReport(payload: any, token: string | undefined
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '----------------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
@@ -576,8 +660,10 @@ export async function submitMarsacReport(payload: any, token: string | undefined
 
     return { ...result, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '----------------------------\n';
+    }
     console.error('submitMarsacReport error:', error);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
@@ -605,9 +691,11 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
   }
 
   const url = `${API_BASE_URL}/legacy`;
-  let debugLog = '--- Submitting Legacy Data ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Submitting Legacy Data ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -621,8 +709,10 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '---------------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
@@ -630,8 +720,10 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
 
     return { ...result, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '---------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '---------------------------\n';
+    }
     console.error('submitLegacyData error:', error);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
@@ -649,9 +741,11 @@ export async function createUser(payload: any, token: string | undefined) {
   }
 
   const url = `${API_BASE_URL}/profile`;
-  let debugLog = '--- Creating User ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Creating User ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -665,8 +759,10 @@ export async function createUser(payload: any, token: string | undefined) {
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '---------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '---------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
@@ -674,8 +770,10 @@ export async function createUser(payload: any, token: string | undefined) {
 
     return { ...result, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '---------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '---------------------\n';
+    }
     console.error('createUser error:', error);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
@@ -1083,9 +1181,11 @@ export async function getFeeActualAmount(applicationId: string, token: string) {
 export async function overwriteFeeAmount(applicationId: string, amount: number, token: string) {
   const url = `${API_BASE_URL}/fee-payment/overwrite_amount?application_id=${applicationId}`;
   const payload = { overwrite_fees: amount };
-  let debugLog = '--- Overwriting Fee Amount ---\n';
-  debugLog += `Request URL: ${url}\n`;
-  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  let debugLog = IS_PRODUCTION ? '' : '--- Overwriting Fee Amount ---\n';
+  if (!IS_PRODUCTION) {
+    debugLog += `Request URL: ${url}\n`;
+    debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -1099,8 +1199,10 @@ export async function overwriteFeeAmount(applicationId: string, amount: number, 
     });
 
     const result = await response.json();
-    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+      debugLog += '----------------------------\n';
+    }
     
     if (!response.ok) {
       return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
@@ -1108,8 +1210,10 @@ export async function overwriteFeeAmount(applicationId: string, amount: number, 
 
     return { ...result, debugLog };
   } catch (error) {
-    debugLog += `Error: ${error}\n`;
-    debugLog += '----------------------------\n';
+    if (!IS_PRODUCTION) {
+      debugLog += `Error: ${error}\n`;
+      debugLog += '----------------------------\n';
+    }
     console.error('overwriteFeeAmount error:', error);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
@@ -1124,6 +1228,7 @@ export async function getSurveyQuestions(itemName: string, purposeType: number, 
 
 
 function addLog(log: string) {
+  if (IS_PRODUCTION) return;
   // This is a placeholder for a real logging implementation.
   // In a real app, this would send logs to a logging service.
   console.log(log);
@@ -1184,3 +1289,5 @@ function addLog(log: string) {
     
 
     
+
+      
