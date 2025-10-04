@@ -164,6 +164,13 @@ export interface WorkflowItem {
   created_at: string;
   attachment: string | null;
   days_held: number;
+  land_schedule: string | null;
+  lattitute_of_land: string | null;
+  longitute_of_land: string | null;
+  kml_file: string | null;
+  survey_details_id: number | null;
+  survey_name: string | null;
+  survey_status: string | null;
   status: {
     name: string;
     foreground_color: string;
