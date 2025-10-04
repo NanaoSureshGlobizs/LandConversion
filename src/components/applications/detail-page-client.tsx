@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -72,6 +72,7 @@ export function DetailPageClient({
 }) {
   const { role } = useAuth();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const from = searchParams.get('from');
   const type = searchParams.get('type');
 
@@ -83,6 +84,14 @@ export function DetailPageClient({
   const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
   const [isSurveyDialogOpen, setIsSurveyDialogOpen] = useState(false);
   
+  const handleActionSuccess = () => {
+    toast({
+      title: "Refreshing data...",
+      description: "The application details are being updated.",
+    });
+    router.refresh();
+  };
+
 
   const handleOpenSurveyDialog = async () => {
     if (!initialApplication || !role) {
@@ -135,12 +144,12 @@ export function DetailPageClient({
             if (!can_forward) return null;
             return (
                 <div className='flex gap-2'>
-                    <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={() => {}}>
+                    <ForwardForm applicationId={id} accessToken={accessToken} onSuccess={handleActionSuccess}>
                         <Button variant="default" className="flex-1">
                             {button_name || 'Forward'}
                         </Button>
                     </ForwardForm>
-                    <RejectForm applicationId={id} accessToken={accessToken} onSuccess={() => {}}>
+                    <RejectForm applicationId={id} accessToken={accessToken} onSuccess={handleActionSuccess}>
                         <Button variant="destructive">Reject</Button>
                     </RejectForm>
                 </div>
@@ -163,13 +172,13 @@ export function DetailPageClient({
                       questions={surveyQuestions}
                       statuses={statuses} 
                       accessToken={accessToken} 
-                      onSuccess={() => {}}
+                      onSuccess={handleActionSuccess}
                    />
                 </>
              );
         case 'MARSAC_Report':
             return (
-                <MarsacReportDialog application={initialApplication} accessToken={accessToken} onSuccess={() => {}} areaUnits={areaUnits || []}>
+                <MarsacReportDialog application={initialApplication} accessToken={accessToken} onSuccess={handleActionSuccess} areaUnits={areaUnits || []}>
                     <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
                         {button_name || 'MARSAC Report'}
@@ -178,7 +187,7 @@ export function DetailPageClient({
             );
         case 'Fee_report':
              return (
-                <FeeOverwriteDialog application={initialApplication} accessToken={accessToken} onSuccess={() => {}}>
+                <FeeOverwriteDialog application={initialApplication} accessToken={accessToken} onSuccess={handleActionSuccess}>
                     <Button variant="default" disabled={!can_forward}>
                         <FileText className="mr-2" />
                         {button_name || 'Fee Report'}

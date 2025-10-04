@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
-import { uploadFile } from '@/app/actions';
+import { uploadFile, forwardApplication } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
 
 interface RejectFormProps {
@@ -27,15 +27,6 @@ interface RejectFormProps {
     accessToken: string;
     onSuccess?: () => void;
 }
-
-// Placeholder for the new server action
-async function rejectApplication(payload: any, token: string) {
-    console.log('Rejecting application with payload:', payload);
-    // In a real scenario, this would make an API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { success: true, message: 'Application rejected successfully.', debugLog: `--- Rejecting Application ---\nPayload: ${JSON.stringify(payload, null, 2)}\n--------------------------` };
-}
-
 
 export function RejectForm({ children, applicationId, accessToken, onSuccess }: RejectFormProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +44,14 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
   }
 
   const handleSubmit = async () => {
+    if (!remark) {
+        toast({
+            title: 'Remark Required',
+            description: 'Please provide a reason for rejecting the application.',
+            variant: 'destructive',
+        });
+        return;
+    }
     
     setIsLoading(true);
 
@@ -60,7 +59,7 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
     // Step 1: Upload the file if it exists
     if (imageFile) {
         const formData = new FormData();
-        formData.append('reject_image', imageFile);
+        formData.append('reject_attachment', imageFile);
         const uploadResult = await uploadFile(formData, accessToken);
 
         if(uploadResult.debugLog) addLog(uploadResult.debugLog);
@@ -77,20 +76,21 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
         uploadedFileName = uploadResult.data.filename;
     }
 
-    // Step 2: Submit the reject details
+    // Step 2: Submit the reject details using the forwardApplication action with a reject status
     const payload = {
-        application_id: applicationId,
+        application_details_id: parseInt(applicationId),
+        verification_status_id: 3, // Assuming '3' is the status ID for 'Rejected'
         remark,
-        image: uploadedFileName,
-        status: 0,
+        attachment: uploadedFileName,
+        status: 0, // 0 for reject
     };
 
-    const submitResult = await rejectApplication(payload, accessToken);
+    const submitResult = await forwardApplication(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
     if (submitResult.success) {
         toast({
-            title: 'Action Successful',
+            title: 'Application Rejected',
             description: submitResult.message
         });
         resetForm();
@@ -98,7 +98,7 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
         onSuccess?.();
     } else {
         toast({
-            title: 'Submission Failed',
+            title: 'Action Failed',
             description: submitResult.message || 'Could not reject the application.',
             variant: 'destructive'
         });
@@ -112,9 +112,9 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">Reject</DialogTitle>
+          <DialogTitle className="font-headline">Reject Application</DialogTitle>
            <DialogDescription>
-            Reject this application. Provide a remark for the rejection.
+            Reject this application. You must provide a remark for the rejection.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -128,12 +128,12 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
                 />
             </div>
              <div className='space-y-2'>
-                <Label htmlFor="upload-image">Upload Image (Optional)</Label>
+                <Label htmlFor="upload-image">Upload Attachment (Optional)</Label>
                 <Input 
                     id="upload-image" 
                     type="file" 
                     onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                    accept="image/*"
+                    accept="image/*,application/pdf"
                 />
             </div>
         </div>
