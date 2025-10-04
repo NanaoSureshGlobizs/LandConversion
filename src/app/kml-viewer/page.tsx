@@ -3,10 +3,11 @@
 
 import { useEffect, useRef, useState }from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
-import { Loader2, ChevronDown, MapPin, Route, Shapes } from 'lucide-react';
+import { Loader2, ChevronDown, MapPin, Route, Shapes, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface Placemark {
   id: string;
@@ -89,6 +90,7 @@ export default function KmlViewerPage() {
     const [placemarks, setPlacemarks] = useState<Placemark[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isPlacemarksLoading, setIsPlacemarksLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const isMapInitialized = useRef(false);
 
     useEffect(() => {
@@ -98,8 +100,11 @@ export default function KmlViewerPage() {
         const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
         if (!GOOGLE_MAPS_API_KEY) {
-            console.error("Google Maps API key is missing. Please add it to your .env file.");
+            const errorMessage = "Google Maps API key is missing. Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env file.";
+            console.error(errorMessage);
+            setError(errorMessage);
             setIsLoading(false);
+            setIsPlacemarksLoading(false);
             return;
         }
         
@@ -126,51 +131,57 @@ export default function KmlViewerPage() {
             
             const kmlContent = sessionStorage.getItem('kmlContent');
             if (kmlContent) {
-                const parsedPlacemarks = parseKML(kmlContent);
-                setPlacemarks(parsedPlacemarks);
-                setIsPlacemarksLoading(false);
-                const overallBounds = new google.maps.LatLngBounds();
+                try {
+                    const parsedPlacemarks = parseKML(kmlContent);
+                    setPlacemarks(parsedPlacemarks);
+                    setIsPlacemarksLoading(false);
+                    const overallBounds = new google.maps.LatLngBounds();
 
-                parsedPlacemarks.forEach(placemark => {
-                    overallBounds.union(placemark.bounds);
+                    parsedPlacemarks.forEach(placemark => {
+                        overallBounds.union(placemark.bounds);
 
-                    if (placemark.type === 'Point') {
-                        new google.maps.Marker({
-                            position: placemark.coordinates[0],
-                            map: mapInstance,
-                            title: placemark.name,
-                        });
-                    } else if (placemark.type === 'LineString') {
-                        new google.maps.Polyline({
-                            path: placemark.coordinates,
-                            map: mapInstance,
-                            strokeColor: '#FF0000',
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2,
-                        });
-                    } else if (placemark.type === 'Polygon') {
-                        new google.maps.Polygon({
-                            paths: placemark.coordinates,
-                            map: mapInstance,
-                            strokeColor: '#0000FF',
-                            strokeOpacity: 0.8,
-                            strokeWeight: 2,
-                            fillColor: '#0000FF',
-                            fillOpacity: 0.35,
-                        });
+                        if (placemark.type === 'Point') {
+                            new google.maps.Marker({
+                                position: placemark.coordinates[0],
+                                map: mapInstance,
+                                title: placemark.name,
+                            });
+                        } else if (placemark.type === 'LineString') {
+                            new google.maps.Polyline({
+                                path: placemark.coordinates,
+                                map: mapInstance,
+                                strokeColor: '#FF0000',
+                                strokeOpacity: 1.0,
+                                strokeWeight: 2,
+                            });
+                        } else if (placemark.type === 'Polygon') {
+                            new google.maps.Polygon({
+                                paths: placemark.coordinates,
+                                map: mapInstance,
+                                strokeColor: '#0000FF',
+                                strokeOpacity: 0.8,
+                                strokeWeight: 2,
+                                fillColor: '#0000FF',
+                                fillOpacity: 0.35,
+                            });
+                        }
+                    });
+                    
+                    if (!overallBounds.isEmpty()) {
+                        mapInstance.fitBounds(overallBounds);
                     }
-                });
-                
-                if (!overallBounds.isEmpty()) {
-                    mapInstance.fitBounds(overallBounds);
+                } catch (e) {
+                    setError("Failed to parse KML data. Please check the file format.");
+                    setIsPlacemarksLoading(false);
                 }
 
             } else {
-                alert('No KML data found in session. Please upload a file first.');
+                setError('No KML data found in session. Please upload a file first.');
                 setIsPlacemarksLoading(false);
             }
         }).catch(e => {
             console.error("Failed to initialize map or load KML:", e);
+            setError("Failed to load Google Maps. Please check your API key and ensure the Maps JavaScript API is enabled in your Google Cloud console.");
             setIsLoading(false);
             setIsPlacemarksLoading(false);
         });
@@ -228,6 +239,15 @@ export default function KmlViewerPage() {
                         </div>
                     </div>
                 )}
+                 {error && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background z-20 p-8">
+                        <Alert variant="destructive">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Map Error</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    </div>
+                 )}
                  <div ref={mapRef} id="map" className='h-full w-full'></div>
             </main>
         </div>
