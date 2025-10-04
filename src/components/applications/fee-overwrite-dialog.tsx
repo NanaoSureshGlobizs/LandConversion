@@ -73,6 +73,8 @@ export function FeeOverwriteDialog({ children, application, accessToken, onSucce
     const result = await overwriteFeeAmount(application.id.toString(), amount, accessToken);
     addLog(result.debugLog || 'Log for overwriteFeeAmount');
 
+    setIsLoading(false);
+
     if (result.success) {
         toast({
             title: 'Fee Overwritten Successfully',
@@ -87,8 +89,6 @@ export function FeeOverwriteDialog({ children, application, accessToken, onSucce
             variant: 'destructive',
         });
     }
-
-    setIsLoading(false);
   }
   
   return (

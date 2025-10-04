@@ -85,10 +85,6 @@ export function DetailPageClient({
   const [isSurveyDialogOpen, setIsSurveyDialogOpen] = useState(false);
   
   const handleActionSuccess = () => {
-    toast({
-      title: "Refreshing data...",
-      description: "The application details are being updated.",
-    });
     router.refresh();
   };
 

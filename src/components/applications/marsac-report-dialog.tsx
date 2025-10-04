@@ -105,6 +105,8 @@ export function MarsacReportDialog({ children, application, areaUnits, accessTok
     const submitResult = await submitMarsacReport(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
+    setIsLoading(false);
+
     if (submitResult.success) {
         toast({
             title: 'MARSAC Report Submitted',
@@ -120,8 +122,6 @@ export function MarsacReportDialog({ children, application, areaUnits, accessTok
             variant: 'destructive'
         });
     }
-
-    setIsLoading(false);
   }
   
   return (

@@ -88,6 +88,8 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
     const submitResult = await forwardApplication(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
+    setIsLoading(false);
+
     if (submitResult.success) {
         toast({
             title: 'Application Rejected',
@@ -103,8 +105,6 @@ export function RejectForm({ children, applicationId, accessToken, onSuccess }: 
             variant: 'destructive'
         });
     }
-
-    setIsLoading(false);
   }
   
   return (

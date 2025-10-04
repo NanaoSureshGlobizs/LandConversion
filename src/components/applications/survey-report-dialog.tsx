@@ -151,6 +151,8 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     const submitResult = await submitSurveyReport(payload, accessToken);
     if(submitResult.debugLog) addLog(submitResult.debugLog);
 
+    setIsLoading(false);
+
     if (submitResult.success) {
         toast({ title: 'Survey Report Submitted', description: 'The report has been sent successfully.'});
         resetForm();
@@ -159,8 +161,6 @@ export function SurveyReportDialog({ isOpen, onOpenChange, application, question
     } else {
         toast({ title: 'Submission Failed', description: submitResult.message || 'Could not submit the survey report.', variant: 'destructive' });
     }
-
-    setIsLoading(false);
   }
   
   return (
