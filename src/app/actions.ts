@@ -1068,11 +1068,14 @@ export async function getApplicationById(token: string, id: string, workflow_seq
     return { data, log: debugLog };
 }
 
-export async function getApplicationWorkflow(token: string, id: string) {
+export async function getApplicationWorkflow(token: string, id: string, isHillApplication: boolean = false) {
     if (!token) {
       return { data: null, log: "No access token found" };
     }
-    const url = `/applications/workflows?id=${id}`;
+    const url = isHillApplication
+        ? `/applications/workflows-for-hills?id=${id}`
+        : `/applications/workflows?id=${id}`;
+    
     const { data, debugLog } = await fetchFromApi(url, token);
     return { data, log: debugLog };
 }
@@ -1136,7 +1139,9 @@ export async function getSurveyQuestions(itemName: string, purposeType: number, 
 function addLog(log: string) {
   // This is a placeholder for a real logging implementation.
   // In a real app, this would send logs to a logging service.
-  
+  if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true' && process.env.NODE_ENV === 'development') {
+    console.log(log);
+  }
 }
     
 

@@ -1,4 +1,5 @@
 
+
 // This is the parent Server Component that fetches data.
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -17,23 +18,26 @@ export default async function ApplicationDetailPage({ params, searchParams }: { 
     redirect('/');
   }
 
-  // Fetch all data on the server in a single batch
-  const [
-    { data: application, log: appLog },
-    { data: statuses, log: statusesLog },
-    { data: areaUnits, log: areaUnitsLog },
-    { data: workflow, log: workflowLog }
-  ] = await Promise.all([
-    getApplicationById(accessToken, id, workflowSequenceId),
-    getApplicationStatuses(accessToken),
-    getAreaUnits(accessToken),
-    getApplicationWorkflow(accessToken, id)
-  ]);
-  
+  // Fetch the main application data first to determine its type
+  const { data: application, log: appLog } = await getApplicationById(accessToken, id, workflowSequenceId);
+
   if (!application) {
     notFound();
   }
 
+  // Now, fetch other data in parallel, including the workflow with the correct flag
+  const isHillApplication = application.application_type === 'hill';
+
+  const [
+    { data: statuses, log: statusesLog },
+    { data: areaUnits, log: areaUnitsLog },
+    { data: workflow, log: workflowLog }
+  ] = await Promise.all([
+    getApplicationStatuses(accessToken),
+    getAreaUnits(accessToken),
+    getApplicationWorkflow(accessToken, id, isHillApplication)
+  ]);
+  
   // Pass all server-fetched data to the client component
   return <DetailPageClient 
             id={id} 
