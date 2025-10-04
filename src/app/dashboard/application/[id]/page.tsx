@@ -49,3 +49,5 @@ export default async function ApplicationDetailPage({ params, searchParams }: { 
             areaUnits={areaUnits}
         />;
 }
+
+    
