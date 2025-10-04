@@ -242,7 +242,7 @@ export async function checkAuth() {
       userId: userId?.value || null
     };
   } catch (error) {
-    console.error("Failed to parse user access cookie:", error);
+    addLog(`Failed to parse user access cookie: ${error}`);
     // Fallback to authenticated state with empty access if parsing fails
     return { isAuthenticated: true, role: role?.value || null, access: [], userId: userId?.value || null };
   }
@@ -258,7 +258,7 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
   if (!token) {
     debugLog += `Authentication token not found for endpoint: ${endpoint}\n`;
     debugLog += '---------------------------\n';
-    console.error(`Authentication token not found for endpoint: ${endpoint}`);
+    addLog(`Authentication token not found for endpoint: ${endpoint}`);
     return { data: null, debugLog };
   }
 
@@ -277,7 +277,7 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
 
     if (!response.ok) {
       const errorMessage = `HTTP error! status: ${response.status} for endpoint: ${endpoint}. Body: ${responseText}`;
-      console.error(errorMessage);
+      addLog(errorMessage);
       debugLog += `API Error: ${errorMessage}\n`;
       debugLog += '---------------------------\n';
       return { data: null, debugLog };
@@ -306,12 +306,12 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
             return { data: result.data, debugLog };
         }
 
-        console.error(`API error or unexpected data format from ${endpoint}:`, result.message || result);
+        addLog(`API error or unexpected data format from ${endpoint}: ${result.message || result}`);
         return { data: null, debugLog };
 
     } catch (jsonError) {
         const errorMessage = `Failed to parse JSON from ${endpoint}. Response text: ${responseText}`;
-        console.error(errorMessage, jsonError);
+        addLog(`${errorMessage}, ${jsonError}`);
         debugLog += `Error: ${errorMessage}\n`;
         debugLog += '---------------------------\n';
         return { data: null, debugLog };
@@ -320,7 +320,7 @@ async function fetchFromApi(endpoint: string, token: string | undefined) {
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
-    console.error(`Failed to fetch from ${endpoint}:`, error);
+    addLog(`Failed to fetch from ${endpoint}: ${error}`);
     return { data: null, debugLog };
   }
 }
@@ -362,7 +362,7 @@ export async function submitApplication(formData: any, token: string | undefined
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
-    console.error('submitApplication error:', error);
+    addLog(`submitApplication error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
@@ -403,7 +403,7 @@ export async function submitHillApplication(formData: any, token: string | undef
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
-    console.error('submitHillApplication error:', error);
+    addLog(`submitHillApplication error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', data: null, debugLog };
   }
 }
@@ -467,7 +467,7 @@ export async function uploadFile(
     const errorMessage = error instanceof Error ? error.message : String(error);
     debugLog += `File Upload Catch Block Error: ${errorMessage}\n`;
     debugLog += "----------------------\n";
-    console.error("uploadFile error:", error);
+    addLog(`uploadFile error: ${error}`);
     return { success: false, message: "An unexpected error occurred during file upload.", data: null, debugLog };
   }
 }
@@ -478,7 +478,7 @@ export async function submitSurveyReport(payload: any, token: string | undefined
     return { success: false, message: 'Authentication token not found.', debugLog: 'submitSurveyReport Error: No auth token provided.' };
   }
 
-  const url = `${API_BASE_URL}/department-survey-record`;
+  const url = `${API_BASE_URL}/workflow`;
   let debugLog = '--- Submitting Survey Report ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
@@ -506,7 +506,7 @@ export async function submitSurveyReport(payload: any, token: string | undefined
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '----------------------------\n';
-    console.error('submitSurveyReport error:', error);
+    addLog(`submitSurveyReport error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }
@@ -544,7 +544,7 @@ export async function forwardApplication(payload: any, token: string | undefined
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '----------------------------\n';
-    console.error('forwardApplication error:', error);
+    addLog(`forwardApplication error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }
@@ -583,7 +583,7 @@ export async function submitMarsacReport(payload: any, token: string | undefined
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '----------------------------\n';
-    console.error('submitMarsacReport error:', error);
+    addLog(`submitMarsacReport error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }
@@ -637,7 +637,7 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------------\n';
-    console.error('submitLegacyData error:', error);
+    addLog(`submitLegacyData error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }
@@ -681,7 +681,7 @@ export async function createUser(payload: any, token: string | undefined) {
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '---------------------\n';
-    console.error('createUser error:', error);
+    addLog(`createUser error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }
@@ -1120,7 +1120,7 @@ export async function overwriteFeeAmount(applicationId: string, amount: number, 
   } catch (error) {
     debugLog += `Error: ${error}\n`;
     debugLog += '----------------------------\n';
-    console.error('overwriteFeeAmount error:', error);
+    addLog(`overwriteFeeAmount error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }
@@ -1203,3 +1203,6 @@ function addLog(log: string) {
 
 
 
+
+
+    
