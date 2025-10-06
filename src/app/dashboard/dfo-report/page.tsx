@@ -7,7 +7,6 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 26,
-  diversion: 26,
 };
 
 export default async function DfoReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
