@@ -163,6 +163,14 @@ export const allMenuItems = [
     icon: FileBarChart,
     accessKey: 'dlc_report',
   },
+  {
+    label: 'SLC',
+    icon: Gavel,
+    accessKey: 'slc_list',
+    subItems: [
+        { href: '/dashboard/slc', label: 'SLC List', accessKey: 'slc_list' },
+    ]
+  },
 ];
 
 export function SidebarNav() {
