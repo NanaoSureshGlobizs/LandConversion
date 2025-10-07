@@ -84,7 +84,7 @@ export function OtherApplicationsTable({ initialData, accessToken }: OtherApplic
   }, [applications, searchTerm]);
 
   const handleRowClick = (app: ApplicationListItem) => {
-    router.push(`/dashboard/application/${app.id}?from=/dashboard/other-applications`);
+    router.push(`/dashboard/application/${app.id}?from=/dashboard/other-applications&source=other`);
   };
   
   const getTypeVariant = (type: string) => {
@@ -134,7 +134,7 @@ export function OtherApplicationsTable({ initialData, accessToken }: OtherApplic
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/other-applications`}>View</Link>
+                            <Link href={`/dashboard/application/${app.id}?from=/dashboard/other-applications&source=other`}>View</Link>
                         </Button>
                     </div>
                   </TableCell>

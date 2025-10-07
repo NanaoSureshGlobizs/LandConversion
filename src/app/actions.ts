@@ -977,12 +977,14 @@ export async function getApplicationsByArea(accessToken: string, areaType: 'less
 }
 
 
-export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null) {
+export async function getApplicationById(token: string, id: string, workflow_sequence_id?: string | null, isOther: boolean = false) {
     const hillWorkflowIds = [63, 64, 65, 66, 67, 68, 69];
     const isHillWorkflow = workflow_sequence_id !== null && workflow_sequence_id !== undefined && hillWorkflowIds.includes(parseInt(workflow_sequence_id));
 
     let url: string;
-    if (isHillWorkflow) {
+    if (isOther) {
+        url = `/applications/other_lists_view?id=${id}`;
+    } else if (isHillWorkflow) {
         url = `/land-details-for-hill/view?id=${id}`;
     } else {
         url = `/applications/view?id=${id}&workflow_sequence_id=${workflow_sequence_id ?? ''}`;

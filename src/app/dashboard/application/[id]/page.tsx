@@ -13,13 +13,14 @@ export default async function ApplicationDetailPage({ params, searchParams }: { 
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
   const workflowSequenceId = searchParams?.workflow_sequence_id as string | undefined;
+  const isOtherApplication = searchParams?.source === 'other';
 
   if (!accessToken) {
     redirect('/');
   }
 
   // Fetch the main application data first to determine its type
-  const { data: application, log: appLog } = await getApplicationById(accessToken, id, workflowSequenceId);
+  const { data: application, log: appLog } = await getApplicationById(accessToken, id, workflowSequenceId, isOtherApplication);
 
   if (!application) {
     notFound();
