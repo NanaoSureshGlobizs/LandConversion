@@ -771,24 +771,25 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
-    if (data && isHillWorkflow && data.applications && Array.isArray(data.applications) && data.applications.length > 0) {
-      const hillAppsObject = data.applications[0];
-      if (typeof hillAppsObject === 'object' && hillAppsObject !== null) {
-          const applications = Object.values(hillAppsObject)
+    // Normalize hill application data to have consistent property names
+    if (data && isHillWorkflow && data.applications) {
+        const applications = (Array.isArray(data.applications) ? data.applications : Object.values(data.applications))
+            .flat() // Flatten in case of nested objects
             .filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item)
             .map((item: any) => ({
                 ...item,
-                district_name: item.district?.name || 'N/A',
-                status_name: item.application_status?.name || 'N/A',
+                district_name: item.district?.name || item.district_name || 'N/A',
+                sub_division_name: item.sub_division?.name || item.sub_division_name || 'N/A',
+                status_name: item.application_status?.name || item.status_name || 'N/A',
             }));
-          return {
-              data: {
-                  applications: applications,
-                  pagination: data.pagination
-              },
-              log: debugLog
-          };
-      }
+
+        return {
+            data: {
+                applications: applications,
+                pagination: data.pagination,
+            },
+            log: debugLog,
+        };
     }
 
     // This handles the standard response structure for most lists

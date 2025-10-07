@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -108,7 +109,7 @@ export function PendingEnquiriesHillTable({ initialData, accessToken, workflowId
     return applications.filter(
       (item: any) =>
         item.application_id?.toLowerCase().includes(lowercasedFilter) ||
-        item.application_status.name.toLowerCase().includes(lowercasedFilter)
+        item.status_name?.toLowerCase().includes(lowercasedFilter)
     );
   }, [applications, searchTerm]);
   
@@ -191,13 +192,13 @@ export function PendingEnquiriesHillTable({ initialData, accessToken, workflowId
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>
-                    <div className="font-medium">{app.district?.name || app.district_name}</div>
-                    <div className="text-sm text-muted-foreground">{app.sub_division?.name || app.sub_division_name}</div>
+                    <div className="font-medium">{app.district_name}</div>
+                    <div className="text-sm text-muted-foreground">{app.sub_division_name}</div>
                   </TableCell>
                   <TableCell>{app.land_address}</TableCell>
                   <TableCell>{app.created_at}</TableCell>
                   <TableCell>
-                     <Badge variant="secondary">{app.application_status.name}</Badge>
+                     <Badge variant="secondary">{app.status_name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
