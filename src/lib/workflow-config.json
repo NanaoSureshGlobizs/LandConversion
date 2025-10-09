@@ -26,47 +26,47 @@
       "workflowId": null
     },
     {
-        "label": "Hill Reports",
+        "label": "Change of land use",
         "accessKey": "hill_reports",
         "subItems": [
           {
-            "label": "Pending Enquiries",
+            "label": "Pending Enquiries (Change of land use)",
             "href": "/dashboard/pending-enquiries-hill",
             "accessKey": "pending_enquiries_hill",
             "workflowId": 63
           },
           {
-            "label": "SDO Hill Report",
+            "label": "SDO Change of land use",
             "href": "/dashboard/sdo-hill-report",
             "accessKey": "sdo_hill_report",
             "workflowId": 69
           },
           {
-            "label": "SDC Hill Report",
+            "label": "SDC Change of land use",
             "href": "/dashboard/sdc-hill-report",
             "accessKey": "sdc_hill_report",
             "workflowId": 64
           },
           {
-            "label": "DFO Hill Report",
+            "label": "DFO Change of land use",
             "href": "/dashboard/dfo-hill-report",
             "accessKey": "dfo_hill_report",
             "workflowId": 65
           },
           {
-            "label": "ADC Hill Report",
+            "label": "ADC Change of land use",
             "href": "/dashboard/adc-hill-report",
             "accessKey": "adc_hill_report",
             "workflowId": 66
           },
           {
-            "label": "DC Hill Report",
+            "label": "DC Change of land use",
             "href": "/dashboard/dc-hill-report",
             "accessKey": "dc_hill_report",
             "workflowId": 67
           },
           {
-            "label": "LRD Hill Report",
+            "label": "LRD Change of land use",
             "href": "/dashboard/lrd-hill-report",
             "accessKey": "lrd_hill_report",
             "workflowId": 68
@@ -114,7 +114,7 @@
           "href": "/dashboard/sdo-dao-report",
           "type": "conversion",
           "accessKey": "sdo_dao_report",
-          "workflowId": 25
+          "workflowId": 9
         },
         {
           "label": "LLMC Recommendations",
@@ -199,6 +199,13 @@
           "type": "conversion",
           "accessKey": "sdc_report",
           "workflowId": 28
+        },
+        {
+          "label": "SCD Report",
+          "href": "/dashboard/scd-report",
+          "type": "conversion",
+          "accessKey": "sdc_report",
+          "workflowId": 61
         },
         {
           "label": "MARSAC Report",
@@ -352,5 +359,3 @@
     }
   ]
 }
-
-    
