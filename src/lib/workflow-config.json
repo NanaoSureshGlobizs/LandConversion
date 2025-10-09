@@ -86,10 +86,28 @@
       "workflowId": null
     },
     {
-        "label": "Unassigned Applications",
-        "href": "/dashboard/other-applications",
-        "accessKey": "other_list",
-        "workflowId": null
+      "label": "Unassigned",
+      "accessKey": "unassigned_menu",
+      "subItems": [
+        {
+          "label": "Unassigned Applications",
+          "href": "/dashboard/other-applications",
+          "accessKey": "other_list",
+          "workflowId": null
+        },
+        {
+          "label": "Unassigned SDO",
+          "href": "/dashboard/unassigned-sdo",
+          "accessKey": "other_list_sdo",
+          "workflowId": 25
+        },
+        {
+            "label": "SCD Report",
+            "href": "/dashboard/scd-report",
+            "accessKey": "scd_report",
+            "workflowId": 61
+        }
+      ]
     },
     {
       "label": "Conversion",
@@ -199,13 +217,6 @@
           "type": "conversion",
           "accessKey": "sdc_report",
           "workflowId": 28
-        },
-        {
-          "label": "SCD Report",
-          "href": "/dashboard/scd-report",
-          "type": "conversion",
-          "accessKey": "sdc_report",
-          "workflowId": 61
         },
         {
           "label": "MARSAC Report",

@@ -772,11 +772,8 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
     // Normalize hill application data to have consistent property names
-    if (data && isHillWorkflow && data.applications) {
-        const applications = (Array.isArray(data.applications) ? data.applications : Object.values(data.applications))
-            .flat() // Flatten in case of nested objects
-            .filter((item: any): item is object => typeof item === 'object' && item !== null && 'id' in item)
-            .map((item: any) => ({
+    if (data && isHillWorkflow && Array.isArray(data.applications)) {
+        const applications = data.applications.map((item: any) => ({
                 ...item,
                 district_name: item.district?.name || item.district_name || 'N/A',
                 sub_division_name: item.sub_division?.name || item.sub_division_name || 'N/A',
@@ -785,8 +782,8 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
 
         return {
             data: {
+                ...data,
                 applications: applications,
-                pagination: data.pagination,
             },
             log: debugLog,
         };
@@ -850,11 +847,15 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     return { data, log: debugLog };
 }
 
-export async function getOtherApplications(accessToken: string, page = 1, limit = 10) {
+export async function getOtherApplications(accessToken: string, page = 1, limit = 10, workflow_sequence_id: number | null = null) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
     let url = `/applications/other_lists?page=${page}&limit=${limit}`;
+
+    if(workflow_sequence_id) {
+        url += `&workflow_sequence_id=${workflow_sequence_id}`;
+    }
 
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 

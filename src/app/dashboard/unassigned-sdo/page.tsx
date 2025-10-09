@@ -1,13 +1,13 @@
 
-import { ScdReportTable } from '@/components/applications/scd-report-table';
+import { UnassignedSdoTable } from '@/components/applications/unassigned-sdo-table';
 import { getOtherApplications, getApplicationStatuses } from '@/app/actions';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
-const WORKFLOW_ID = 61;
+const WORKFLOW_ID = 25;
 
-export default async function ScdReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+export default async function UnassignedSdoPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
 
@@ -29,9 +29,9 @@ export default async function ScdReportPage({ searchParams }: { searchParams: { 
       <ServerLogHandler logs={[appLog, statusesLog]} />
       <div className="flex-1 space-y-4 px-4 md:px-8">
         <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">SCD Report</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Unassigned SDO</h1>
         </div>
-        <ScdReportTable
+        <UnassignedSdoTable
             initialData={initialApplicationsData} 
             accessToken={accessToken}
             statuses={statuses}
