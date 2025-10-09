@@ -44,6 +44,24 @@ export function DcHillReportTable({ initialData, accessToken, statuses }: DcHill
     once: false,
   });
 
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    const { data: newData, log } = await getApplications(accessToken, 1, 10, WORKFLOW_ID);
+    addLog(log || "Log for getApplications refresh in DC Change of land use");
+    if (newData && Array.isArray(newData.applications)) {
+        setApplications(newData.applications);
+        setPage(newData.pagination.currentPage);
+        setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+    }
+    setIsLoading(false);
+  }, [accessToken, addLog]);
+
+  useEffect(() => {
+    setApplications(initialData?.applications || []);
+    setPage(initialData?.pagination.currentPage || 1);
+    setHasMore((initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1));
+  }, [initialData]);
+
   const loadMoreApplications = useCallback(async () => {
     if (isLoading || !hasMore) return;
 
