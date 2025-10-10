@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { getApplications } from '@/app/actions';
+import { getOtherApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
@@ -48,8 +48,8 @@ export function ScdReportTable({ initialData, accessToken, statuses }: ScdReport
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, WORKFLOW_ID);
-    addLog(log || "Log for getApplications in SCD Report");
+    const { data: newData, log } = await getOtherApplications(accessToken, nextPage, 10, WORKFLOW_ID);
+    addLog(log || "Log for getOtherApplications in SCD Report");
 
     if (newData && Array.isArray(newData.applications)) {
       setApplications(prev => [...prev, ...newData.applications]);
