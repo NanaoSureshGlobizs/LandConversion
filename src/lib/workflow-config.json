@@ -104,7 +104,7 @@
           {
             "label": "SCD Report",
             "href": "/dashboard/scd-report",
-            "accessKey": "scd_report",
+            "accessKey": "sdc_report",
             "workflowId": 61
           }
         ]
@@ -211,13 +211,7 @@
           "accessKey": "dfo_report",
           "workflowId": 26
         },
-        {
-          "label": "SDC Report",
-          "href": "/dashboard/sdc-report",
-          "type": "conversion",
-          "accessKey": "sdc_report",
-          "workflowId": 28
-        },
+        
         {
           "label": "MARSAC Report",
           "href": "/dashboard/marsac-report",
@@ -259,13 +253,7 @@
           "accessKey": "dc_office",
           "workflowId": 4
         },
-        {
-          "label": "SDO Report",
-          "href": "/dashboard/sdo-dao-report",
-          "type": "diversion",
-          "accessKey": "sdo_dao_report",
-          "workflowId": 18
-        },
+        
         {
           "label": "SDAO Enquiries",
           "href": "/dashboard/sdao-enquiries",
