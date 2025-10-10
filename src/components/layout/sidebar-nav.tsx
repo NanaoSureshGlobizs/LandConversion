@@ -28,150 +28,10 @@ import { useMemo, useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
+import menuConfig from '@/lib/workflow-config.json';
 
-export const allMenuItems = [
-  {
-    href: '/dashboard',
-    label: 'Dashboard',
-    icon: Home,
-    accessKey: 'dashboard',
-    exact: true,
-  },
-  {
-    href: '/dashboard/my-applications',
-    label: 'My Applications',
-    icon: Files,
-    accessKey: 'view_application',
-  },
-  {
-    href: '/dashboard/new-application',
-    label: 'New Application',
-    icon: FilePlus2,
-    accessKey: 'create_application',
-  },
-   {
-    href: '/dashboard/hill-applications',
-    label: 'Hill Applications',
-    icon: Mountain,
-    accessKey: 'hill_application',
-  },
-  {
-    label: 'Change of land use',
-    icon: Mountain,
-    accessKey: 'hill_reports',
-    subItems: [
-        { href: '/dashboard/pending-enquiries-hill', label: 'Pending Enquiries (Change of land use)', accessKey: 'pending_enquiries_hill' },
-        { href: '/dashboard/sdo-hill-report', label: 'SDO Change of land use', accessKey: 'sdo_hill_report' },
-        { href: '/dashboard/sdc-hill-report', label: 'SDC Change of land use', accessKey: 'sdc_hill_report' },
-        { href: '/dashboard/dfo-hill-report', label: 'DFO Change of land use', accessKey: 'dfo_hill_report' },
-        { href: '/dashboard/adc-hill-report', label: 'ADC Change of land use', accessKey: 'adc_hill_report' },
-        { href: '/dashboard/dc-hill-report', label: 'DC Change of land use', accessKey: 'dc_hill_report' },
-        { href: '/dashboard/lrd-hill-report', label: 'LRD Change of land use', accessKey: 'lrd_hill_report' },
-    ]
-  },
-  {
-    href: '/dashboard/user-management',
-    label: 'User Management',
-    icon: Users,
-    accessKey: 'user_management',
-  },
-  {
-    href: '/dashboard/legacy-data',
-    label: 'Legacy Data',
-    icon: History,
-    accessKey: 'legacy_data',
-  },
-  {
-    href: '/dashboard/other-applications',
-    label: 'Unassigned Applications',
-    icon: FileSearch,
-    accessKey: 'other_list',
-  },
-  {
-    label: 'Conversion',
-    icon: FileText,
-    accessKey: 'conversion',
-    subItems: [
-        { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'conversion', accessKey: 'pending_enquiries' },
-        { href: '/dashboard/report', label: 'Report from SDC', type: 'conversion', accessKey: 'report' },
-        { href: '/dashboard/sdo-dao-report', label: 'SDO Report', type: 'conversion', accessKey: 'sdo_dao_report' },
-        { href: '/dashboard/dfo-report', label: 'DFO Report', type: 'conversion', accessKey: 'dfo_report' },
-        { href: '/dashboard/llmc-recommendations', label: 'LLMC Recommendations', type: 'conversion', accessKey: 'llmc_recommendations' },
-        { href: '/dashboard/enquiries', label: 'Enquiries', type: 'conversion', accessKey: 'enquiries' },
-        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'conversion', accessKey: 'SDAO_enquiries' },
-        { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
-        { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'conversion', accessKey: 'dlc_recommendations' },
-        { href: '/dashboard/lrd-decision', label: 'LRD Decision', type: 'conversion', accessKey: 'lrd_decision' },
-        { href: '/dashboard/lrd-report', label: 'LRD Report', type: 'conversion', accessKey: 'conversion_lrd_report' },
-        { href: '/dashboard/dlc-report', label: 'DLC Report', type: 'conversion', accessKey: 'conversion_dlc_report' },
-        { href: '/dashboard/decision-and-fees', label: 'Decision & Fees', type: 'conversion', accessKey: 'decision_and_fees' },
-        { href: '/dashboard/dc-office', label: 'DC Office', type: 'conversion', accessKey: 'dc_office' },
-        { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'conversion', accessKey: 'sdc_report' },
-        { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'conversion', accessKey: 'marsac_report' },
-        { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'conversion', accessKey: 'unprocessed_applications' },
-    ]
-  },
-  {
-    label: 'Diversion',
-    icon: ShieldCheck,
-    accessKey: 'diversion',
-    subItems: [
-        { href: '/dashboard/pending-enquiries', label: 'Pending Enquiries', type: 'diversion', accessKey: 'pending_enquiries' },
-        { href: '/dashboard/sdc-report', label: 'SDC Report', type: 'diversion', accessKey: 'sdc_report' },
-        { href: '/dashboard/dc-office', label: 'DC Office', type: 'diversion', accessKey: 'dc_office' },
-        { href: '/dashboard/sdo-dao-report', label: 'SDO Report', type: 'diversion', accessKey: 'sdo_dao_report' },
-        { href: '/dashboard/sdao-enquiries', label: 'SDAO Enquiries', type: 'diversion', accessKey: 'SDAO_enquiries' },
-        { href: '/dashboard/dlc-recommendations', label: 'DLC Recommendations', type: 'diversion', accessKey: 'dlc_recommendations' },
-        { href: '/dashboard/final-orders', label: 'Final Orders', type: 'diversion', accessKey: 'final_order' },
-        { href: '/dashboard/marsac-report', label: 'MARSAC Report', type: 'diversion', accessKey: 'marsac_report' },
-        { href: '/dashboard/cabinet', label: 'Cabinet', type: 'diversion', accessKey: 'cabinet' },
-        { href: '/dashboard/lrd-report', label: 'LRD Report', type: 'diversion', accessKey: 'diversion_lrd_report' },
-        { href: '/dashboard/dlc-report', label: 'DLC Report', type: 'diversion', accessKey: 'diversion_dlc_report' },
-        { href: '/dashboard/unprocessed-applications', label: 'Unprocessed Applications', type: 'diversion', accessKey: 'unprocessed_applications' },
-        { href: '/dashboard/enquiries', label: 'Enquiries', type: 'diversion', accessKey: 'enquiries' },
-    ]
-  },
-  {
-    href: '/dashboard/area-lesser',
-    label: '< 0.5 Hectare',
-    icon: AreaChart,
-    accessKey: 'less_than',
-  },
-  {
-    href: '/dashboard/area-greater',
-    label: '> 0.5 Hectare',
-    icon: AreaChart,
-    accessKey: 'greater_than',
-  },
-  {
-    href: '/dashboard/area',
-    label: 'Area-wise List (All)',
-    icon: AreaChart,
-    accessKey: 'both_hectare',
-  },
-  {
-    label: 'LLMC',
-    icon: Library,
-    accessKey: 'llmc_menu',
-    subItems: [
-        { href: '/dashboard/llmc-review', label: 'LLMC Review', type: 'conversion', accessKey: 'llmc_review' },
-    ]
-  },
-  {
-    href: '/dashboard/reports-from-dlc',
-    label: 'Reports from DLC',
-    icon: FileBarChart,
-    accessKey: 'dlc_report',
-  },
-  {
-    label: 'SLC',
-    icon: Gavel,
-    accessKey: 'slc_list',
-    subItems: [
-        { href: '/dashboard/slc', label: 'SLC List', accessKey: 'slc_list' },
-    ]
-  },
-];
+export const allMenuItems = menuConfig.menuConfig;
+
 
 export function SidebarNav() {
   const pathname = usePathname();
@@ -216,11 +76,12 @@ export function SidebarNav() {
     return currentPath === href;
   };
   
- const visibleMenuItems = useMemo(() => {
+  const visibleMenuItems = useMemo(() => {
     const userAccessSet = new Set(access);
     const finalItems: (typeof allMenuItems[0])[] = [];
 
     allMenuItems.forEach(item => {
+        // If it's a top-level item with no sub-items
         if (!item.subItems) {
             if (!item.accessKey || userAccessSet.has(item.accessKey)) {
                 finalItems.push(item);
@@ -228,41 +89,19 @@ export function SidebarNav() {
             return;
         }
 
+        // If it has sub-items, filter them first
         const visibleSubItems = item.subItems.filter(subItem => 
             !subItem.accessKey || userAccessSet.has(subItem.accessKey)
         );
 
-        if (role === 'MARSAC' && visibleSubItems.length > 0) {
-            const marsacItem = visibleSubItems.find(sub => sub.accessKey === 'marsac_report');
-            if (marsacItem && !finalItems.some(fi => fi.href === marsacItem.href)) {
-                 finalItems.push({
-                    href: marsacItem.href,
-                    label: 'MARSAC Report',
-                    icon: Trees,
-                    accessKey: 'marsac_report'
-                });
-            }
-            return; 
-        }
-
-
-        if (visibleSubItems.length > 0) {
-            if (visibleSubItems.length > 1 || !item.href) {
-                finalItems.push({ ...item, subItems: visibleSubItems });
-            } else {
-                const singleSubItem = visibleSubItems[0];
-                finalItems.push({
-                    ...singleSubItem,
-                    label: singleSubItem.label,
-                    icon: item.icon, 
-                    href: singleSubItem.type ? `${singleSubItem.href}?type=${singleSubItem.type}` : singleSubItem.href
-                });
-            }
+        // If the user has access to the parent menu OR any of its children, show it
+        if (visibleSubItems.length > 0 || (item.accessKey && userAccessSet.has(item.accessKey))) {
+            finalItems.push({ ...item, subItems: visibleSubItems });
         }
     });
 
     return finalItems;
-}, [access, role]);
+}, [access]);
 
 
   return (
@@ -287,7 +126,9 @@ export function SidebarNav() {
         <SidebarMenu>
           {visibleMenuItems.map((item) => {
             const hasVisibleSubItems = item.subItems && item.subItems.length > 0;
-            const Icon = item.icon;
+            const Icon = {
+                Home, Files, FilePlus2, Mountain, Users, History, FileText, ShieldCheck, AreaChart, Library, FileBarChart, Gavel, Map, Trees, Briefcase, Building2, FileSearch
+            }[item.icon as keyof typeof Icon] || FileText;
 
             return (
               <SidebarMenuItem key={item.label}>
@@ -298,7 +139,7 @@ export function SidebarNav() {
                               isActive={isParentActive(item)}
                               className="w-full"
                           >
-                              {Icon && <Icon />}
+                              <Icon />
                               <span>{item.label}</span>
                                <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </SidebarMenuButton>
@@ -321,7 +162,7 @@ export function SidebarNav() {
                    item.href && (
                      <SidebarMenuButton asChild isActive={isLinkActive(item.href, undefined, item.exact)}>
                        <Link href={item.href}>
-                           {Icon && <Icon />}
+                           <Icon />
                            <span>{item.label}</span>
                        </Link>
                      </SidebarMenuButton>
