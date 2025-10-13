@@ -110,9 +110,9 @@
             "workflowId": 25
           },
           {
-            "label": "SCD Report",
+            "label": "SDC Report",
             "href": "/dashboard/scd-report",
-            "accessKey": "scd_report",
+            "accessKey": "sdc_report",
             "workflowId": 61
           }
         ]

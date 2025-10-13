@@ -7,7 +7,7 @@ import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
   conversion: 28,
-  diversion: 3,
+  diversion: 18,
 };
 
 export default async function SdcReportPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
