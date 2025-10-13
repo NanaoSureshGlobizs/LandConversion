@@ -277,7 +277,7 @@
           "href": "/dashboard/dlc-recommendations",
           "type": "diversion",
           "accessKey": "dlc_recommendations",
-          "workflowId": 20
+          "workflowId": 60
         },
         {
           "label": "Final Orders",
