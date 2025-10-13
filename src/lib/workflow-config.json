@@ -177,7 +177,7 @@
           "href": "/dashboard/dlc-recommendations",
           "type": "conversion",
           "accessKey": "dlc_recommendations",
-          "workflowId": 23
+          "workflowId": 15
         },
         {
           "label": "LRD Decision",

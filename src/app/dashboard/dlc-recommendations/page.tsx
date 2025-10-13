@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 
 const WORKFLOW_MAP = {
-  conversion: 23,
+  conversion: 15,
   diversion: 60,
 };
 
