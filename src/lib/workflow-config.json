@@ -3,30 +3,35 @@
   "menuConfig": [
     {
       "label": "Dashboard",
+      "icon": "Home",
       "href": "/dashboard",
       "accessKey": "dashboard",
       "workflowId": null
     },
     {
       "label": "My Applications",
+      "icon": "Files",
       "href": "/dashboard/my-applications",
       "accessKey": "view_application",
       "workflowId": null
     },
     {
       "label": "New Application",
+      "icon": "FilePlus2",
       "href": "/dashboard/new-application",
       "accessKey": "create_application",
       "workflowId": null
     },
     {
       "label": "Hill Applications",
+      "icon": "Mountain",
       "href": "/dashboard/hill-applications",
       "accessKey": "hill_application",
       "workflowId": null
     },
     {
         "label": "Change of land use",
+        "icon": "Trees",
         "accessKey": "hill_reports",
         "subItems": [
           {
@@ -75,18 +80,21 @@
     },
     {
       "label": "User Management",
+      "icon": "Users",
       "href": "/dashboard/user-management",
       "accessKey": "user_management",
       "workflowId": null
     },
     {
       "label": "Legacy Data",
+      "icon": "History",
       "href": "/dashboard/legacy-data",
       "accessKey": "legacy_data",
       "workflowId": null
     },
     {
         "label": "Unassigned",
+        "icon": "Briefcase",
         "accessKey": "unassigned_menu",
         "subItems": [
           {
@@ -104,13 +112,14 @@
           {
             "label": "SDC Report",
             "href": "/dashboard/scd-report",
-            "accessKey": "sdc_report",
+            "accessKey": "scd_report",
             "workflowId": 61
           }
         ]
     },
     {
       "label": "Conversion",
+      "icon": "FileText",
       "accessKey": "conversion",
       "subItems": [
         {
@@ -230,6 +239,7 @@
     },
     {
       "label": "Diversion",
+      "icon": "ShieldCheck",
       "accessKey": "diversion",
       "subItems": [
         {
@@ -321,24 +331,28 @@
     },
     {
       "label": "< 0.5 Hectare",
+      "icon": "AreaChart",
       "href": "/dashboard/area-lesser",
       "accessKey": "less_than",
       "workflowId": null
     },
     {
       "label": "> 0.5 Hectare",
+      "icon": "AreaChart",
       "href": "/dashboard/area-greater",
       "accessKey": "greater_than",
       "workflowId": null
     },
     {
       "label": "Area-wise List (All)",
+      "icon": "Map",
       "href": "/dashboard/area",
       "accessKey": "both_hectare",
       "workflowId": null
     },
     {
       "label": "LLMC",
+      "icon": "Building2",
       "accessKey": "llmc_menu",
       "subItems": [
         {
@@ -352,9 +366,18 @@
     },
     {
       "label": "Reports from DLC",
+      "icon": "FileBarChart",
       "href": "/dashboard/reports-from-dlc",
       "accessKey": "dlc_report",
       "workflowId": null
+    },
+    {
+      "label": "SCD Report",
+      "icon": "FileSearch",
+      "href": "/dashboard/scd-report",
+      "accessKey": "scd_report",
+      "workflowId": 61,
+      "exact": true
     }
   ]
 }
