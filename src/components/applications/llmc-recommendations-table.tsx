@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -15,12 +14,13 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
-import { getApplications, forwardMultipleApplications } from '@/app/actions';
+import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { MultipleForwardForm } from './multiple-forward-form';
 
 interface LlmcRecommendationsTableProps {
   initialData: PaginatedApplications | null;
@@ -38,7 +38,6 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
-  const [isForwarding, setIsForwarding] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
   const isInitialLoad = useRef(true);
   
@@ -61,6 +60,7 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
         setHasMore(false);
     }
     setIsLoading(false);
+    setSelectedRows({});
   }, [accessToken, addLog]);
 
   useEffect(() => {
@@ -119,47 +119,6 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
       return Object.keys(selectedRows).filter(id => selectedRows[id]);
   }, [selectedRows]);
 
-  const handleForward = async () => {
-    if (selectedIds.length === 0) {
-      toast({
-        title: "No Applications Selected",
-        description: "Please select at least one application to forward.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsForwarding(true);
-
-    const payload = {
-        application_details_id: selectedIds.map(id => parseInt(id)),
-        verification_status_id: 1, 
-        remark: "Forwarded from LLMC Recommendations",
-        attachment: "",
-        status: 1, 
-    };
-
-    addLog(`Forwarding applications with payload: ${JSON.stringify(payload)}`);
-    const result = await forwardMultipleApplications(payload, accessToken);
-
-    if (result.success) {
-        toast({
-            title: "Forward Successful",
-            description: `${selectedIds.length} application(s) have been forwarded.`
-        });
-        setSelectedRows({});
-        refreshData();
-    } else {
-         toast({
-            title: "Forward Failed",
-            description: result.message || "An unknown error occurred while forwarding. Check logs for details.",
-            variant: "destructive"
-        });
-    }
-
-    setIsForwarding(false);
-  };
-
   const filteredData = useMemo(() => {
     if (!searchTerm) return applications;
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -188,10 +147,15 @@ export function LlmcRecommendationsTable({ initialData, accessToken, statuses }:
             className="max-w-md pl-10"
           />
         </div>
-        <Button onClick={handleForward} disabled={isForwarding || selectedIds.length === 0}>
-            {isForwarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Forward ({selectedIds.length})
-        </Button>
+        <MultipleForwardForm
+            applicationIds={selectedIds}
+            accessToken={accessToken}
+            onSuccess={refreshData}
+        >
+            <Button disabled={selectedIds.length === 0}>
+                Forward ({selectedIds.length})
+            </Button>
+        </MultipleForwardForm>
       </div>
       <div className="rounded-md border bg-card">
         <Table>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -13,15 +12,16 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
-import { getApplications, forwardMultipleApplications } from '@/app/actions';
+import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
+import { MultipleForwardForm } from './multiple-forward-form';
 
 const WORKFLOW_ID = 21;
 
@@ -42,7 +42,6 @@ export function SlcTable({ initialData, accessToken, statuses }: SlcTableProps) 
   const { toast } = useToast();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [isForwarding, setIsForwarding] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
   const isInitialLoad = useRef(true);
 
@@ -50,6 +49,22 @@ export function SlcTable({ initialData, accessToken, statuses }: SlcTableProps) 
     externalRef: isLoading ? null : externalRef,
     once: false,
   });
+
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    const { data: newData, log } = await getApplications(accessToken, 1, 10, WORKFLOW_ID);
+    addLog(log || "Log for getApplications in SLC List refresh");
+
+    if (newData && Array.isArray(newData.applications)) {
+        setApplications(newData.applications);
+        setPage(newData.pagination.currentPage);
+        setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+    } else {
+        setHasMore(false);
+    }
+    setIsLoading(false);
+    setSelectedRows({});
+  }, [accessToken, addLog]);
 
   const loadMoreApplications = useCallback(async () => {
     if (isLoading || !hasMore) return;
@@ -104,48 +119,6 @@ export function SlcTable({ initialData, accessToken, statuses }: SlcTableProps) 
   const selectedIds = useMemo(() => {
       return Object.keys(selectedRows).filter(id => selectedRows[id]);
   }, [selectedRows]);
-
-  const handleForward = async () => {
-    if (selectedIds.length === 0) {
-      toast({
-        title: "No Applications Selected",
-        description: "Please select at least one application to forward.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsForwarding(true);
-
-    const payload = {
-        application_details_id: selectedIds.map(id => parseInt(id)),
-        verification_status_id: 6, // Placeholder for 'Forward'
-        remark: "Forwarded from SLC List",
-        attachment: "",
-        status: 1, 
-    };
-
-    addLog(`Forwarding applications with payload: ${JSON.stringify(payload)}`);
-
-    const result = await forwardMultipleApplications(payload, accessToken);
-
-    if (result.success) {
-      toast({
-          title: "Forward Successful",
-          description: `${selectedIds.length} application(s) have been forwarded.`
-      });
-      setSelectedRows({});
-      router.refresh();
-    } else {
-      toast({
-          title: "Forward Failed",
-          description: result.message || "An unknown error occurred while forwarding. Check logs for details.",
-          variant: "destructive"
-      });
-    }
-
-    setIsForwarding(false);
-  };
   
   const filteredData = useMemo(() => {
     if (!searchTerm) return applications;
@@ -171,10 +144,15 @@ export function SlcTable({ initialData, accessToken, statuses }: SlcTableProps) 
             className="max-w-md pl-10"
           />
         </div>
-         <Button onClick={handleForward} disabled={isForwarding || selectedIds.length === 0}>
-            {isForwarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Forward ({selectedIds.length})
-        </Button>
+        <MultipleForwardForm
+            applicationIds={selectedIds}
+            accessToken={accessToken}
+            onSuccess={refreshData}
+        >
+            <Button disabled={selectedIds.length === 0}>
+                Forward ({selectedIds.length})
+            </Button>
+        </MultipleForwardForm>
       </div>
       <div className="rounded-md border bg-card">
         <Table>
