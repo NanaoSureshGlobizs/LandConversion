@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
-import { getApplications, forwardApplication } from '@/app/actions';
+import { getApplications, forwardMultipleApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
@@ -125,41 +125,34 @@ export function DlcReportTable({ initialData, accessToken, statuses }: DlcReport
     }
 
     setIsForwarding(true);
-    addLog(`Forwarding applications with IDs: [${selectedIds.join(', ')}] from DLC Report`);
-
-    const results = await Promise.all(
-        selectedIds.map(id => {
-            const payload = {
-                application_details_id: parseInt(id),
-                verification_status_id: 6, // Placeholder for 'Forward'
-                remark: "Forwarded from DLC Report",
-                attachment: "",
-                status: 1, 
-            };
-            return forwardApplication(payload, accessToken);
-        })
-    );
     
-    const successfulForwards = results.filter(r => r.success).length;
-    const failedForwards = results.length - successfulForwards;
+    const payload = {
+      application_details_id: selectedIds.map(id => parseInt(id)),
+      verification_status_id: 6, // Placeholder for 'Forward'
+      remark: "Forwarded from DLC Report",
+      attachment: "",
+      status: 1, 
+    };
 
-    if (successfulForwards > 0) {
-        toast({
-            title: "Forward Successful",
-            description: `${successfulForwards} application(s) have been forwarded.`
-        });
-        setSelectedRows({});
-        // Refetch data might be needed here
+    addLog(`Forwarding applications with payload: ${JSON.stringify(payload)}`);
+
+    const result = await forwardMultipleApplications(payload, accessToken);
+
+    if (result.success) {
+      toast({
+          title: "Forward Successful",
+          description: `${selectedIds.length} application(s) have been forwarded.`
+      });
+      setSelectedRows({});
+      router.refresh();
+    } else {
+      toast({
+          title: "Forward Failed",
+          description: result.message || "An unknown error occurred while forwarding. Check logs for details.",
+          variant: "destructive"
+      });
     }
-
-    if (failedForwards > 0) {
-         toast({
-            title: "Forward Failed",
-            description: `${failedForwards} application(s) could not be forwarded. Check logs for details.`,
-            variant: "destructive"
-        });
-    }
-
+    
     setIsForwarding(false);
   };
   
