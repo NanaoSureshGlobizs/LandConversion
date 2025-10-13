@@ -1,3 +1,4 @@
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -553,7 +554,7 @@ export async function forwardMultipleApplications(payload: any, token: string | 
     return { success: false, message: 'Authentication token not found.', debugLog: 'forwardMultipleApplications Error: No auth token provided.' };
   }
 
-  const url = `${API_BASE_URL}/workflow/create_multiple`;
+  const url = `${API_BASE_URL}/workflow/create-multiple`;
   let debugLog = '--- Forwarding Multiple Applications ---\n';
   debugLog += `Request URL: ${url}\n`;
   debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
