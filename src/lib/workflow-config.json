@@ -108,12 +108,6 @@
             "href": "/dashboard/unassigned-sdo",
             "accessKey": "other_list_sdo",
             "workflowId": 25
-          },
-          {
-            "label": "SDC Report",
-            "href": "/dashboard/scd-report",
-            "accessKey": "sdc_report",
-            "workflowId": 61
           }
         ]
     },
@@ -374,8 +368,8 @@
     {
       "label": "SCD Report",
       "icon": "FileSearch",
-      "href": "/dashboard/scd-report",
-      "accessKey": "scd_report",
+      "href": "/dashboard/other_sdc-report",
+      "accessKey": "other_sdc_report",
       "workflowId": 61,
       "exact": true
     }
