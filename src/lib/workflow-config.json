@@ -110,7 +110,7 @@
             "workflowId": 25
           },
           {
-            "label": "SDC Report",
+            "label": "SCD Report",
             "href": "/dashboard/scd-report",
             "accessKey": "scd_report",
             "workflowId": 61
@@ -254,7 +254,7 @@
           "href": "/dashboard/sdc-report",
           "type": "diversion",
           "accessKey": "sdc_report",
-          "workflowId": 3
+          "workflowId": 18
         },
         {
           "label": "DC Office",
