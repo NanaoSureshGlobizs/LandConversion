@@ -19,7 +19,6 @@ import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
-import { FeeReportForm } from './fee-report-form';
 
 interface LrdDecisionTableProps {
   initialData: PaginatedApplications | null;
@@ -120,13 +119,6 @@ export function LrdDecisionTable({ initialData, accessToken, statuses }: LrdDeci
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/application/${app.id}?from=/dashboard/lrd-decision&workflow_sequence_id=${app.workflow_sequence_id}`}>View</Link>
                         </Button>
-                        <FeeReportForm
-                          applicationId={app.id.toString()}
-                          accessToken={accessToken}
-                          statuses={statuses}
-                        >
-                          <Button variant="default" size="sm">Update Fees</Button>
-                        </FeeReportForm>
                     </div>
                   </TableCell>
                 </TableRow>
