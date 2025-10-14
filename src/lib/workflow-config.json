@@ -280,6 +280,13 @@
           "workflowId": 60
         },
         {
+          "label": "Cabinet Decision",
+          "href": "/dashboard/cabinet-decision",
+          "type": "diversion",
+          "accessKey": "cabinet_decision",
+          "workflowId": 20
+        },
+        {
           "label": "Final Orders",
           "href": "/dashboard/final-orders",
           "type": "diversion",
