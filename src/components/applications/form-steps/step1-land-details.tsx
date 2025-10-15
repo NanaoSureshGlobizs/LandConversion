@@ -117,7 +117,7 @@ export function Step1LandDetails({
           name="district_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>District</FormLabel>
+              <FormLabel>District <span className="text-destructive">*</span></FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl><SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger></FormControl>
                 <SelectContent>
@@ -133,7 +133,7 @@ export function Step1LandDetails({
           name="sub_division_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Sub Division</FormLabel>
+              <FormLabel>Sub Division <span className="text-destructive">*</span></FormLabel>
               <Select onValueChange={field.onChange} value={field.value} disabled={!watchedDistrictId || filteredSubDivisions.length === 0}>
                 <FormControl><SelectTrigger><SelectValue placeholder={!watchedDistrictId ? "Select a district first" : "Select Sub Division"} /></SelectTrigger></FormControl>
                 <SelectContent>
@@ -151,7 +151,7 @@ export function Step1LandDetails({
               name="circle_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Circle</FormLabel>
+                  <FormLabel>Circle <span className="text-destructive">*</span></FormLabel>
                   <Select onValueChange={field.onChange} value={field.value} disabled={!watchedSubDivisionId || filteredCircles.length === 0}>
                     <FormControl><SelectTrigger><SelectValue placeholder={!watchedSubDivisionId ? "Select a sub-division first" : "Select Circle"} /></SelectTrigger></FormControl>
                     <SelectContent>
@@ -167,7 +167,7 @@ export function Step1LandDetails({
               name="village_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Village</FormLabel>
+                  <FormLabel>Village <span className="text-destructive">*</span></FormLabel>
                   <Select onValueChange={field.onChange} value={field.value} disabled={!watchedCircleId || filteredVillages.length === 0}>
                     <FormControl><SelectTrigger><SelectValue placeholder={!watchedCircleId ? "Select a circle first" : "Select Village"} /></SelectTrigger></FormControl>
                     <SelectContent>
@@ -183,7 +183,7 @@ export function Step1LandDetails({
               name="land_purpose_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Purpose for which land is presently used</FormLabel>
+                  <FormLabel>Purpose for which land is presently used <span className="text-destructive">*</span></FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select current purpose" /></SelectTrigger></FormControl>
                     <SelectContent>
@@ -199,7 +199,7 @@ export function Step1LandDetails({
               name="change_of_land_use_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date of change of land use</FormLabel>
+                  <FormLabel>Date of change of land use <span className="text-destructive">*</span></FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select period" /></SelectTrigger></FormControl>
                     <SelectContent>

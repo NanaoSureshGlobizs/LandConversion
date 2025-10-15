@@ -49,7 +49,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{formType === 'hill' ? 'Name of the Village Authorities' : 'Name of Patta Holder'}</FormLabel>
+                    <FormLabel>{formType === 'hill' ? 'Name of the Village Authorities' : 'Name of Patta Holder'} <span className="text-destructive">*</span></FormLabel>
                     <FormControl><Input placeholder={formType === 'hill' ? 'Enter village authority name' : 'Enter full name'} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -60,7 +60,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 name="date_of_birth"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date of Birth</FormLabel>
+                    <FormLabel>Date of Birth <span className="text-destructive">*</span></FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -106,7 +106,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-1">
-                        Aadhaar Number
+                        Aadhaar Number <span className="text-destructive">*</span>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -132,7 +132,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>Address <span className="text-destructive">*</span></FormLabel>
                   <FormControl><Textarea placeholder="Enter full address" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -145,7 +145,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 name="phone_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>Phone Number <span className="text-destructive">*</span></FormLabel>
                     <FormControl><Input placeholder="Enter 10-digit mobile number" {...field} maxLength={10} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +156,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email <span className="text-destructive">*</span></FormLabel>
                     <FormControl><Input placeholder="Enter email address" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -179,19 +179,19 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                     <FormField
                         control={control}
                         name="patta_no"
-                        render={({ field }) => (<FormItem><FormLabel>Patta No.</FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
+                        render={({ field }) => (<FormItem><FormLabel>Patta No. <span className="text-destructive">*</span></FormLabel><FormControl><Input placeholder="Enter Patta No." {...field} /></FormControl><FormMessage /></FormItem>)}
                     />
                     <FormField
                         control={control}
                         name="dag_no"
-                        render={({ field }) => (<FormItem><FormLabel>Dag No.</FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
+                        render={({ field }) => (<FormItem><FormLabel>Dag No. <span className="text-destructive">*</span></FormLabel><FormControl><Input placeholder="Enter Dag No." {...field} /></FormControl><FormMessage /></FormItem>)}
                     />
                     <FormField
                         control={control}
                         name="location_type_id"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Location Type</FormLabel>
+                            <FormLabel>Location Type <span className="text-destructive">*</span></FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select Location Type" /></SelectTrigger></FormControl>
                             <SelectContent>
@@ -206,7 +206,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 </>
               )}
               <div className="space-y-2">
-                  <FormLabel>Original area of plot</FormLabel>
+                  <FormLabel>Original area of plot <span className="text-destructive">*</span></FormLabel>
                   <div className="grid grid-cols-3 gap-2">
                       <FormField
                           control={control}
@@ -232,7 +232,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
               </div>
 
               <div className="space-y-2">
-                  <FormLabel>Area applied for conversion</FormLabel>
+                  <FormLabel>Area applied for conversion <span className="text-destructive">*</span></FormLabel>
                   <div className="grid grid-cols-3 gap-2">
                       <FormField
                           control={control}
@@ -263,7 +263,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                     name="land_classification_id"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Present Land Classification</FormLabel>
+                        <FormLabel>Present Land Classification <span className="text-destructive">*</span></FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select classification" /></SelectTrigger></FormControl>
                         <SelectContent>
@@ -280,7 +280,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   name="purpose_id"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Purpose for which conversion is requested</FormLabel>                    
+                      <FormLabel>Purpose for which conversion is requested <span className="text-destructive">*</span></FormLabel>                    
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select requested purpose" /></SelectTrigger></FormControl>
                         <SelectContent>
@@ -297,7 +297,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   name="other_entry"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Please specify other purpose</FormLabel>
+                      <FormLabel>Please specify other purpose <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
                         <Input placeholder="Enter other purpose" {...field} />
                       </FormControl>
@@ -312,7 +312,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                   name="land_address"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Land Address</FormLabel>
+                      <FormLabel>Land Address <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Textarea placeholder="Enter land address" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
