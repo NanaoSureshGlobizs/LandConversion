@@ -93,6 +93,13 @@
       "workflowId": null
     },
     {
+      "label": "MARSAC Report",
+      "icon": "FileBarChart",
+      "href": "/dashboard/marsac-report",
+      "accessKey": "marsac_report",
+      "workflowId": 30
+    },
+    {
         "label": "Unassigned",
         "icon": "Briefcase",
         "accessKey": "unassigned_menu",
@@ -221,14 +228,6 @@
           "accessKey": "dfo_report",
           "workflowId": 26
         },
-        
-        {
-          "label": "MARSAC Report",
-          "href": "/dashboard/marsac-report",
-          "type": "conversion",
-          "accessKey": "marsac_report",
-          "workflowId": 30
-        },
         {
           "label": "Unprocessed Applications",
           "href": "/dashboard/unprocessed-applications",
@@ -264,7 +263,6 @@
           "accessKey": "dc_office",
           "workflowId": 4
         },
-        
         {
           "label": "SDAO Enquiries",
           "href": "/dashboard/sdao-enquiries",
@@ -292,13 +290,6 @@
           "type": "diversion",
           "accessKey": "final_order",
           "workflowId": 21
-        },
-        {
-          "label": "MARSAC Report",
-          "href": "/dashboard/marsac-report",
-          "type": "diversion",
-          "accessKey": "marsac_report",
-          "workflowId": 30
         },
         {
           "label": "Cabinet",
