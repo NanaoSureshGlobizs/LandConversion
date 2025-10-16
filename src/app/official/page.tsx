@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { sendOtp, verifyOtp } from '@/app/actions';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
 
@@ -160,7 +160,7 @@ export default function OfficialLoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gray-50 p-4">
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-secondary p-4">
       <div className="absolute -top-1/4 left-0 -z-0 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
       <div className="absolute -bottom-1/4 right-0 -z-0 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
         <div className="w-full max-w-sm">
@@ -175,7 +175,10 @@ export default function OfficialLoginPage() {
             <h1 className="text-2xl font-bold font-headline text-foreground mt-1">
                 Change of Land Use
             </h1>
-             <h2 className="text-center text-lg font-semibold mt-4">Official Login</h2>
+             <div className="mt-4 flex items-center justify-center gap-2">
+                <ShieldCheck className="h-6 w-6 text-primary" />
+                <h2 className="text-center text-lg font-semibold">Official Login</h2>
+             </div>
           </div>
             {renderFormContent()}
         </div>
