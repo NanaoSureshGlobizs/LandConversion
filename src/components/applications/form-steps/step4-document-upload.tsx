@@ -26,7 +26,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 const getDocumentCategories = (formType: 'normal' | 'hill') => {
     const isHill = formType === 'hill';
     return [
-      { id: 'patta', title: isHill ? 'Land Ownership Certificate' : 'Latest Patta Copy', description: isHill ? 'Upload the land ownership document' : 'Not less than 10 days from the date of filing', isMultiple: true },
+      { id: 'patta', title: isHill ? 'Land Ownership Certificate' : 'Latest Patta/ Jamabandi', description: isHill ? 'Upload the land ownership document' : 'Not less than 10 days from the date of filing', isMultiple: true },
       { id: 'applicant_aadhar', title: 'Aadhaar', description: 'Upload a copy of your Aadhaar card' },
       { id: 'passport_photo', title: 'Passport Photo', description: 'Upload a recent passport sized photo' },
       { id: 'tax_receipt', title: isHill ? 'Hill House Tax Receipt' : 'Tax Receipt', description: 'Upload the latest tax receipt' },
