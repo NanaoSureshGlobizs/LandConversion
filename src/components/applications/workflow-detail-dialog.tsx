@@ -134,7 +134,7 @@ export function WorkflowDetailDialog({ isOpen, onOpenChange, item }: WorkflowDet
         </div>
 
         <DialogFooter className="sm:justify-between gap-2">
-          <ReverificationDialog fromUser={item.from_user || ''} toUser={item.to_user || ''}>
+          <ReverificationDialog workflowItem={item}>
             <Button type="button" variant="outline" className="border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50">
               <Send className="h-4 w-4 mr-2" />
               Reverification

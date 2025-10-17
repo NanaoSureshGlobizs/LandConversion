@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -621,6 +622,50 @@ export async function submitMarsacReport(payload: any, token: string | undefined
     debugLog += `Error: ${error}\n`;
     debugLog += '----------------------------\n';
     addLog(`submitMarsacReport error: ${error}`);
+    return { success: false, message: 'An unexpected error occurred.', debugLog };
+  }
+}
+
+
+export async function requestReverification(payload: any, token: string | undefined) {
+  if (!token) {
+    return { success: false, message: 'Authentication token not found.', debugLog: 'requestReverification Error: No auth token provided.' };
+  }
+
+  const url = `${API_BASE_URL}/workflow/reverify`;
+  let debugLog = '--- Requesting Reverification ---\n';
+  debugLog += `Request URL: ${url}\n`;
+  debugLog += `Request Payload: ${JSON.stringify(payload, null, 2)}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    debugLog += `API Response: ${JSON.stringify(result, null, 2)}\n`;
+    debugLog += '----------------------------\n';
+    
+    if (!response.ok) {
+      return { success: false, message: result.message || `HTTP error! status: ${response.status}`, debugLog };
+    }
+
+    // The API wraps the actual success message in a nested 'data' object.
+    if (result.success && result.data?.success) {
+      return { ...result.data, debugLog };
+    }
+
+    return { ...result, debugLog };
+  } catch (error) {
+    debugLog += `Error: ${error}\n`;
+    debugLog += '----------------------------\n';
+    addLog(`requestReverification error: ${error}`);
     return { success: false, message: 'An unexpected error occurred.', debugLog };
   }
 }

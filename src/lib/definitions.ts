@@ -1,4 +1,5 @@
 
+
 export type ApplicationStatusName =
   | 'Pending'
   | 'Approved'
@@ -157,6 +158,10 @@ export interface PaginatedLegacyData {
 
 
 export interface WorkflowItem {
+  id: number;
+  application_details_id: number;
+  to_user_id: number;
+  from_user_id: number | null;
   from_user: string | null;
   to_user: string;
   remark: string;
