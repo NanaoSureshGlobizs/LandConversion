@@ -41,8 +41,10 @@ export function SidebarNav() {
   const { isDebugMode, setIsDebugMode } = useDebug();
 
   const handleLogout = async () => {
+    const redirectPath = role === 'Applicant' ? '/' : '/official';
     await logout();
-    router.push('/');
+    // Use window.location.href for a guaranteed redirect that avoids race conditions.
+    window.location.href = redirectPath;
   };
 
   const isParentActive = (item: typeof allMenuItems[0]) => {
