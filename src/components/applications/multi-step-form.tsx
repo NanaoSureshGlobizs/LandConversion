@@ -32,6 +32,7 @@ const otherDocumentSchema = z.array(z.object({
 const baseFormSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   date_of_birth: z.date({ required_error: 'Date of birth is required.' }),
+  aadhar_consent: z.boolean().refine(val => val === true, { message: 'You must give consent to use your Aadhaar number.' }),
   aadhar_no: z.string().length(12, 'Aadhaar number must be 12 digits.'),
   address: z.string().min(1, 'Address is required.'),
   phone_number: z.string().length(10, 'Phone number must be 10 digits.'),
@@ -155,6 +156,7 @@ const getInitialValues = (
   const emptyValues: FormValues = {
       name: '',
       date_of_birth: new Date(),
+      aadhar_consent: false,
       aadhar_no: '',
       address: '',
       phone_number: '',
@@ -189,6 +191,7 @@ const getInitialValues = (
   return {
     name: application.applicant_name || '',
     date_of_birth: dobDate,
+    aadhar_consent: !!application.aadhar_no,
     aadhar_no: application.aadhar_no || '',
     address: application.address || '',
     phone_number: application.phone_number || '',
@@ -218,7 +221,7 @@ const getInitialValues = (
 const steps = [
   { id: 'Step 1', name: 'Land Details', fields: ['district_id', 'sub_division_id', 'circle_id', 'village_id', 'land_purpose_id', 'change_of_land_use_id'] },
   { id: 'Step 2', name: 'Document Requirements', fields: [] },
-  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry', 'land_address'] },
+  { id: 'Step 3', name: 'Applicant & Plot Info', fields: ['name', 'date_of_birth', 'aadhar_consent', 'aadhar_no', 'address', 'phone_number', 'email', 'patta_no', 'dag_no', 'location_type_id', 'original_area_of_plot', 'area_unit_id', 'area_applied_for_conversion', 'application_area_unit_id', 'land_classification_id', 'purpose_id', 'other_entry', 'land_address'] },
   { id: 'Step 4', name: 'Document Upload', fields: [] },
   { id: 'Step 5', name: 'Preview & Submit', fields: [] },
 ]

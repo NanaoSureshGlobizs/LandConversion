@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useFormContext } from 'react-hook-form';
@@ -8,13 +9,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { CalendarIcon, HelpCircle } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { LocationType, AreaUnit, LandClassification, LandPurpose, Purpose, FormValues } from '../multi-step-form';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 
 interface Step3Props {
@@ -33,6 +34,8 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
   const watchedPurposeId = watch('purpose_id');
   const otherPurpose = purposes.find(p => p.name === 'Other');
   const showOtherPurposeField = otherPurpose && watchedPurposeId === otherPurpose.id.toString();
+
+  const aadharConsent = watch('aadhar_consent');
 
   return (
     <div className="space-y-6">
@@ -100,32 +103,43 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 )}
               />
             </div>
+            <Separator />
+             <FormField
+                control={control}
+                name="aadhar_consent"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Aadhaar Consent
+                      </FormLabel>
+                      <FormDescription>
+                        I hereby give my consent for the use of my AADHAAR number for verification and data retrieval purposes. I understand that my AADHAAR number will be used to confirm my identity and retrieve relevant information associated with my AADHAAR profile. I also understand that this information will be kept confidential and secure and will only be used for the specific purpose for which I am giving my consent. I have the right to withdraw my consent at any time by contacting the organization using this verification and data retrieval process. By giving my consent, I confirm that the information provided is accurate and that I am the person to whom the Aadhaar number belongs.
+                      </FormDescription>
+                       <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
              <FormField
                 control={control}
                 name="aadhar_no"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-1">
-                        Aadhaar Number <span className="text-destructive">*</span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs">
-                            <p className="font-bold mb-2">Aadhaar Privacy Notice</p>
-                            <p className="text-xs">
-                              We collect your Aadhaar number for identity verification and KYC compliance as required for this service. Providing Aadhaar is mandatory for this application. Your information will be used only for authentication through UIDAI's system. We will not store your biometric information.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </FormLabel>
-                    <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
+                    <FormLabel>Aadhaar Number <span className="text-destructive">*</span></FormLabel>
+                    <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} disabled={!aadharConsent} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+             <Separator />
 
             <FormField
               control={control}

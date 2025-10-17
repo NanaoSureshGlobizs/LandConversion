@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from "react";
@@ -11,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2, FileText, X, HelpCircle } from "lucide-react";
+import { CalendarIcon, Loader2, FileText, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -21,7 +22,7 @@ import { uploadFile } from "@/app/actions";
 import { useDebug } from "@/context/DebugContext";
 import Image from "next/image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const getDocumentCategories = (formType: 'normal' | 'hill') => {
     const isHill = formType === 'hill';
@@ -59,6 +60,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships, 
   const [newRelation, setNewRelation] = useState('');
   const [newAadharFile, setNewAadharFile] = useState<File | null>(null);
   const [newAadharPreview, setNewAadharPreview] = useState<string | null>(null);
+  const [relativeAadharConsent, setRelativeAadharConsent] = useState(false);
 
   const documents = getDocumentCategories(formType);
   const familyMembers = getValues('relatives') || [];
@@ -68,6 +70,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships, 
     setNewDob(undefined);
     setNewRelation('');
     setNewAadharFile(null);
+    setRelativeAadharConsent(false);
     if (newAadharPreview) {
       URL.revokeObjectURL(newAadharPreview);
     }
@@ -234,30 +237,26 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships, 
               <DialogTrigger asChild>
                 <Button variant="default" className="mt-4">Add Family/Co-owner</Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                   <DialogTitle>Add Family/Co-owner</DialogTitle>
                   <DialogDescription>
                     Enter the details of the new family member or co-owner. Click save when you're done.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      Name
-                    </Label>
-                    <Input id="name" value={newName} onChange={(e) => setNewName(e.target.value)} className="col-span-3" />
+                <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" value={newName} onChange={(e) => setNewName(e.target.value)} />
                   </div>
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">
-                        Date of Birth
-                    </Label>
+                   <div className="space-y-2">
+                    <Label>Date of Birth</Label>
                      <Popover>
                         <PopoverTrigger asChild>
                             <Button
                                 variant={'outline'}
                                 className={cn(
-                                    'col-span-3 justify-start text-left font-normal',
+                                    'w-full justify-start text-left font-normal',
                                     !newDob && 'text-muted-foreground'
                                 )}
                                 >
@@ -281,12 +280,10 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships, 
                         </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="relation" className="text-right">
-                      Relation
-                    </Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="relation">Relation</Label>
                     <Select onValueChange={setNewRelation} value={newRelation}>
-                        <SelectTrigger className="col-span-3">
+                        <SelectTrigger id="relation">
                             <SelectValue placeholder="Select Relation" />
                         </SelectTrigger>
                         <SelectContent>
@@ -298,28 +295,22 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships, 
                         </SelectContent>
                     </Select>
                   </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <div className="text-right pt-2 flex items-center gap-1">
-                      <Label htmlFor="aadhar">
-                        Aadhaar
-                      </Label>
-                      <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs">
-                            <p className="font-bold mb-2">Aadhaar Privacy Notice</p>
-                            <p className="text-xs">
-                                We collect your Aadhaar number for identity verification and KYC compliance as required for this service. Providing Aadhaar is mandatory for this application. Your information will be used only for authentication through UIDAI's system. We will not store your biometric information.
-                            </p>
-                            </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="relative-aadhar-consent" checked={relativeAadharConsent} onCheckedChange={(checked) => setRelativeAadharConsent(!!checked)} />
+                      <label
+                        htmlFor="relative-aadhar-consent"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        I give consent for Aadhaar verification for this person.
+                      </label>
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="aadhar">Aadhaar Document</Label>
                     <div className="col-span-3">
                       {!newAadharPreview ? (
-                          <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="image/*,application/pdf" />
+                          <Input id="aadhar" type="file" onChange={handleAadharFileSelect} accept="image/*,application/pdf" disabled={!relativeAadharConsent} />
                       ) : (
                           <div className="relative group w-32 h-32">
                              {newAadharFile?.type.startsWith('image/') ? (
@@ -354,7 +345,7 @@ export function Step4DocumentUpload({ documentType, accessToken, relationships, 
                 </div>
                 <DialogFooter>
                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                  <Button type="button" onClick={handleAddMember} disabled={isUploading}>
+                  <Button type="button" onClick={handleAddMember} disabled={isUploading || !relativeAadharConsent}>
                     {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Add Member
                   </Button>
