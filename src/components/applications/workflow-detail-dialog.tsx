@@ -14,8 +14,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { WorkflowItem } from '@/lib/definitions';
 import { Separator } from '../ui/separator';
-import { Download, File, FileCode, MapPin } from 'lucide-react';
+import { Download, File, FileCode, MapPin, Send } from 'lucide-react';
 import Link from 'next/link';
+import { ReverificationDialog } from './reverification-dialog';
 
 interface WorkflowDetailDialogProps {
   isOpen: boolean;
@@ -56,9 +57,11 @@ export function WorkflowDetailDialog({ isOpen, onOpenChange, item }: WorkflowDet
             <DetailItem label="Days Held" value={item.days_held} />
             <Separator />
             <DetailItem label="Remark" value={<p className="whitespace-pre-wrap">{item.remark}</p>} />
-            <Separator />
+            
+            {item.land_schedule && <Separator />}
             <DetailItem label="Land Schedule" value={<p className="whitespace-pre-wrap">{item.land_schedule}</p>} />
-            <Separator />
+
+            {(item.lattitute_of_land || item.longitute_of_land) && <Separator />}
             <div className="grid grid-cols-2 gap-4">
                 <DetailItem label="Latitude" value={item.lattitute_of_land} />
                 <DetailItem label="Longitude" value={item.longitute_of_land} />
@@ -95,7 +98,13 @@ export function WorkflowDetailDialog({ isOpen, onOpenChange, item }: WorkflowDet
                 </div>
             )}
         </div>
-        <DialogFooter>
+        <DialogFooter className='sm:justify-between'>
+          <ReverificationDialog fromUser={item.from_user || ''} toUser={item.to_user || ''}>
+              <Button type="button" variant="secondary">
+                <Send className="mr-2" />
+                Reverification
+              </Button>
+          </ReverificationDialog>
           <DialogClose asChild>
             <Button type="button" variant="outline">
               Close
