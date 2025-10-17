@@ -71,12 +71,12 @@ export default async function DashboardPage() {
           </Card>
         </div>
         <div>
-          <Button asChild>
+          {/* <Button asChild>
             <Link href="/dashboard/pending-enquiries">
               View Pending Enquiries
               <ArrowRight className="ml-2" />
             </Link>
-          </Button>
+          </Button> */}
         </div>
       </div>
     </>
