@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { citizenSignUp, citizenSendOtp, citizenVerifyOtp } from './actions';
-import { Loader2, Map } from 'lucide-react';
+import { Loader2, Map, User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
 import { ForwardForm } from '@/components/applications/forward-form';
@@ -62,7 +63,7 @@ export default function LoginPage() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       toast({ title: 'Error', description: 'An unexpected error occurred during sign up.', variant: 'destructive' });
-      addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
+      addLog(`FE CATCH BLOCK ERROR:\n${''}${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -88,7 +89,7 @@ export default function LoginPage() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
-      addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
+      addLog(`FE CATCH BLOCK ERROR:\n${''}${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,7 +116,7 @@ export default function LoginPage() {
     } catch (error) {
        const errorMessage = error instanceof Error ? error.message : String(error);
       toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
-       addLog(`FE CATCH BLOCK ERROR:\n${errorMessage}`);
+       addLog(`FE CATCH BLOCK ERROR:\n${''}${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -134,7 +135,10 @@ export default function LoginPage() {
       case 'signIn':
         return (
           <>
-            <h2 className="text-center text-lg font-semibold mb-4">Citizen Login</h2>
+            <div className="flex items-center justify-center gap-2 mb-4">
+                <User className="h-7 w-7 text-primary" />
+                <h2 className="text-center text-xl font-semibold">Citizen Login</h2>
+            </div>
             <form onSubmit={handleSendOtp} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
@@ -164,7 +168,10 @@ export default function LoginPage() {
       case 'signUp':
         return (
           <>
-            <h2 className="text-center text-lg font-semibold mb-4">Citizen Sign Up</h2>
+            <div className="flex items-center justify-center gap-2 mb-4">
+                <User className="h-7 w-7 text-primary" />
+                <h2 className="text-center text-xl font-semibold">Citizen Sign Up</h2>
+            </div>
             <form onSubmit={handleSignUp} className="space-y-6">
               <div className="space-y-2">
                   <Label htmlFor="phone-signup">Phone Number</Label>
@@ -241,6 +248,14 @@ export default function LoginPage() {
             </h1>
           </div>
             {renderFormContent()}
+            <div className="mt-6 text-center">
+                 <Button variant="outline" asChild>
+                    <Link href="/kml-upload">
+                        <Map className="mr-2 h-4 w-4" />
+                        View KML on Map
+                    </Link>
+                </Button>
+            </div>
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
             <p>An initiative by the Government of Manipur.</p>
