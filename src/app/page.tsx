@@ -248,14 +248,6 @@ export default function LoginPage() {
             </h1>
           </div>
             {renderFormContent()}
-            <div className="mt-6 text-center">
-                 <Button variant="outline" asChild>
-                    <Link href="/kml-upload">
-                        <Map className="mr-2 h-4 w-4" />
-                        View KML on Map
-                    </Link>
-                </Button>
-            </div>
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
             <p>An initiative by the Government of Manipur.</p>
