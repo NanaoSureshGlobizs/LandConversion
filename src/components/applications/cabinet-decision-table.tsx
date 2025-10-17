@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { ApplicationListItem, PaginatedApplications, ApplicationStatusOption } from '@/lib/definitions';
 import {
   Table,
@@ -19,6 +19,8 @@ import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Checkbox } from '../ui/checkbox';
+import { MultipleForwardForm } from './multiple-forward-form';
 
 const WORKFLOW_ID = 20;
 
@@ -33,6 +35,7 @@ export function CabinetDecisionTable({ initialData, accessToken, statuses }: Cab
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
   const externalRef = useRef(null);
   const { addLog } = useDebug();
   const router = useRouter();
@@ -53,6 +56,7 @@ export function CabinetDecisionTable({ initialData, accessToken, statuses }: Cab
         setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
     }
     setIsLoading(false);
+    setSelectedRows({});
   }, [accessToken, addLog]);
 
   useEffect(() => {
@@ -89,6 +93,29 @@ export function CabinetDecisionTable({ initialData, accessToken, statuses }: Cab
         loadMoreApplications();
     }
   }, [isNearScreen, loadMoreApplications]);
+  
+  const handleSelectAll = (checked: boolean) => {
+    const newSelectedRows: Record<string, boolean> = {};
+    if (checked) {
+      applications.forEach(app => {
+        newSelectedRows[app.id.toString()] = true;
+      });
+    }
+    setSelectedRows(newSelectedRows);
+  };
+
+  const handleSelectRow = (id: string, checked: boolean) => {
+    setSelectedRows(prev => ({
+      ...prev,
+      [id]: checked
+    }));
+  };
+
+  const selectedIds = useMemo(() => {
+      return Object.keys(selectedRows).filter(id => selectedRows[id]);
+  }, [selectedRows]);
+
+  const isAllSelected = applications.length > 0 && selectedIds.length === applications.length;
 
   const handleRowClick = (app: ApplicationListItem) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/cabinet-decision&workflow_sequence_id=${app.workflow_sequence_id}`);
@@ -96,10 +123,28 @@ export function CabinetDecisionTable({ initialData, accessToken, statuses }: Cab
 
   return (
     <div className="space-y-4">
+        <div className="flex justify-end">
+            <MultipleForwardForm
+                applicationIds={selectedIds}
+                accessToken={accessToken}
+                onSuccess={refreshData}
+            >
+                <Button disabled={selectedIds.length === 0}>
+                    Forward ({selectedIds.length})
+                </Button>
+            </MultipleForwardForm>
+        </div>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>Application ID</TableHead>
               <TableHead>Patta No.</TableHead>
               <TableHead>Applied Area</TableHead>
@@ -111,12 +156,19 @@ export function CabinetDecisionTable({ initialData, accessToken, statuses }: Cab
           <TableBody>
             {applications.length > 0 ? (
               applications.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
-                  <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
-                   <TableCell>{app.patta_no}</TableCell>
-                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
-                  <TableCell>{app.created_at}</TableCell>
-                  <TableCell>
+                <TableRow key={app.id}>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                            checked={selectedRows[app.id.toString()] || false}
+                            onCheckedChange={(checked) => handleSelectRow(app.id.toString(), !!checked)}
+                            aria-label={`Select row ${app.id}`}
+                        />
+                    </TableCell>
+                  <TableCell className="font-medium font-mono cursor-pointer" onClick={() => handleRowClick(app)}>{app.application_id || 'N/A'}</TableCell>
+                   <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.patta_no}</TableCell>
+                   <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>{app.created_at}</TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleRowClick(app)}>
                     <Badge variant="secondary">{app.application_status.name}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -130,7 +182,7 @@ export function CabinetDecisionTable({ initialData, accessToken, statuses }: Cab
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No applications found.
                 </TableCell>
               </TableRow>
