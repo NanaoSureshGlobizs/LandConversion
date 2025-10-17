@@ -172,9 +172,12 @@ export default function OfficialLoginPage() {
                 <p>Land Resources Department</p>
                 <p>Government of Manipur</p>
             </div>
+             <h1 className="text-2xl font-bold font-headline text-foreground mt-1">
+              Change of Land Use
+            </h1>
              <div className="mt-4 flex items-center justify-center gap-2">
-                <ShieldCheck className="h-8 w-8 text-primary" />
-                <h1 className="text-center text-2xl font-bold font-headline text-foreground">Official Login</h1>
+                <ShieldCheck className="h-7 w-7 text-primary" />
+                <h2 className="text-center text-xl font-semibold">Official Login</h2>
              </div>
           </div>
             {renderFormContent()}
