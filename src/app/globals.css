@@ -83,6 +83,12 @@
   }
 }
 
+@layer utilities {
+  .kanglasha-white {
+    filter: brightness(0) invert(1);
+  }
+}
+
 @page {
   size: auto;
   margin: 0;

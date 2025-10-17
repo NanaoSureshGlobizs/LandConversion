@@ -166,7 +166,7 @@ export default function OfficialLoginPage() {
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
              <div className="mx-auto mb-4 flex justify-center">
-              <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
+              <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} className="kanglasha-white"/>
             </div>
             <div className="text-slate-400">
                 <p>Land Resources Department</p>
