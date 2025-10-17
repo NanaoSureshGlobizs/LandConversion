@@ -28,6 +28,7 @@ import { MarsacReportDialog } from './marsac-report-dialog';
 import { FeeOverwriteDialog } from './fee-overwrite-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
+import { ScrollArea } from '../ui/scroll-area';
 
 
 function DetailItem({
@@ -395,7 +396,9 @@ export function DetailPageClient({
                           <CardTitle>History</CardTitle>
                         </CardHeader>
                         <CardContent>
+                          <ScrollArea className="h-96">
                            <TrackingTimeline items={initialWorkflow} />
+                          </ScrollArea>
                         </CardContent>
                     </Card>
                   )}
