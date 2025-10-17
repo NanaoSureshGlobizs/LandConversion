@@ -160,7 +160,7 @@ export default function OfficialLoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-slate-800 p-4 text-white">
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-slate-700 p-4 text-white">
       <div className="absolute -top-1/4 left-0 -z-0 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
       <div className="absolute -bottom-1/4 right-0 -z-0 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
         <div className="w-full max-w-sm">
