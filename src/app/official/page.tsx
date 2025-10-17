@@ -161,7 +161,7 @@ export default function OfficialLoginPage() {
 
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gray-50 p-4">
-      <div className="absolute -top-1/4 left-0 -z-0 h-96 w-96 rounded-full bg-slate-400/20 blur-3xl" />
+      <div className="absolute -top-1/4 left-0 -z-0 h-96 w-96 rounded-full bg-blue-400/20 blur-3xl" />
       <div className="absolute -bottom-1/4 right-0 -z-0 h-96 w-96 rounded-full bg-blue-400/30 blur-3xl" />
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
