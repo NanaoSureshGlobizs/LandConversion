@@ -160,26 +160,26 @@ export default function OfficialLoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-slate-700 p-4 text-white">
-      <div className="absolute -top-1/4 left-0 -z-0 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
-      <div className="absolute -bottom-1/4 right-0 -z-0 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gray-50 p-4">
+      <div className="absolute -top-1/4 left-0 -z-0 h-96 w-96 rounded-full bg-slate-400/20 blur-3xl" />
+      <div className="absolute -bottom-1/4 right-0 -z-0 h-96 w-96 rounded-full bg-blue-400/30 blur-3xl" />
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
              <div className="mx-auto mb-4 flex justify-center">
-              <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} className="kanglasha-white"/>
+              <Image src="/image/kanglasha.png" alt="Kanglasha Logo" width={64} height={64} />
             </div>
-            <div className="text-slate-300">
+            <div className="text-muted-foreground">
                 <p>Land Resources Department</p>
                 <p>Government of Manipur</p>
             </div>
              <div className="mt-4 flex items-center justify-center gap-2">
                 <ShieldCheck className="h-8 w-8 text-primary" />
-                <h1 className="text-center text-2xl font-bold font-headline">Official Login</h1>
+                <h1 className="text-center text-2xl font-bold font-headline text-foreground">Official Login</h1>
              </div>
           </div>
             {renderFormContent()}
         </div>
-        <div className="absolute bottom-4 text-center text-xs text-slate-400">
+        <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
             <p>An initiative by the Government of Manipur.</p>
         </div>
       </main>
