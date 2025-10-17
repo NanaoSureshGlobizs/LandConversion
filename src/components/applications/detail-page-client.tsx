@@ -11,8 +11,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, FileText, Printer, Edit, Loader2 } from 'lucide-react';
-import { getSurveyQuestions } from '@/app/actions';
+import { ArrowLeft, Download, FileText, Printer, Edit, Loader2, Send } from 'lucide-react';
+import { getSurveyQuestions, requestReverification } from '@/app/actions';
 import Link from 'next/link';
 import { ServerLogHandler } from '@/components/debug/server-log-handler';
 import type { FullApplicationResponse, ApplicationStatusOption, WorkflowItem, AreaUnit } from '@/lib/definitions';
@@ -29,6 +29,7 @@ import { FeeOverwriteDialog } from './fee-overwrite-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useDebug } from '@/context/DebugContext';
 import { ScrollArea } from '../ui/scroll-area';
+import { ReverificationDialog } from './reverification-dialog';
 
 
 function DetailItem({
@@ -396,7 +397,7 @@ export function DetailPageClient({
                           <CardTitle>History</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <ScrollArea className="h-[500px]">
+                          <ScrollArea className="h-full">
                            <TrackingTimeline items={initialWorkflow} />
                           </ScrollArea>
                         </CardContent>
