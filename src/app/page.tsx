@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -242,14 +241,6 @@ export default function LoginPage() {
             </h1>
           </div>
             {renderFormContent()}
-            <div className="mt-4 text-center">
-                <Button variant="secondary" asChild>
-                    <Link href="/kml-upload" target="_blank">
-                        <Map className="mr-2" />
-                        View on Map
-                    </Link>
-                </Button>
-            </div>
         </div>
         <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
             <p>An initiative by the Government of Manipur.</p>
