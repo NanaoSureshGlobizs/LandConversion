@@ -22,6 +22,7 @@ interface WorkflowDetailDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   item: WorkflowItem;
+  accessToken: string;
 }
 
 function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
@@ -34,7 +35,7 @@ function DetailItem({ label, value }: { label: string; value: React.ReactNode })
   );
 }
 
-export function WorkflowDetailDialog({ isOpen, onOpenChange, item }: WorkflowDetailDialogProps) {
+export function WorkflowDetailDialog({ isOpen, onOpenChange, item, accessToken }: WorkflowDetailDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -134,7 +135,7 @@ export function WorkflowDetailDialog({ isOpen, onOpenChange, item }: WorkflowDet
         </div>
 
         <DialogFooter className="sm:justify-between gap-2">
-          <ReverificationDialog workflowItem={item}>
+          <ReverificationDialog workflowItem={item} accessToken={accessToken}>
             <Button type="button" variant="outline" className="border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50">
               <Send className="h-4 w-4 mr-2" />
               Reverification

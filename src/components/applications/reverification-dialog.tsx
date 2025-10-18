@@ -19,7 +19,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Send } from 'lucide-react';
 import type { WorkflowItem } from '@/lib/definitions';
-import { useAuth } from '@/context/AuthContext';
 import { useDebug } from '@/context/DebugContext';
 import { requestReverification } from '@/app/actions';
 
@@ -27,15 +26,15 @@ import { requestReverification } from '@/app/actions';
 interface ReverificationDialogProps {
     children: React.ReactNode;
     workflowItem: WorkflowItem;
+    accessToken: string;
     onSuccess?: () => void;
 }
 
-export function ReverificationDialog({ children, workflowItem, onSuccess }: ReverificationDialogProps) {
+export function ReverificationDialog({ children, workflowItem, accessToken, onSuccess }: ReverificationDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { addLog } = useDebug();
-  const { accessToken } = useAuth();
 
   const [remarks, setRemarks] = useState('');
 

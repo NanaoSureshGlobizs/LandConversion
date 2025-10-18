@@ -15,6 +15,7 @@ import { WorkflowDetailDialog } from './workflow-detail-dialog';
 
 interface TrackingTimelineProps {
   items: WorkflowItem[];
+  accessToken: string;
 }
 
 function getIconForStatus(statusName: string, highlight: boolean) {
@@ -35,7 +36,7 @@ function getIconForStatus(statusName: string, highlight: boolean) {
     return <User className="h-5 w-5" />;
 }
 
-export function TrackingTimeline({ items }: TrackingTimelineProps) {
+export function TrackingTimeline({ items, accessToken }: TrackingTimelineProps) {
   const [selectedItem, setSelectedItem] = useState<WorkflowItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -101,6 +102,7 @@ export function TrackingTimeline({ items }: TrackingTimelineProps) {
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           item={selectedItem}
+          accessToken={accessToken}
         />
       )}
     </>
