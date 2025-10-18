@@ -83,6 +83,9 @@ export function TrackingTimeline({ items, accessToken }: TrackingTimelineProps) 
                 <p className={cn("font-semibold hover:underline", item.highlight && "text-primary", isReverification && 'text-amber-600')}>
                     {item.to_user || 'Application Submitted'}
                 </p>
+                {isReverification && (
+                  <p className="text-xs font-semibold text-amber-600">Re-Verification Requested</p>
+                )}
                 {item.from_user && (
                     <p className="text-sm text-muted-foreground">
                         From: {item.from_user}

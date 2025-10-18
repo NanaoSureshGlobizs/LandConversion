@@ -52,8 +52,8 @@ export function ReverificationDialog({ children, workflowItem, accessToken, onSu
     
     const payload = {
         application_details_id: workflowItem.application_details_id,
-        workflow_sequence_id: workflowItem.id, // Use the specific workflow instance ID
-        to_user_id: workflowItem.from_user_id, // Sending back to the original sender
+        workflow_sequence_id: workflowItem.workflow_sequence_id, // Use the specific workflow instance ID
+        to_user_id: workflowItem.to_user_id, // Sending back to the original sender
         remark: remarks,
     };
 
