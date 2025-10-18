@@ -32,8 +32,8 @@ const otherDocumentSchema = z.array(z.object({
 const baseFormSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   date_of_birth: z.date({ required_error: 'Date of birth is required.' }),
-  aadhaar_consent: z.boolean().refine(val => val === true, { message: 'You must give consent to use your Aadhaar number.' }),
-  aadhar_no: z.string().length(12, 'Aadhaar number must be 12 digits.'),
+  aadhaar_consent: z.boolean().optional(),
+  aadhar_no: z.string().optional(),
   address: z.string().min(1, 'Address is required.'),
   phone_number: z.string().length(10, 'Phone number must be 10 digits.'),
   email: z.string().email('Invalid email address.'),
@@ -84,6 +84,16 @@ const baseFormSchema = z.object({
     relationship_id: z.number(),
     relative_aadhar: z.string(),
   })).optional(),
+}).superRefine((data, ctx) => {
+    if (data.aadhaar_consent) {
+        if (!data.aadhar_no || data.aadhar_no.length !== 12) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['aadhar_no'],
+                message: 'Aadhaar number must be 12 digits when consent is given.',
+            });
+        }
+    }
 });
 
 // For Normal type, these fields are required
@@ -276,6 +286,7 @@ export function MultiStepForm({
   const methods = useForm<FormValues>({
     resolver: zodResolver(finalSchema),
     defaultValues: getInitialValues(existingApplication),
+    mode: "onChange",
   });
 
   const { handleSubmit, trigger, watch, setValue } = methods;
