@@ -18,21 +18,27 @@ import { Download, File, FileCode, MapPin, Send } from 'lucide-react';
 import Link from 'next/link';
 import { ReverificationDialog } from './reverification-dialog';
 
+interface DetailItemProps {
+  label: string;
+  value: React.ReactNode;
+  className?: string;
+}
+
+function DetailItem({ label, value, className }: DetailItemProps) {
+  if (value === null || value === undefined || value === '') return null;
+  return (
+    <div className={`grid grid-cols-3 gap-4 py-3 ${className}`}>
+      <p className="text-sm text-muted-foreground col-span-1">{label}</p>
+      <div className="text-sm col-span-2 break-words">{value}</div>
+    </div>
+  );
+}
+
 interface WorkflowDetailDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   item: WorkflowItem;
   accessToken: string;
-}
-
-function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
-  if (!value) return null;
-  return (
-    <div className="grid grid-cols-3 gap-4 py-3">
-      <p className="text-sm text-muted-foreground col-span-1">{label}</p>
-      <div className="text-sm col-span-2 break-words">{value}</div>
-    </div>
-  );
 }
 
 export function WorkflowDetailDialog({ isOpen, onOpenChange, item, accessToken }: WorkflowDetailDialogProps) {
@@ -96,6 +102,21 @@ export function WorkflowDetailDialog({ isOpen, onOpenChange, item, accessToken }
                   {item.longitute_of_land && <div>Lng: {item.longitute_of_land}</div>}
                 </div>
               </div>
+            </>
+          )}
+
+           {item.survey_name && (
+            <>
+              <Separator />
+              <DetailItem 
+                label="Survey Question" 
+                value={item.survey_name} 
+              />
+               <Separator />
+              <DetailItem 
+                label="Survey Answer" 
+                value={item.survey_status === '1' ? 'Yes' : 'No'} 
+              />
             </>
           )}
           
