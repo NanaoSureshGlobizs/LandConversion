@@ -84,16 +84,6 @@ const baseFormSchema = z.object({
     relationship_id: z.number(),
     relative_aadhar: z.string(),
   })).optional(),
-}).superRefine((data, ctx) => {
-    if (data.aadhaar_consent) {
-        if (!data.aadhar_no || data.aadhar_no.length !== 12) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                path: ['aadhar_no'],
-                message: 'Aadhaar number must be 12 digits when consent is given.',
-            });
-        }
-    }
 });
 
 // For Normal type, these fields are required
@@ -107,13 +97,33 @@ const normalFormSchema = baseFormSchema.extend({
   location_type_id: z.string().min(1, 'Location type is required.'),
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
+}).superRefine((data, ctx) => {
+    if (data.aadhaar_consent) {
+        if (!data.aadhar_no || data.aadhar_no.length !== 12) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['aadhar_no'],
+                message: 'Aadhaar number must be 12 digits when consent is given.',
+            });
+        }
+    }
 });
 
 // For Hill type, these fields are required
 const hillFormSchema = baseFormSchema.extend({
   land_address: z.string().min(1, "Land address is required"),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
-})
+}).superRefine((data, ctx) => {
+    if (data.aadhaar_consent) {
+        if (!data.aadhar_no || data.aadhar_no.length !== 12) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['aadhar_no'],
+                message: 'Aadhaar number must be 12 digits when consent is given.',
+            });
+        }
+    }
+});
 
 
 export type FormValues = z.infer<typeof baseFormSchema>;
