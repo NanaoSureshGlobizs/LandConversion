@@ -397,7 +397,7 @@ export function DetailPageClient({
                           <CardTitle>History</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <ScrollArea className="h-96">
+                          <ScrollArea className="h-[600px]">
                            <TrackingTimeline items={initialWorkflow} accessToken={accessToken} />
                           </ScrollArea>
                         </CardContent>
