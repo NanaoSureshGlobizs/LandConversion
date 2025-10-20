@@ -32,6 +32,10 @@ const otherDocumentSchema = z.array(z.object({
 const baseFormSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   date_of_birth: z.date({ required_error: 'Date of birth is required.' }),
+  aadhaar_consent: z.literal(true, {
+    errorMap: () => ({ message: "You must consent to Aadhaar verification to proceed." }),
+  }),
+  aadhar_no: z.string().length(12, 'Aadhaar number must be 12 digits.'),
   address: z.string().min(1, 'Address is required.'),
   phone_number: z.string().length(10, 'Phone number must be 10 digits.'),
   email: z.string().email('Invalid email address.'),
@@ -82,10 +86,6 @@ const baseFormSchema = z.object({
     relationship_id: z.number(),
     relative_aadhar: z.string(),
   })).optional(),
-  
-  // Aadhaar consent fields
-  aadhaar_consent: z.boolean().optional(),
-  aadhar_no: z.string().optional(),
 });
 
 
@@ -100,28 +100,12 @@ const normalFormSchema = baseFormSchema.extend({
   location_type_id: z.string().min(1, 'Location type is required.'),
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
-}).superRefine((data, ctx) => {
-    if (data.aadhaar_consent && (!data.aadhar_no || data.aadhar_no.length !== 12)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['aadhar_no'],
-            message: 'Aadhaar number must be 12 digits when consent is given.',
-        });
-    }
 });
 
 // For Hill type, these fields are required
 const hillFormSchema = baseFormSchema.extend({
   land_address: z.string().min(1, "Land address is required"),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
-}).superRefine((data, ctx) => {
-    if (data.aadhaar_consent && (!data.aadhar_no || data.aadhar_no.length !== 12)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['aadhar_no'],
-            message: 'Aadhaar number must be 12 digits when consent is given.',
-        });
-    }
 });
 
 
@@ -337,7 +321,7 @@ export function MultiStepForm({
     
     const payload: { [key: string]: any } = { ...values };
 
-    payload.aadhaar_consent = values.aadhaar_consent ? "1" : "0";
+    payload.aadhaar_consent = "1";
 
     payload.date_of_birth = format(values.date_of_birth, 'yyyy-MM-dd');
     const integerFields = [
@@ -558,6 +542,3 @@ export function MultiStepForm({
 
 
   
-
-
-

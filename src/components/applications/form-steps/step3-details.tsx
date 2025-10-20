@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useFormContext } from 'react-hook-form';
@@ -34,7 +35,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
   const otherPurpose = purposes.find(p => p.name === 'Other');
   const showOtherPurposeField = otherPurpose && watchedPurposeId === otherPurpose.id.toString();
 
-  const aadharConsent = watch('aadhar_consent');
+  const aadharConsent = watch('aadhaar_consent');
 
   return (
     <div className="space-y-6">
@@ -105,7 +106,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
             <Separator />
              <FormField
                 control={control}
-                name="aadhar_consent"
+                name="aadhaar_consent"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
                     <FormControl>
@@ -116,7 +117,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>
-                        Aadhaar Consent
+                        Aadhaar Consent <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormDescription>
                         I hereby give my consent for the use of my AADHAAR number for verification and data retrieval purposes. I understand that my AADHAAR number will be used to confirm my identity and retrieve relevant information associated with my AADHAAR profile. I also understand that this information will be kept confidential and secure and will only be used for the specific purpose for which I am giving my consent. I have the right to withdraw my consent at any time by contacting the organization using this verification and data retrieval process. By giving my consent, I confirm that the information provided is accurate and that I am the person to whom the Aadhaar number belongs.
@@ -133,7 +134,7 @@ export function Step3Details({ locationTypes, areaUnits, landClassifications, la
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Aadhaar Number <span className="text-destructive">*</span></FormLabel>
-                    <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} disabled={!aadharConsent} /></FormControl>
+                    <FormControl><Input placeholder="Enter 12-digit Aadhaar" {...field} maxLength={12} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
