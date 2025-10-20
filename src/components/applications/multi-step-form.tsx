@@ -86,6 +86,7 @@ const baseFormSchema = z.object({
   })).optional(),
 });
 
+
 // For Normal type, these fields are required
 const normalFormSchema = baseFormSchema.extend({
   circle_id: z.string().min(1, 'Circle is required.'),
@@ -271,27 +272,7 @@ export function MultiStepForm({
   const [districts, setDistricts] = useState<District[]>(initialDistricts);
   const [isFetchingDistricts, setIsFetchingDistricts] = useState(false);
 
-  const finalSchema = (formType === 'normal' ? normalFormSchema : hillFormSchema).superRefine((data, ctx) => {
-    const otherPurpose = purposes.find(p => p.name === 'Other');
-    if (otherPurpose && data.purpose_id === otherPurpose.id.toString()) {
-      if (!data.other_entry || data.other_entry.trim() === '') {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['other_entry'],
-            message: 'Please specify the other purpose.',
-        });
-      }
-    }
-
-    if (formType === 'normal') {
-      const selectedOption = changeOfLandUseDates.find(d => d.id.toString() === data.change_of_land_use_id);
-      const isDiversion = selectedOption?.name.includes('Before');
-
-      if (isDiversion) {
-        // Validation for diversion can be added here if needed
-      }
-    }
-  });
+  const finalSchema = formType === 'normal' ? normalFormSchema : hillFormSchema;
   
   const methods = useForm<FormValues>({
     resolver: zodResolver(finalSchema),
@@ -579,3 +560,4 @@ export function MultiStepForm({
 
 
   
+
