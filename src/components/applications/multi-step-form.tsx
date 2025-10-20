@@ -358,7 +358,7 @@ export function MultiStepForm({
     
     const payload: { [key: string]: any } = { ...values };
 
-    payload.aadhaar_consent = values.aadhaar_consent ? 1 : 0;
+    payload.aadhaar_consent = values.aadhaar_consent ? "1" : "0";
 
     payload.date_of_birth = format(values.date_of_birth, 'yyyy-MM-dd');
     const integerFields = [
