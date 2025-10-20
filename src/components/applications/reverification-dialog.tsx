@@ -90,10 +90,10 @@ export function ReverificationDialog({ children, workflowItem, accessToken, onSu
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-            <div className='space-y-2'>
+            {/* <div className='space-y-2'>
                 <Label htmlFor="from-user">From User (You)</Label>
                 <Input id="from-user" value={workflowItem.to_user || ''} readOnly className='bg-muted'/>
-            </div>
+            </div> */}
              <div className='space-y-2'>
                 <Label htmlFor="to-user">To User (Recipient)</Label>
                 <Input id="to-user" value={workflowItem.from_user || 'Original Sender'} readOnly className='bg-muted'/>
