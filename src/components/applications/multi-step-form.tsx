@@ -82,25 +82,15 @@ const baseFormSchema = z.object({
     relationship_id: z.number(),
     relative_aadhar: z.string(),
   })).optional(),
+  
+  // Aadhaar consent fields
+  aadhaar_consent: z.boolean().optional(),
+  aadhar_no: z.string().optional(),
 });
 
 
-const aadharSchema = z.union([
-  z.object({
-    aadhaar_consent: z.literal(true),
-    aadhar_no: z.string().length(12, 'Aadhaar number must be 12 digits.'),
-  }),
-  z.object({
-    aadhaar_consent: z.literal(false).optional(),
-    aadhar_no: z.string().optional(),
-  }),
-]);
-
-const combinedBaseSchema = baseFormSchema.and(aadharSchema);
-
-
 // For Normal type, these fields are required
-const normalFormSchema = combinedBaseSchema.extend({
+const normalFormSchema = baseFormSchema.extend({
   circle_id: z.string().min(1, 'Circle is required.'),
   village_id: z.string().min(1, 'Village is required.'),
   land_purpose_id: z.string().min(1, 'Present land use purpose is required.'),
@@ -110,16 +100,32 @@ const normalFormSchema = combinedBaseSchema.extend({
   location_type_id: z.string().min(1, 'Location type is required.'),
   land_classification_id: z.string().min(1, 'Present land classification is required.'),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
+}).superRefine((data, ctx) => {
+    if (data.aadhaar_consent && (!data.aadhar_no || data.aadhar_no.length !== 12)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['aadhar_no'],
+            message: 'Aadhaar number must be 12 digits when consent is given.',
+        });
+    }
 });
 
 // For Hill type, these fields are required
-const hillFormSchema = combinedBaseSchema.extend({
+const hillFormSchema = baseFormSchema.extend({
   land_address: z.string().min(1, "Land address is required"),
   application_area_unit_id: z.string().min(1, "Area unit is required."),
+}).superRefine((data, ctx) => {
+    if (data.aadhaar_consent && (!data.aadhar_no || data.aadhar_no.length !== 12)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['aadhar_no'],
+            message: 'Aadhaar number must be 12 digits when consent is given.',
+        });
+    }
 });
 
 
-export type FormValues = z.infer<typeof combinedBaseSchema>;
+export type FormValues = z.infer<typeof baseFormSchema>;
 
 export interface Option {
   id: number;
@@ -552,5 +558,6 @@ export function MultiStepForm({
 
 
   
+
 
 
