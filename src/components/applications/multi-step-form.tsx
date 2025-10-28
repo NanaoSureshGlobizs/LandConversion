@@ -317,6 +317,15 @@ export function MultiStepForm({
   };
 
   const processForm = async (values: FormValues) => {
+    if (formType === 'hill') {
+      toast({
+        title: 'Feature Under Development',
+        description: 'You cannot submit a Hill Area application at this time. This feature is being developed.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     const payload: { [key: string]: any } = { ...values };
