@@ -30,9 +30,13 @@ interface ApplicationsTableProps {
 export function ApplicationsTable({ initialData, accessToken }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
-  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
-  const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
-  const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
+  
+  // Handle both data structures for pagination
+  const pagination = initialData?.applications ? initialData.pagination : initialData;
+
+  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || (initialData as any)?.data || []);
+  const [page, setPage] = useState(pagination?.currentPage || 1);
+  const [hasMore, setHasMore] = useState((pagination?.currentPage || 1) < (pagination?.pageCount || 1));
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
@@ -51,10 +55,15 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     const { data: newData, log } = await getApplications(accessToken, nextPage);
     addLog(log || "Log for getApplications");
 
-    if (newData && Array.isArray(newData.applications)) {
-      setApplications(prev => [...prev, ...newData.applications]);
-      setPage(newData.pagination.currentPage);
-      setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+    if (newData) {
+      const newApps = newData.applications || newData.data || [];
+      const newPagination = newData.applications ? newData.pagination : newData;
+
+      if (Array.isArray(newApps)) {
+        setApplications(prev => [...prev, ...newApps]);
+        setPage(newPagination.currentPage);
+        setHasMore(newPagination.currentPage < newPagination.pageCount);
+      }
     } else {
         setHasMore(false); // Stop trying if API fails or returns unexpected data
     }
