@@ -841,14 +841,15 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     const isHillWorkflow = workflow_sequence_id !== null && hillWorkflowIds.includes(workflow_sequence_id);
 
     let url;
-    if (isHillWorkflow) {
-        url = `/applications/lists_for_hills?page=${page}&limit=${limit}`;
+    if (workflow_sequence_id) {
+        if (isHillWorkflow) {
+            url = `/applications/lists_for_hills?page=${page}&limit=${limit}&workflow_sequence_id=${workflow_sequence_id}`;
+        } else {
+            url = `/applications/lists?page=${page}&limit=${limit}&workflow_sequence_id=${workflow_sequence_id}`;
+        }
     } else {
-        url = `/applications/lists?page=${page}&limit=${limit}`;
-    }
-
-    if(workflow_sequence_id) {
-        url += `&workflow_sequence_id=${workflow_sequence_id}`;
+        // This is for the "My Applications" page specifically
+        url = `/applications/lists-combined?page=${page}&limit=${limit}`;
     }
     
     const { data, debugLog } = await fetchFromApi(url, accessToken);
@@ -870,6 +871,12 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
             log: debugLog,
         };
     }
+    
+    // For lists-combined, the data is already in the correct format under `data`
+    if (!workflow_sequence_id && data) {
+        return { data, log: debugLog };
+    }
+
 
     // This handles the standard response structure for most lists
     if (data && (data.conversion_applications || data.diversion_applications)) {
@@ -1295,6 +1302,8 @@ function addLog(log: string) {
 
 
 
+
+    
 
     
 
