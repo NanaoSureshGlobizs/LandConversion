@@ -32,11 +32,11 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
   const router = useRouter();
   
   // Handle both data structures for pagination
-  const pagination = initialData?.applications ? initialData.pagination : initialData;
+  const pagination = initialData?.pagination;
 
-  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || (initialData as any)?.data || []);
+  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
   const [page, setPage] = useState(pagination?.currentPage || 1);
-  const [hasMore, setHasMore] = useState((pagination?.currentPage || 1) < (pagination?.pageCount || 1));
+  const [hasMore, setHasMore] = useState(pagination ? (pagination.currentPage < pagination.pageCount) : false);
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
@@ -56,13 +56,17 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     addLog(log || "Log for getApplications");
 
     if (newData) {
-      const newApps = newData.applications || newData.data || [];
-      const newPagination = newData.applications ? newData.pagination : newData;
+      const newApps = newData.applications || [];
+      const newPagination = newData.pagination;
 
       if (Array.isArray(newApps)) {
         setApplications(prev => [...prev, ...newApps]);
-        setPage(newPagination.currentPage);
-        setHasMore(newPagination.currentPage < newPagination.pageCount);
+        if (newPagination) {
+            setPage(newPagination.currentPage);
+            setHasMore(newPagination.currentPage < newPagination.pageCount);
+        } else {
+            setHasMore(false);
+        }
       }
     } else {
         setHasMore(false); // Stop trying if API fails or returns unexpected data
@@ -88,8 +92,8 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     return applications.filter(
       (item) =>
         item.application_id?.toLowerCase().includes(lowercasedFilter) ||
-        item.patta_no.toLowerCase().includes(lowercasedFilter) ||
-        item.application_status.name.toLowerCase().includes(lowercasedFilter)
+        (item.patta_no && item.patta_no.toLowerCase().includes(lowercasedFilter)) ||
+        (item.status_name && item.status_name.toLowerCase().includes(lowercasedFilter))
     );
   }, [applications, searchTerm]);
 
@@ -122,15 +126,15 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((app) => (
-                <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
+                <TableRow key={`${app.id}-${app.application_id}`} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || 'N/A'}</TableCell>
-                  <TableCell>{app.patta_no}</TableCell>
+                  <TableCell>{app.patta_no || 'N/A'}</TableCell>
                   <TableCell>{parseFloat(app.applied_area).toFixed(2)} {app.area_type}</TableCell>
                   <TableCell>
                     {app.created_at}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{app.application_status.name}</Badge>
+                    <Badge variant="secondary">{app.status_name || 'N/A'}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
@@ -176,3 +180,5 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     </div>
   );
 }
+
+    

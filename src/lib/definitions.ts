@@ -93,19 +93,20 @@ export type FullApplicationResponse = Application;
 
 export interface ApplicationListItem {
   id: number;
-  patta_no: string;
-  area_type: string;
+  patta_no: string | null;
+  area_type: string | null;
   created_at: string;
-  village_name: string;
-  can_forward: boolean;
-  highlight: boolean;
-  can_edit: boolean;
-  form_type: string;
-  button_name: string;
+  village_name: string | null;
+  can_forward?: boolean; // Optional as it's not in all list responses
+  highlight?: boolean;
+  can_edit?: boolean;
+  form_type?: string;
+  button_name?: string;
   application_id: string;
   change_of_land_use_type: string;
   workflow_sequence_id: number;
   applied_area: string;
+  status_name: ApplicationStatusName;
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
@@ -129,7 +130,7 @@ export interface PaginatedApplications {
     pageCount: number;
     currentPage: number;
     perPage: number;
-  };
+  } | null; // Pagination can be null for some endpoints
 }
 
 export interface LegacyDataItem {
@@ -246,3 +247,5 @@ export interface PaginatedHillApplications {
     perPage: number;
   };
 }
+
+    

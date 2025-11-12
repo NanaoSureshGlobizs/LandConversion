@@ -872,9 +872,16 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
         };
     }
     
-    // For lists-combined, the data is already in the correct format under `data`
-    if (!workflow_sequence_id && data) {
-        return { data, log: debugLog };
+    // For lists-combined, the API response is nested under data.data.
+    // It also does not return a pagination object. We need to normalize it.
+    if (!workflow_sequence_id && data && Array.isArray(data)) {
+        return { 
+            data: {
+                applications: data,
+                pagination: null // No pagination data available for this endpoint
+            }, 
+            log: debugLog 
+        };
     }
 
 
@@ -1302,6 +1309,8 @@ function addLog(log: string) {
 
 
 
+
+    
 
     
 
