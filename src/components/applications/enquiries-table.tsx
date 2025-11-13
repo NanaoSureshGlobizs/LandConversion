@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -13,7 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, CalendarIcon } from 'lucide-react';
+import { Loader2, CalendarIcon, Search } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
@@ -24,6 +25,7 @@ import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import Link from 'next/link';
 import { Label } from '../ui/label';
+import { Input } from '../ui/input';
 
 interface EnquiriesTableProps {
   initialData: PaginatedApplications | null;
@@ -44,6 +46,7 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
   const { addLog } = useDebug();
   const isInitialLoad = useRef(true);
   
+  const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
   const [status, setStatus] = useState('');
@@ -52,6 +55,31 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
     externalRef: isLoading ? null : externalRef,
     once: false,
   });
+
+  const refreshData = useCallback(async (filters = {}) => {
+    setIsLoading(true);
+    const { data: newData, log } = await getApplications(accessToken, 1, 10, workflowId, filters);
+    addLog(log || "Log for getApplications refresh");
+    if (newData && Array.isArray(newData.applications)) {
+      setApplications(newData.applications);
+      setPage(newData.pagination.currentPage);
+      setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+    } else {
+      setApplications([]);
+      setHasMore(false);
+    }
+    setIsLoading(false);
+  }, [accessToken, workflowId, addLog]);
+
+  const handleSearch = () => {
+    const filters = {
+      from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : '',
+      to_date: toDate ? format(toDate, 'yyyy-MM-dd') : '',
+      application_status_id: status === 'all' ? '' : status,
+      patta_no: searchTerm,
+    };
+    refreshData(filters);
+  };
 
   // This effect resets the state when the initial data prop changes.
   // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
@@ -67,7 +95,13 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId);
+    const filters = {
+      from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : '',
+      to_date: toDate ? format(toDate, 'yyyy-MM-dd') : '',
+      application_status_id: status === 'all' ? '' : status,
+      patta_no: searchTerm,
+    };
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId, filters);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -79,7 +113,7 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog, accessToken, workflowId]);
+  }, [page, hasMore, isLoading, addLog, accessToken, workflowId, fromDate, toDate, status, searchTerm]);
   
   useEffect(() => {
     if (isInitialLoad.current) {
@@ -97,61 +131,50 @@ export function EnquiriesTable({ initialData, accessToken, workflowId }: Enquiri
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2">
-            <Label>From Date</Label>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant={'outline'}
-                        className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !fromDate && 'text-muted-foreground'
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {fromDate ? format(fromDate, 'PPP') : <span>Select Date</span>}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
-                </PopoverContent>
-            </Popover>
-        </div>
-        <div className="space-y-2">
-            <Label>To Date</Label>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant={'outline'}
-                        className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !toDate && 'text-muted-foreground'
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {toDate ? format(toDate, 'PPP') : <span>Select Date</span>}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
-                </PopoverContent>
-            </Popover>
-        </div>
-        <div className="space-y-2">
-            <Label>Status</Label>
-            <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger>
-                    <SelectValue placeholder="Select Status" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="review">In Review</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                </SelectContent>
-            </Select>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <Input
+          placeholder="Search by Patta No."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Popover>
+          <PopoverTrigger asChild>
+              <Button
+                  variant={'outline'}
+                  className={cn(
+                  'w-full justify-start text-left font-normal',
+                  !fromDate && 'text-muted-foreground'
+                  )}
+              >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}
+              </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
+          </PopoverContent>
+        </Popover>
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button
+                    variant={'outline'}
+                    className={cn(
+                    'w-full justify-start text-left font-normal',
+                    !toDate && 'text-muted-foreground'
+                    )}
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, 'PPP') : <span>To Date</span>}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
+            </PopoverContent>
+        </Popover>
+        <Button onClick={handleSearch} disabled={isLoading}>
+          {isLoading ? <Loader2 className='animate-spin' /> : <Search />}
+          Search
+        </Button>
       </div>
       <div className="rounded-md border bg-card">
         <Table>

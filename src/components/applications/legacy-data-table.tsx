@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -113,7 +114,13 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
 
   const handleExport = async () => {
     setIsExporting(true);
-    const result = await exportLegacyDataToExcel(accessToken);
+    const filters = {
+      order_no: searchTerm,
+      from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
+      to_date: toDate ? format(toDate, 'yyyy-MM-dd') : undefined,
+      legacy_type: legacyType !== 'all' ? legacyType : undefined,
+    };
+    const result = await exportLegacyDataToExcel(accessToken, filters);
 
     if (result.debugLog) {
       addLog(result.debugLog);

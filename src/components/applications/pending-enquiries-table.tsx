@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -59,10 +60,10 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
     once: false,
   });
 
-  const refreshData = useCallback(async () => {
+  const refreshData = useCallback(async (filters = {}) => {
     // This function can be used to refetch data after an action
     setIsLoading(true);
-    const { data: newData, log } = await getApplications(accessToken, 1, 10, workflowId);
+    const { data: newData, log } = await getApplications(accessToken, 1, 10, workflowId, filters);
     addLog(log || "Log for getApplications refresh");
     if (newData && Array.isArray(newData.applications)) {
         setApplications(newData.applications);
@@ -71,6 +72,16 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
     }
     setIsLoading(false);
   }, [accessToken, workflowId, addLog]);
+
+  const handleSearch = () => {
+    const filters = {
+      from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : '',
+      to_date: toDate ? format(toDate, 'yyyy-MM-dd') : '',
+      application_status_id: status === 'all' ? '' : status,
+      patta_no: searchTerm,
+    };
+    refreshData(filters);
+  };
 
   // This effect resets the state when the initial data prop changes.
   // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
@@ -85,7 +96,13 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId);
+    const filters = {
+      from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : '',
+      to_date: toDate ? format(toDate, 'yyyy-MM-dd') : '',
+      application_status_id: status === 'all' ? '' : status,
+      patta_no: searchTerm,
+    };
+    const { data: newData, log } = await getApplications(accessToken, nextPage, 10, workflowId, filters);
     addLog(log || "Log for getApplications");
 
     if (newData && Array.isArray(newData.applications)) {
@@ -97,7 +114,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog, accessToken, workflowId]);
+  }, [page, hasMore, isLoading, addLog, accessToken, workflowId, fromDate, toDate, status, searchTerm]);
   
   useEffect(() => {
     if (isInitialLoad.current) {
@@ -111,15 +128,9 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
 
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return applications;
-    const lowercasedFilter = searchTerm.toLowerCase();
-    return applications.filter(
-      (item) =>
-        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
-        item.patta_no.toLowerCase().includes(lowercasedFilter) ||
-        item.application_status.name.toLowerCase().includes(lowercasedFilter)
-    );
-  }, [applications, searchTerm]);
+    // Client-side search is disabled as we are now using server-side search.
+    return applications;
+  }, [applications]);
   
   const handleRowClick = (app: ApplicationListItem) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries&type=${type}&actionContext=${app.form_type}&workflow_sequence_id=${app.workflow_sequence_id}`);
@@ -130,7 +141,7 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-4">
         <Input
-          placeholder="Search by Application ID..."
+          placeholder="Search by Patta No..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-xs"
@@ -175,12 +186,12 @@ export function PendingEnquiriesTable({ initialData, accessToken, workflowId, st
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="review">In Review</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
+                {statuses.map(s => <SelectItem key={s.id} value={s.id}>{s.status_name}</SelectItem>)}
             </SelectContent>
         </Select>
-        <Button>Search</Button>
+        <Button onClick={handleSearch} disabled={isLoading}>
+          {isLoading ? <Loader2 className='animate-spin' /> : 'Search'}
+        </Button>
       </div>
       <div className="rounded-md border bg-card">
         <Table>

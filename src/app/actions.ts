@@ -30,6 +30,10 @@ interface SignUpResponse extends BaseApiResponse {
     data: null;
 }
 
+interface Filters {
+  [key: string]: any;
+}
+
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://conversionapi.globizsapp.com/api';
 
@@ -672,11 +676,22 @@ export async function requestReverification(payload: any, token: string | undefi
 
 
 // --- LEGACY DATA ACTIONS ---
-export async function getLegacyData(accessToken: string, page = 1, limit = 10) {
+export async function getLegacyData(accessToken: string, page = 1, limit = 10, filters: Filters = {}) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
-    let url = `/legacy/list?page=${page}&limit=${limit}`;
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            params.append(key, filters[key]);
+        }
+    });
+
+    const url = `/legacy/list?${params.toString()}`;
     const { data, debugLog } = await fetchFromApi(url, accessToken);
     return { data, log: debugLog };
 }
@@ -725,12 +740,19 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
 }
 
 
-export async function exportLegacyDataToExcel(token: string | undefined) {
+export async function exportLegacyDataToExcel(token: string | undefined, filters: Filters = {}) {
   if (!token) {
     return { success: false, message: 'Authentication token not found.', data: null };
   }
 
-  const url = `${API_BASE_URL}/legacy/export-excel`;
+  const params = new URLSearchParams();
+  Object.keys(filters).forEach(key => {
+      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+          params.append(key, filters[key]);
+      }
+  });
+
+  const url = `${API_BASE_URL}/legacy/export-excel?${params.toString()}`;
   let debugLog = '--- Exporting Legacy Data to Excel ---\n';
   debugLog += `Request URL: GET ${url}\n`;
 
@@ -879,26 +901,42 @@ export async function getRelationships(token: string) {
     return { data: Array.isArray(data) ? data : [], log: debugLog };
 }
 
-export async function getApplications(accessToken: string, page = 1, limit = 10, workflow_sequence_id: number | null = null) {
+export async function getApplications(accessToken: string, page = 1, limit = 10, workflow_sequence_id: number | null = null, filters: Filters = {}) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
 
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    if (workflow_sequence_id !== null) {
+        params.append('workflow_sequence_id', workflow_sequence_id.toString());
+    }
+
+    Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            params.append(key, filters[key]);
+        }
+    });
+
     const hillWorkflowIds = [63, 64, 65, 66, 67, 68, 69];
     const isHillWorkflow = workflow_sequence_id !== null && hillWorkflowIds.includes(workflow_sequence_id);
 
-    let url;
+    let baseUrl;
     if (workflow_sequence_id) {
         if (isHillWorkflow) {
-            url = `/applications/lists_for_hills?page=${page}&limit=${limit}&workflow_sequence_id=${workflow_sequence_id}`;
+            baseUrl = '/applications/lists_for_hills';
         } else {
-            url = `/applications/lists?page=${page}&limit=${limit}&workflow_sequence_id=${workflow_sequence_id}`;
+            baseUrl = '/applications/lists';
         }
     } else {
         // This is for the "My Applications" page specifically
-        url = `/applications/lists-combined?page=${page}&limit=${limit}`;
+        baseUrl = '/applications/lists-combined';
     }
     
+    const url = `${baseUrl}?${params.toString()}`;
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
     // Normalize hill application data to have consistent property names
@@ -990,15 +1028,26 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
     return { data, log: debugLog };
 }
 
-export async function getOtherApplications(accessToken: string, page = 1, limit = 10, workflow_sequence_id: number | null = null) {
+export async function getOtherApplications(accessToken: string, page = 1, limit = 10, workflow_sequence_id: number | null = null, filters: Filters = {}) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
-    let url = `/applications/other_lists?page=${page}&limit=${limit}`;
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
 
-    if(workflow_sequence_id) {
-        url += `&workflow_sequence_id=${workflow_sequence_id}`;
+    if (workflow_sequence_id !== null) {
+        params.append('workflow_sequence_id', workflow_sequence_id.toString());
     }
+    
+    Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            params.append(key, filters[key]);
+        }
+    });
+
+    const url = `/applications/other_lists?${params.toString()}`;
 
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
@@ -1029,11 +1078,22 @@ export async function getOtherApplications(accessToken: string, page = 1, limit 
 }
 
 
-export async function getHillApplications(accessToken: string, page = 1, limit = 10) {
+export async function getHillApplications(accessToken: string, page = 1, limit = 10, filters: Filters = {}) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
-    const url = `/applications/lists_for_hills?page=${page}&limit=${limit}`;
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+    
+    Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            params.append(key, filters[key]);
+        }
+    });
+
+    const url = `/applications/lists_for_hills?${params.toString()}`;
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
     if (data && data['0']) {
@@ -1051,11 +1111,22 @@ export async function getHillApplications(accessToken: string, page = 1, limit =
     return { data: null, log: debugLog };
 }
 
-export async function getLlmcApplications(accessToken: string, page = 1, limit = 10) {
+export async function getLlmcApplications(accessToken: string, page = 1, limit = 10, filters: Filters = {}) {
     if (!accessToken) {
       return { data: null, log: "No access token found" };
     }
-    const url = `/applications/llmc_lists?page=${page}&limit=${limit}`;
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            params.append(key, filters[key]);
+        }
+    });
+
+    const url = `/applications/llmc_lists?${params.toString()}`;
     const { data, debugLog } = await fetchFromApi(url, accessToken);
     if (data && (data.conversion_applications || data.diversion_applications)) {
         const conversionApps = data.conversion_applications || [];
@@ -1072,7 +1143,7 @@ export async function getLlmcApplications(accessToken: string, page = 1, limit =
     return { data, log: debugLog };
 }
 
-export async function getApplicationsByArea(accessToken: string, areaType: 'lesser' | 'greater' | 'all', page = 1, limit = 10) {
+export async function getApplicationsByArea(accessToken: string, areaType: 'lesser' | 'greater' | 'all', page = 1, limit = 10, filters: Filters = {}) {
     if (!accessToken) {
         return { data: null, log: "No access token found" };
     }
@@ -1080,9 +1151,20 @@ export async function getApplicationsByArea(accessToken: string, areaType: 'less
     let allApps: any[] = [];
     let combinedPagination = null;
     let combinedLogs = '';
+    
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+    
+    Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            params.append(key, filters[key]);
+        }
+    });
 
     const fetchAndCombine = async (type: 'lesser' | 'greater') => {
-        const url = `/area/${type}?page=${page}&limit=${limit}`;
+        const url = `/area/${type}?${params.toString()}`;
         const { data, debugLog } = await fetchFromApi(url, accessToken);
         combinedLogs += debugLog || '';
 
