@@ -15,7 +15,7 @@ export default async function LegacyDataDetailPage({ params }: { params: { id: s
     redirect('/');
   }
 
-  const { data: legacyRecord, log } = await getLegacyDataById(accessToken, id) as { data: FullLegacyDataResponse | null, log: string | undefined };
+  const { data: legacyRecord, log } = await getLegacyDataById(accessToken, id);
   
   if (!legacyRecord) {
     notFound();
@@ -28,3 +28,5 @@ export default async function LegacyDataDetailPage({ params }: { params: { id: s
     </>
   );
 }
+
+      

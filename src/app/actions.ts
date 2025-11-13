@@ -695,7 +695,7 @@ export async function getLegacyData(accessToken: string, page = 1, limit = 10, f
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
     if (data && data.legacies) {
-      return { data, log: debugLog };
+      return { data: data, log: debugLog };
     }
 
     return { data: { legacies: [], pagination: null }, log: debugLog };
@@ -1464,3 +1464,5 @@ function addLog(log: string) {
     
 
     
+
+      
