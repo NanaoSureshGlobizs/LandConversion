@@ -724,6 +724,53 @@ export async function submitLegacyData(payload: any, token: string | undefined) 
   }
 }
 
+
+export async function exportLegacyDataToExcel(token: string | undefined) {
+  if (!token) {
+    return { success: false, message: 'Authentication token not found.', data: null };
+  }
+
+  const url = `${API_BASE_URL}/applications/export-excel`;
+  let debugLog = '--- Exporting Legacy Data to Excel ---\n';
+  debugLog += `Request URL: GET ${url}\n`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      debugLog += `API Error: ${response.status} - ${errorText}\n`;
+      return { success: false, message: `Failed to export data: ${response.statusText}`, data: null, debugLog };
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+
+    debugLog += 'Successfully fetched Excel file.\n';
+
+    return {
+      success: true,
+      data: {
+        fileContent: base64,
+        fileName: 'legacy_data.xlsx',
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      },
+      debugLog
+    };
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    debugLog += `Error: ${errorMessage}\n`;
+    addLog(`exportLegacyDataToExcel error: ${error}`);
+    return { success: false, message: 'An unexpected error occurred during export.', data: null, debugLog };
+  }
+}
+
 // --- USER MANAGEMENT ACTIONS ---
 export async function getUsers(token: string) {
     const { data, debugLog } = await fetchFromApi('/profile', token);

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search, Calendar as CalendarIcon, Download } from 'lucide-react';
-import { getLegacyData } from '@/app/actions';
+import { getLegacyData, exportLegacyDataToExcel } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 interface LegacyDataTableProps {
   initialData: PaginatedLegacyData | null;
@@ -37,8 +38,10 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
+  const { toast } = useToast();
   const router = useRouter();
   const isInitialLoad = useRef(true);
 
@@ -79,6 +82,56 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
         loadMoreData();
     }
   }, [isNearScreen, loadMoreData]);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    const result = await exportLegacyDataToExcel(accessToken);
+
+    if (result.debugLog) {
+      addLog(result.debugLog);
+    }
+
+    if (result.success && result.data) {
+      try {
+        const { fileContent, fileName, mimeType } = result.data;
+        const byteCharacters = atob(fileContent);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mimeType });
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        toast({
+            title: 'Export Successful',
+            description: 'The legacy data has been exported to Excel.',
+        });
+      } catch (error) {
+        toast({
+          title: 'Export Failed',
+          description: 'Could not process the downloaded file.',
+          variant: 'destructive',
+        });
+        console.error("Error creating blob from base64:", error);
+      }
+    } else {
+      toast({
+        title: 'Export Failed',
+        description: result.message || 'An unknown error occurred during export.',
+        variant: 'destructive',
+      });
+    }
+
+    setIsExporting(false);
+  };
 
 
   const filteredData = useMemo(() => {
@@ -144,8 +197,8 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
                 <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
             </PopoverContent>
         </Popover>
-        <Button variant="outline" className="w-full md:w-auto">
-            <Download className="mr-2"/>
+        <Button variant="outline" className="w-full md:w-auto" onClick={handleExport} disabled={isExporting}>
+            {isExporting ? <Loader2 className="mr-2 animate-spin"/> : <Download className="mr-2"/>}
             Export
         </Button>
       </div>
