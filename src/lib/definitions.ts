@@ -70,7 +70,7 @@ export interface Application {
   highlight: boolean;
   can_edit: boolean;
   land_address: string; // Added for hill applications
-  application_type?: 'hill' | 'normal'; // Added to distinguish application types
+  application_type?: 'hill' | 'normal' | 'plain'; // Added to distinguish application types
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
@@ -107,6 +107,7 @@ export interface ApplicationListItem {
   workflow_sequence_id: number;
   applied_area: string;
   status_name: ApplicationStatusName;
+  application_type: 'hill' | 'plain';
   application_status: {
     name: ApplicationStatusName;
     foreground_color: string;
@@ -131,6 +132,7 @@ export interface PaginatedApplications {
     currentPage: number;
     perPage: number;
   } | null; // Pagination can be null for some endpoints
+  data?: any; // To accommodate the nested data structure
 }
 
 export interface LegacyDataItem {
@@ -247,5 +249,3 @@ export interface PaginatedHillApplications {
     perPage: number;
   };
 }
-
-    

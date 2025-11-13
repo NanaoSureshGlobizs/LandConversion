@@ -31,12 +31,9 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   
-  // Handle both data structures for pagination
-  const pagination = initialData?.pagination;
-
-  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.applications || []);
-  const [page, setPage] = useState(pagination?.currentPage || 1);
-  const [hasMore, setHasMore] = useState(pagination ? (pagination.currentPage < pagination.pageCount) : false);
+  const [applications, setApplications] = useState<ApplicationListItem[]>(initialData?.data || []);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(!!initialData?.pagination && initialData.pagination.currentPage < initialData.pagination.pageCount);
   const [isLoading, setIsLoading] = useState(false);
   const externalRef = useRef(null);
   const { addLog } = useDebug();
@@ -56,7 +53,7 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     addLog(log || "Log for getApplications");
 
     if (newData) {
-      const newApps = newData.applications || [];
+      const newApps = newData.data || [];
       const newPagination = newData.pagination;
 
       if (Array.isArray(newApps)) {
@@ -98,7 +95,8 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
   }, [applications, searchTerm]);
 
   const handleRowClick = (app: ApplicationListItem) => {
-    router.push(`/dashboard/my-applications/${app.id}?workflow_sequence_id=${app.workflow_sequence_id}`);
+    const isHill = app.application_type === 'hill';
+    router.push(`/dashboard/my-applications/${app.id}?workflow_sequence_id=${app.workflow_sequence_id}${isHill ? '&is_hill=true' : ''}`);
   };
 
   return (
@@ -180,5 +178,3 @@ export function ApplicationsTable({ initialData, accessToken }: ApplicationsTabl
     </div>
   );
 }
-
-    

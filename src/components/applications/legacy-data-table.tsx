@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -47,7 +46,29 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   const isInitialLoad = useRef(true);
 
   const [legacyType, setLegacyType] = useState('all');
-  const [date, setDate] = useState<Date | undefined>();
+  const [fromDate, setFromDate] = useState<Date | undefined>();
+  const [toDate, setToDate] = useState<Date | undefined>();
+  
+  const handleSearch = async () => {
+      setIsLoading(true);
+      const filters = {
+          order_no: searchTerm,
+          from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
+          to_date: toDate ? format(toDate, 'yyyy-MM-dd') : undefined,
+          legacy_type: legacyType !== 'all' ? legacyType : undefined,
+      };
+      const { data: newData, log } = await getLegacyData(accessToken, 1, 10, filters);
+      addLog(log || "Log for getLegacyData with filters");
+      if (newData && Array.isArray(newData.legacies)) {
+          setData(newData.legacies);
+          setPage(newData.pagination.currentPage);
+          setHasMore(newData.pagination.currentPage < newData.pagination.pageCount);
+      } else {
+          setData([]);
+          setHasMore(false);
+      }
+      setIsLoading(false);
+  };
 
 
   const { isNearScreen } = useNearScreen({
@@ -60,7 +81,13 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
 
     setIsLoading(true);
     const nextPage = page + 1;
-    const { data: newData, log } = await getLegacyData(accessToken, nextPage);
+    const filters = {
+        order_no: searchTerm,
+        from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
+        to_date: toDate ? format(toDate, 'yyyy-MM-dd') : undefined,
+        legacy_type: legacyType !== 'all' ? legacyType : undefined,
+    };
+    const { data: newData, log } = await getLegacyData(accessToken, nextPage, 10, filters);
     addLog(log || "Log for getLegacyData");
 
     if (newData && Array.isArray(newData.legacies)) {
@@ -72,7 +99,7 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     }
     
     setIsLoading(false);
-  }, [page, hasMore, isLoading, addLog, accessToken]);
+  }, [page, hasMore, isLoading, addLog, accessToken, searchTerm, fromDate, toDate, legacyType]);
   
   useEffect(() => {
     if (isInitialLoad.current) {
@@ -134,16 +161,6 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     setIsExporting(false);
   };
 
-
-  const filteredData = useMemo(() => {
-    return data.filter(item => {
-        const searchTermMatch = item.order_no.toLowerCase().includes(searchTerm.toLowerCase());
-        const typeMatch = legacyType === 'all' || item.status_name === legacyType;
-        // Add date filtering logic if needed
-        return searchTermMatch && typeMatch;
-    });
-  }, [data, searchTerm, legacyType]);
-
   const getStatusVariant = (status: 'Review' | 'Approve' | 'Reject'): 'default' | 'destructive' | 'secondary' => {
       switch(status) {
           case 'Approve': return 'default';
@@ -160,8 +177,8 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row items-center gap-4">
-        <div className="relative flex-grow w-full md:w-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="relative col-span-1 lg:col-span-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
             placeholder="Search by Order No."
@@ -171,7 +188,7 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
             />
         </div>
         <Select value={legacyType} onValueChange={setLegacyType}>
-            <SelectTrigger className="w-full md:w-[200px]">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Filter by Type" />
             </SelectTrigger>
             <SelectContent>
@@ -181,24 +198,45 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
                 <SelectItem value="Review">Review</SelectItem>
             </SelectContent>
         </Select>
-        <Popover>
+         <Popover>
             <PopoverTrigger asChild>
                 <Button
                     variant={'outline'}
                     className={cn(
-                    'w-full md:w-[240px] justify-start text-left font-normal',
-                    !date && 'text-muted-foreground'
+                    'w-full justify-start text-left font-normal',
+                    !fromDate && 'text-muted-foreground'
                     )}
                 >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, 'PPP') : <span>Filter by Date</span>}
+                    {fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+                <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
             </PopoverContent>
         </Popover>
-        <Button variant="outline" className="w-full md:w-auto" onClick={handleExport} disabled={isExporting}>
+         <Popover>
+            <PopoverTrigger asChild>
+                <Button
+                    variant={'outline'}
+                    className={cn(
+                    'w-full justify-start text-left font-normal',
+                    !toDate && 'text-muted-foreground'
+                    )}
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, 'PPP') : <span>To Date</span>}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
+            </PopoverContent>
+        </Popover>
+        <Button className="w-full" onClick={handleSearch} disabled={isLoading}>
+            {isLoading ? <Loader2 className="animate-spin" /> : <Search className="mr-2"/>}
+            Search
+        </Button>
+        <Button variant="outline" className="w-full" onClick={handleExport} disabled={isExporting}>
             {isExporting ? <Loader2 className="mr-2 animate-spin"/> : <Download className="mr-2"/>}
             Export
         </Button>
@@ -214,8 +252,8 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.length > 0 ? (
-              filteredData.map((item, index) => (
+            {data.length > 0 ? (
+              data.map((item, index) => (
                 <TableRow key={`${item.id}-${item.order_no}-${index}`} onClick={() => handleRowClick(item.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{item.order_no}</TableCell>
                   <TableCell>{item.order_date}</TableCell>
@@ -263,5 +301,3 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     </div>
   );
 }
-
-    

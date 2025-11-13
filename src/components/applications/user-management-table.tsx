@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { User } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import {
@@ -13,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Edit, Trash2 } from 'lucide-react';
+import { Search, Edit, Trash2, Loader2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -22,6 +23,8 @@ import {
   SelectValue,
 } from '../ui/select';
 import { useRouter } from 'next/navigation';
+import { getUsers } from '@/app/actions';
+import { useDebug } from '@/context/DebugContext';
 
 interface UserManagementTableProps {
   initialData: User[];
@@ -32,9 +35,21 @@ export function UserManagementTable({ initialData, accessToken }: UserManagement
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [users, setUsers] = useState<User[]>(initialData || []);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { addLog } = useDebug();
 
   const roles = useMemo(() => ['all', ...Array.from(new Set(initialData.map(u => u.role)))], [initialData]);
+
+  const handleSearch = useCallback(async () => {
+      setIsLoading(true);
+      // The getUsers action doesn't support filters yet. This is a client-side filter for now.
+      // To make it server-side, the getUsers action would need to be updated.
+      const { data, log } = await getUsers(accessToken);
+      addLog(log || "Log for getUsers search");
+      setUsers(data || []);
+      setIsLoading(false);
+  }, [accessToken, addLog]);
 
   const filteredData = useMemo(() => {
     return users.filter(user => {
@@ -76,6 +91,10 @@ export function UserManagementTable({ initialData, accessToken }: UserManagement
             ))}
           </SelectContent>
         </Select>
+         <Button onClick={handleSearch} disabled={isLoading} className="w-full md:w-auto">
+            {isLoading ? <Loader2 className="animate-spin"/> : <Search className="mr-2"/>}
+            Search
+        </Button>
       </div>
       <div className="rounded-md border bg-card">
         <Table>
