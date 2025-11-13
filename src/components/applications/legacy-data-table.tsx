@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -170,7 +171,7 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
             />
         </div>
         <Select value={legacyType} onValueChange={setLegacyType}>
-            <SelectTrigger className="w-full md:w-[180px]">
+            <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue placeholder="Filter by Type" />
             </SelectTrigger>
             <SelectContent>
@@ -214,8 +215,8 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
-              filteredData.map((item) => (
-                <TableRow key={item.id} onClick={() => handleRowClick(item.id)} className="cursor-pointer">
+              filteredData.map((item, index) => (
+                <TableRow key={`${item.id}-${item.order_no}-${index}`} onClick={() => handleRowClick(item.id)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{item.order_no}</TableCell>
                   <TableCell>{item.order_date}</TableCell>
                   <TableCell>
@@ -262,3 +263,5 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     </div>
   );
 }
+
+    

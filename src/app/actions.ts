@@ -730,7 +730,7 @@ export async function exportLegacyDataToExcel(token: string | undefined) {
     return { success: false, message: 'Authentication token not found.', data: null };
   }
 
-  const url = `${API_BASE_URL}/applications/export-excel`;
+  const url = `${API_BASE_URL}/legacy/export-excel`;
   let debugLog = '--- Exporting Legacy Data to Excel ---\n';
   debugLog += `Request URL: GET ${url}\n`;
 
@@ -1356,6 +1356,8 @@ function addLog(log: string) {
 
 
 
+
+    
 
     
 
