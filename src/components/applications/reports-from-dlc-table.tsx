@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -12,7 +13,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, CalendarIcon } from 'lucide-react';
+import { Loader2, CalendarIcon, Filter, Search } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
@@ -24,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Separator } from '../ui/separator';
 
 interface ReportsFromDlcTableProps {
   initialData: PaginatedApplications | null;
@@ -91,56 +93,52 @@ export function ReportsFromDlcTable({ initialData, districts, accessToken }: Rep
     router.push(`/dashboard/application/${app.id}?from=/dashboard/reports-from-dlc&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
+  const activeFilterCount = [district, fromDate, toDate].filter(Boolean).length;
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4">
-        <Select value={district} onValueChange={setDistrict}>
-            <SelectTrigger className="w-[240px]">
-                <SelectValue placeholder="Select District" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">All Districts</SelectItem>
-                {districts.map(d => (
-                  <SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                    'w-[240px] justify-start text-left font-normal',
-                    !fromDate && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
-            </PopoverContent>
-        </Popover>
-         <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                    'w-[240px] justify-start text-left font-normal',
-                    !toDate && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {toDate ? format(toDate, 'PPP') : <span>To Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
-            </PopoverContent>
-        </Popover>
-      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+           <Button variant="outline">
+              <Filter className="mr-2 h-4 w-4" />
+              Filter Reports
+              {activeFilterCount > 0 && <Badge variant="secondary" className="ml-2">{activeFilterCount}</Badge>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80" align="start">
+           <div className="space-y-4">
+              <div className="space-y-2">
+                  <p className="text-sm font-medium">Filter Reports</p>
+                  <p className="text-sm text-muted-foreground">Apply filters to find specific reports.</p>
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                  <Select value={district} onValueChange={setDistrict}>
+                      <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Districts</SelectItem>
+                          {districts.map(d => (<SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>))}
+                      </SelectContent>
+                  </Select>
+                  <Popover>
+                      <PopoverTrigger asChild><Button variant={'outline'} className={cn('w-full justify-start text-left font-normal', !fromDate && 'text-muted-foreground')}><CalendarIcon className="mr-2 h-4 w-4" />{fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}</Button></PopoverTrigger>
+                      <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus /></PopoverContent>
+                  </Popover>
+                  <Popover>
+                      <PopoverTrigger asChild><Button variant={'outline'} className={cn('w-full justify-start text-left font-normal', !toDate && 'text-muted-foreground')}><CalendarIcon className="mr-2 h-4 w-4" />{toDate ? format(toDate, 'PPP') : <span>To Date</span>}</Button></PopoverTrigger>
+                      <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus /></PopoverContent>
+                  </Popover>
+              </div>
+               <div className="flex justify-between">
+                  <Button variant="ghost">Clear</Button>
+                  <Button>
+                     <Search className="mr-2 h-4 w-4" />
+                     Apply
+                  </Button>
+               </div>
+           </div>
+        </PopoverContent>
+      </Popover>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -14,12 +15,15 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, Search, Filter } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
 import Link from 'next/link';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Separator } from '../ui/separator';
+import { Badge } from '../ui/badge';
 
 interface UnprocessedApplicationsTableProps {
   initialData: PaginatedApplications | null;
@@ -44,8 +48,6 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
     once: false,
   });
   
-  // This effect resets the state when the initial data prop changes.
-  // This is crucial for when the user navigates between "Conversion" and "Diversion" tabs.
   useEffect(() => {
     setApplications(initialData?.applications || []);
     setPage(initialData?.pagination.currentPage || 1);
@@ -96,42 +98,62 @@ export function UnprocessedApplicationsTable({ initialData, accessToken }: Unpro
     router.push(`/dashboard/my-applications/${app.id}?from=/dashboard/unprocessed-applications&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
+  const activeFilterCount = [searchTerm, dateRange, status].filter(Boolean).length;
+
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative flex-grow sm:flex-grow-0 sm:min-w-[300px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-            placeholder="Search by App ID, Patta No."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-            />
-        </div>
-        <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Date Range" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="yesterday">Yesterday</SelectItem>
-                <SelectItem value="last7">Last 7 days</SelectItem>
-                <SelectItem value="last30">Last 30 days</SelectItem>
-                <SelectItem value="this_month">This month</SelectItem>
-            </SelectContent>
-        </Select>
-         <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="in_review">In Review</SelectItem>
-                <SelectItem value="processed">Processed</SelectItem>
-            </SelectContent>
-        </Select>
-      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+           <Button variant="outline">
+              <Filter className="mr-2 h-4 w-4" />
+              Filter Applications
+              {activeFilterCount > 0 && <Badge variant="secondary" className="ml-2">{activeFilterCount}</Badge>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80" align="start">
+           <div className="space-y-4">
+              <div className="space-y-2">
+                  <p className="text-sm font-medium">Filter Applications</p>
+                  <p className="text-sm text-muted-foreground">Apply filters to find specific applications.</p>
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                  <Input
+                    placeholder="Search by App ID, Patta No."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Select value={dateRange} onValueChange={setDateRange}>
+                      <SelectTrigger><SelectValue placeholder="Date Range" /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="today">Today</SelectItem>
+                          <SelectItem value="yesterday">Yesterday</SelectItem>
+                          <SelectItem value="last7">Last 7 days</SelectItem>
+                          <SelectItem value="last30">Last 30 days</SelectItem>
+                          <SelectItem value="this_month">This month</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <Select value={status} onValueChange={setStatus}>
+                      <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="new">New</SelectItem>
+                          <SelectItem value="in_review">In Review</SelectItem>
+                          <SelectItem value="processed">Processed</SelectItem>
+                      </SelectContent>
+                  </Select>
+              </div>
+               <div className="flex justify-between">
+                  <Button variant="ghost">Clear</Button>
+                  <Button>
+                     <Search className="mr-2 h-4 w-4" />
+                     Apply
+                  </Button>
+               </div>
+           </div>
+        </PopoverContent>
+      </Popover>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>

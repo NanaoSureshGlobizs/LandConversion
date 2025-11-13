@@ -14,7 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, CalendarIcon, Search } from 'lucide-react';
+import { Loader2, CalendarIcon, Search, Filter } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
@@ -26,6 +26,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import Link from 'next/link';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
+import { Separator } from '../ui/separator';
+import { Badge } from '../ui/badge';
 
 interface SdaoEnquiriesTableProps {
   initialData: PaginatedApplications | null;
@@ -81,6 +83,14 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
     };
     refreshData(filters);
   };
+  
+  const clearFilters = () => {
+    setSearchTerm('');
+    setFromDate(undefined);
+    setToDate(undefined);
+    setStatus('');
+    refreshData({});
+  };
 
   useEffect(() => {
     setApplications(initialData?.applications || []);
@@ -126,54 +136,51 @@ export function SdaoEnquiriesTable({ initialData, accessToken }: SdaoEnquiriesTa
   const handleRowClick = (app: ApplicationListItem) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/sdao-enquiries&type=${type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
+  
+  const activeFilterCount = [searchTerm, fromDate, toDate].filter(Boolean).length;
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Input
-          placeholder="Search by Patta No."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <Popover>
-          <PopoverTrigger asChild>
-              <Button
-                  variant={'outline'}
-                  className={cn(
-                  'w-full justify-start text-left font-normal',
-                  !fromDate && 'text-muted-foreground'
-                  )}
-              >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}
-              </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
-          </PopoverContent>
-        </Popover>
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                    'w-full justify-start text-left font-normal',
-                    !toDate && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {toDate ? format(toDate, 'PPP') : <span>To Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
-            </PopoverContent>
-        </Popover>
-        <Button onClick={handleSearch} disabled={isLoading}>
-          {isLoading ? <Loader2 className='animate-spin' /> : <Search />}
-          Search
-        </Button>
-      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+           <Button variant="outline">
+              <Filter className="mr-2 h-4 w-4" />
+              Filter Enquiries
+              {activeFilterCount > 0 && <Badge variant="secondary" className="ml-2">{activeFilterCount}</Badge>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80" align="start">
+           <div className="space-y-4">
+              <div className="space-y-2">
+                  <p className="text-sm font-medium">Filter Enquiries</p>
+                  <p className="text-sm text-muted-foreground">Apply filters to find specific enquiries.</p>
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                <Input
+                  placeholder="Search by Patta No."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Popover>
+                  <PopoverTrigger asChild><Button variant={'outline'} className={cn('w-full justify-start text-left font-normal',!fromDate && 'text-muted-foreground')}><CalendarIcon className="mr-2 h-4 w-4" />{fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}</Button></PopoverTrigger>
+                  <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus /></PopoverContent>
+                </Popover>
+                <Popover>
+                    <PopoverTrigger asChild><Button variant={'outline'} className={cn('w-full justify-start text-left font-normal',!toDate && 'text-muted-foreground')}><CalendarIcon className="mr-2 h-4 w-4" />{toDate ? format(toDate, 'PPP') : <span>To Date</span>}</Button></PopoverTrigger>
+                    <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus /></PopoverContent>
+                </Popover>
+              </div>
+               <div className="flex justify-between">
+                  <Button variant="ghost" onClick={clearFilters} disabled={isLoading}>Clear</Button>
+                  <Button onClick={handleSearch} disabled={isLoading}>
+                     {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                     Apply
+                  </Button>
+               </div>
+           </div>
+        </PopoverContent>
+      </Popover>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>

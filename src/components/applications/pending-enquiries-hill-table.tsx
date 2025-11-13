@@ -15,7 +15,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, CalendarIcon, FileText } from 'lucide-react';
+import { Loader2, CalendarIcon, FileText, Search, Filter } from 'lucide-react';
 import { getApplications } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
@@ -26,6 +26,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import Link from 'next/link';
+import { Separator } from '../ui/separator';
 
 interface PendingEnquiriesHillTableProps {
   initialData: PaginatedApplications | null;
@@ -55,9 +56,9 @@ export function PendingEnquiriesHillTable({ initialData, accessToken, workflowId
     once: false,
   });
 
-  const refreshData = useCallback(async () => {
+  const refreshData = useCallback(async (filters = {}) => {
     setIsLoading(true);
-    const { data: newData, log } = await getApplications(accessToken, 1, 10, workflowId);
+    const { data: newData, log } = await getApplications(accessToken, 1, 10, workflowId, filters);
     addLog(log || "Log for getApplications refresh");
     if (newData && Array.isArray(newData.applications)) {
         setApplications(newData.applications);
@@ -66,6 +67,25 @@ export function PendingEnquiriesHillTable({ initialData, accessToken, workflowId
     }
     setIsLoading(false);
   }, [accessToken, workflowId, addLog]);
+
+  const handleSearch = () => {
+    const filters = {
+      from_date: fromDate ? format(fromDate, 'yyyy-MM-dd') : '',
+      to_date: toDate ? format(toDate, 'yyyy-MM-dd') : '',
+      application_status_id: status === 'all' ? '' : status,
+      patta_no: searchTerm,
+    };
+    refreshData(filters);
+  };
+  
+  const clearFilters = () => {
+    setSearchTerm('');
+    setFromDate(undefined);
+    setToDate(undefined);
+    setStatus('');
+    refreshData({});
+  };
+
 
   useEffect(() => {
     setApplications(initialData?.applications || []);
@@ -102,78 +122,61 @@ export function PendingEnquiriesHillTable({ initialData, accessToken, workflowId
     }
   }, [isNearScreen, loadMoreApplications]);
 
-
-  const filteredData = useMemo(() => {
-    if (!searchTerm) return applications;
-    const lowercasedFilter = searchTerm.toLowerCase();
-    return applications.filter(
-      (item: any) =>
-        item.application_id?.toLowerCase().includes(lowercasedFilter) ||
-        item.status_name?.toLowerCase().includes(lowercasedFilter)
-    );
-  }, [applications, searchTerm]);
-  
   const handleRowClick = (app: ApplicationListItem) => {
     router.push(`/dashboard/application/${app.id}?from=/dashboard/pending-enquiries-hill&actionContext=${app.form_type}&workflow_sequence_id=${app.workflow_sequence_id}`);
   };
 
+  const activeFilterCount = [searchTerm, fromDate, toDate, status].filter(Boolean).length;
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4">
-        <Input
-          placeholder="Search by Application ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xs"
-        />
-         <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                    'w-[240px] justify-start text-left font-normal',
-                    !fromDate && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
-            </PopoverContent>
-        </Popover>
-         <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                    'w-[240px] justify-start text-left font-normal',
-                    !toDate && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {toDate ? format(toDate, 'PPP') : <span>To Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
-            </PopoverContent>
-        </Popover>
-        <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="review">In Review</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-            </SelectContent>
-        </Select>
-        <Button>Search</Button>
-      </div>
+       <Popover>
+        <PopoverTrigger asChild>
+           <Button variant="outline">
+              <Filter className="mr-2 h-4 w-4" />
+              Filter Enquiries
+              {activeFilterCount > 0 && <Badge variant="secondary" className="ml-2">{activeFilterCount}</Badge>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80" align="start">
+           <div className="space-y-4">
+              <div className="space-y-2">
+                  <p className="text-sm font-medium">Filter Enquiries</p>
+                  <p className="text-sm text-muted-foreground">Apply filters to find specific enquiries.</p>
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                  <Input
+                    placeholder="Search by Application ID..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Select value={status} onValueChange={setStatus}>
+                      <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                           {statuses.map(s => <SelectItem key={s.id} value={s.id}>{s.status_name}</SelectItem>)}
+                      </SelectContent>
+                  </Select>
+                  <Popover>
+                      <PopoverTrigger asChild><Button variant={'outline'} className={cn('w-full justify-start text-left font-normal', !fromDate && 'text-muted-foreground')}><CalendarIcon className="mr-2 h-4 w-4" />{fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}</Button></PopoverTrigger>
+                      <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus /></PopoverContent>
+                  </Popover>
+                  <Popover>
+                      <PopoverTrigger asChild><Button variant={'outline'} className={cn('w-full justify-start text-left font-normal', !toDate && 'text-muted-foreground')}><CalendarIcon className="mr-2 h-4 w-4" />{toDate ? format(toDate, 'PPP') : <span>To Date</span>}</Button></PopoverTrigger>
+                      <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus /></PopoverContent>
+                  </Popover>
+              </div>
+               <div className="flex justify-between">
+                  <Button variant="ghost" onClick={clearFilters} disabled={isLoading}>Clear</Button>
+                  <Button onClick={handleSearch} disabled={isLoading}>
+                     {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                     Apply
+                  </Button>
+               </div>
+           </div>
+        </PopoverContent>
+      </Popover>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
@@ -187,8 +190,8 @@ export function PendingEnquiriesHillTable({ initialData, accessToken, workflowId
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.length > 0 ? (
-              filteredData.map((app: any) => (
+            {applications.length > 0 ? (
+              applications.map((app: any) => (
                 <TableRow key={app.id} onClick={() => handleRowClick(app)} className="cursor-pointer">
                   <TableCell className="font-medium font-mono">{app.application_id || ''}</TableCell>
                   <TableCell>

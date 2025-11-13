@@ -14,7 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search, Calendar as CalendarIcon, Download } from 'lucide-react';
+import { Loader2, Search, Calendar as CalendarIcon, Download, Filter, X } from 'lucide-react';
 import { getLegacyData, exportLegacyDataToExcel } from '@/app/actions';
 import { useNearScreen } from '@/hooks/use-near-screen';
 import { useDebug } from '@/context/DebugContext';
@@ -27,6 +27,7 @@ import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '../ui/separator';
 
 interface LegacyDataTableProps {
   initialData: PaginatedLegacyData | null;
@@ -34,7 +35,6 @@ interface LegacyDataTableProps {
 }
 
 export function LegacyDataTable({ initialData, accessToken }: LegacyDataTableProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState<LegacyDataItem[]>(initialData?.legacies || []);
   const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
   const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
@@ -46,6 +46,8 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   const router = useRouter();
   const isInitialLoad = useRef(true);
 
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
   const [legacyType, setLegacyType] = useState('all');
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
@@ -69,6 +71,15 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
           setHasMore(false);
       }
       setIsLoading(false);
+  };
+  
+  const clearFilters = () => {
+    setSearchTerm('');
+    setLegacyType('all');
+    setFromDate(undefined);
+    setToDate(undefined);
+    // Optionally re-fetch data with no filters
+    handleSearch();
   };
 
 
@@ -181,73 +192,80 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
   const handleRowClick = (id: number) => {
     router.push(`/dashboard/legacy-data/${id}`);
   };
+  
+  const activeFilterCount = [searchTerm, legacyType !== 'all', fromDate, toDate].filter(Boolean).length;
+
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="relative col-span-1 lg:col-span-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-            placeholder="Search by Order No."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 w-full"
-            />
-        </div>
-        <Select value={legacyType} onValueChange={setLegacyType}>
-            <SelectTrigger className="w-full">
-                <SelectValue placeholder="Filter by Type" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="Approve">Approve</SelectItem>
-                <SelectItem value="Reject">Reject</SelectItem>
-                <SelectItem value="Review">Review</SelectItem>
-            </SelectContent>
-        </Select>
-         <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                    'w-full justify-start text-left font-normal',
-                    !fromDate && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus />
-            </PopoverContent>
+      <div className="flex justify-between items-center">
+        <Popover>
+          <PopoverTrigger asChild>
+             <Button variant="outline">
+                <Filter className="mr-2 h-4 w-4" />
+                Filter
+                {activeFilterCount > 0 && <Badge variant="secondary" className="ml-2">{activeFilterCount}</Badge>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80" align="start">
+             <div className="space-y-4">
+                <div className="space-y-2">
+                    <p className="text-sm font-medium">Filter Legacy Data</p>
+                    <p className="text-sm text-muted-foreground">Apply filters to find specific records.</p>
+                </div>
+                <Separator />
+                <div className="space-y-4">
+                    <Input
+                        placeholder="Search by Order No."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Select value={legacyType} onValueChange={setLegacyType}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Filter by Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            <SelectItem value="Approve">Approve</SelectItem>
+                            <SelectItem value="Reject">Reject</SelectItem>
+                            <SelectItem value="Review">Review</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant={'outline'} className={cn('w-full justify-start text-left font-normal', !fromDate && 'text-muted-foreground')}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {fromDate ? format(fromDate, 'PPP') : <span>From Date</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus /></PopoverContent>
+                    </Popover>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant={'outline'} className={cn('w-full justify-start text-left font-normal', !toDate && 'text-muted-foreground')}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {toDate ? format(toDate, 'PPP') : <span>To Date</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus /></PopoverContent>
+                    </Popover>
+                </div>
+                 <div className="flex justify-between">
+                    <Button variant="ghost" onClick={clearFilters} disabled={isLoading}>Clear</Button>
+                    <Button onClick={handleSearch} disabled={isLoading}>
+                       {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                       Apply
+                    </Button>
+                 </div>
+             </div>
+          </PopoverContent>
         </Popover>
-         <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                    'w-full justify-start text-left font-normal',
-                    !toDate && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {toDate ? format(toDate, 'PPP') : <span>To Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus />
-            </PopoverContent>
-        </Popover>
-        <Button className="w-full" onClick={handleSearch} disabled={isLoading}>
-            {isLoading ? <Loader2 className="animate-spin" /> : <Search className="mr-2"/>}
-            Search
-        </Button>
-        <Button variant="outline" className="w-full" onClick={handleExport} disabled={isExporting}>
+        <Button variant="outline" className="w-full sm:w-auto" onClick={handleExport} disabled={isExporting}>
             {isExporting ? <Loader2 className="mr-2 animate-spin"/> : <Download className="mr-2"/>}
-            Export
+            Export to Excel
         </Button>
       </div>
+
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
