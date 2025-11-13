@@ -16,7 +16,7 @@ export default async function LegacyDataPage() {
     redirect('/');
   }
   
-  const { data: initialLegacyData, log } = await getLegacyData(accessToken);
+  const { data, log } = await getLegacyData(accessToken);
 
   return (
     <>
@@ -35,10 +35,12 @@ export default async function LegacyDataPage() {
           Manage and view historical legacy data records.
         </p>
         <LegacyDataTable 
-            initialData={initialLegacyData} 
+            initialData={data} 
             accessToken={accessToken}
         />
       </div>
     </>
   );
 }
+
+    
