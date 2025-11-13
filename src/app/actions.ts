@@ -711,6 +711,7 @@ export async function getLegacyDataById(token: string, id: string) {
     return { data, log: debugLog };
 }
 
+
 export async function submitLegacyData(payload: any, token: string | undefined) {
   if (!token) {
     return { success: false, message: 'Authentication token not found.', debugLog: 'submitLegacyData Error: No auth token provided.' };
