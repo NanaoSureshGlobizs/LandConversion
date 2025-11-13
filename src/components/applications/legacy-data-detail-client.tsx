@@ -32,15 +32,23 @@ interface LegacyDataDetailClientProps {
 
 export function LegacyDataDetailClient({ legacyRecord }: LegacyDataDetailClientProps) {
 
-  const getStatusVariant = (status: 'Review' | 'Approve' | 'Reject'): 'default' | 'destructive' | 'secondary' => {
-      switch(status) {
-          case 'Approve': return 'default';
-          case 'Reject': return 'destructive';
-          case 'Review':
+  const getStatusVariant = (statusId: number): 'default' | 'destructive' | 'secondary' => {
+      switch(statusId) {
+          case 1: return 'default'; // Approve
+          case 2: return 'destructive'; // Reject
           default:
-            return 'secondary';
+            return 'secondary'; // Review
       }
   }
+
+    const getStatusName = (statusId: number): 'Approve' | 'Reject' | 'Review' => {
+        switch(statusId) {
+            case 1: return 'Approve';
+            case 2: return 'Reject';
+            default: return 'Review';
+        }
+    }
+
 
   return (
     <div className="flex-1 space-y-6 px-4 md:px-8">
@@ -75,21 +83,25 @@ export function LegacyDataDetailClient({ legacyRecord }: LegacyDataDetailClientP
                     <CardTitle>Documents</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {legacyRecord.file_name && legacyRecord.file_path ? (
-                        <div className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
-                            <div className="flex items-center gap-3">
-                                <FileText className="text-muted-foreground" />
-                                <span className="font-mono text-sm">{legacyRecord.file_name}</span>
-                            </div>
-                            <Button variant="outline" size="sm" asChild>
-                                <a href={legacyRecord.file_path} target="_blank" rel="noopener noreferrer">
-                                    <Download className="mr-2"/>
-                                    View
-                                </a>
-                            </Button>
+                    {legacyRecord.uploaded_files && legacyRecord.uploaded_files.length > 0 ? (
+                        <div className="space-y-2">
+                            {legacyRecord.uploaded_files.map(file => (
+                                <div key={file.id} className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
+                                    <div className="flex items-center gap-3">
+                                        <FileText className="text-muted-foreground" />
+                                        <span className="font-mono text-sm">{file.file_name}</span>
+                                    </div>
+                                    <Button variant="outline" size="sm" asChild>
+                                        <a href={file.full_path} target="_blank" rel="noopener noreferrer">
+                                            <Download className="mr-2"/>
+                                            View
+                                        </a>
+                                    </Button>
+                                </div>
+                            ))}
                         </div>
                     ) : (
-                        <p className="text-muted-foreground">No document attached to this record.</p>
+                        <p className="text-muted-foreground">No documents attached to this record.</p>
                     )}
                 </CardContent>
             </Card>
@@ -106,8 +118,8 @@ export function LegacyDataDetailClient({ legacyRecord }: LegacyDataDetailClientP
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Status</p>
-                        <Badge variant={getStatusVariant(legacyRecord.status_name)} className="text-base mt-1">
-                            {legacyRecord.status_name}
+                        <Badge variant={getStatusVariant(legacyRecord.legacy_type)} className="text-base mt-1">
+                            {getStatusName(legacyRecord.legacy_type)}
                         </Badge>
                     </div>
                 </CardContent>

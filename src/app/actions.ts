@@ -697,7 +697,14 @@ export async function getLegacyData(accessToken: string, page = 1, limit = 10, f
 }
 
 export async function getLegacyDataById(token: string, id: string) {
-    const { data, debugLog } = await fetchFromApi(`/legacy/${id}`, token);
+    const url = `/legacy/view?legacy_id=${id}`;
+    const { data, debugLog } = await fetchFromApi(url, token);
+    
+    // The response is nested, extract it
+    if (data && data.data) {
+        return { data: data.data, log: debugLog };
+    }
+    
     return { data, log: debugLog };
 }
 

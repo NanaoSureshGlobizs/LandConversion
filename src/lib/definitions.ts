@@ -145,9 +145,21 @@ export interface LegacyDataItem {
   file_path: string | null;
 }
 
-export type FullLegacyDataResponse = LegacyDataItem & {
-    remark?: string;
-};
+export interface FullLegacyDataResponse {
+  id: number;
+  order_no: string;
+  order_date: string;
+  legacy_type: 1 | 2; // 1 for Approve, 2 for Reject
+  remark?: string;
+  uploaded_files: {
+      id: number;
+      legacy_data_id: number;
+      file_name: string;
+      file_path: string;
+      full_path: string;
+  }[];
+}
+
 
 export interface PaginatedLegacyData {
   legacies: LegacyDataItem[];
