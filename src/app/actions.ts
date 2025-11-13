@@ -693,18 +693,17 @@ export async function getLegacyData(accessToken: string, page = 1, limit = 10, f
 
     const url = `/legacy/list?${params.toString()}`;
     const { data, debugLog } = await fetchFromApi(url, accessToken);
-    return { data, log: debugLog };
+
+    if (data && data.legacies) {
+      return { data, log: debugLog };
+    }
+
+    return { data: { legacies: [], pagination: null }, log: debugLog };
 }
 
 export async function getLegacyDataById(token: string, id: string) {
     const url = `/legacy/view?legacy_id=${id}`;
     const { data, debugLog } = await fetchFromApi(url, token);
-    
-    // The response is nested, extract it
-    if (data && data.data) {
-        return { data: data.data, log: debugLog };
-    }
-    
     return { data, log: debugLog };
 }
 
@@ -1456,3 +1455,6 @@ function addLog(log: string) {
 
     
 
+
+
+    

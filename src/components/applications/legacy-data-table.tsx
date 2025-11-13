@@ -36,8 +36,8 @@ interface LegacyDataTableProps {
 
 export function LegacyDataTable({ initialData, accessToken }: LegacyDataTableProps) {
   const [data, setData] = useState<LegacyDataItem[]>(initialData?.legacies || []);
-  const [page, setPage] = useState(initialData?.pagination.currentPage || 1);
-  const [hasMore, setHasMore] = useState( (initialData?.pagination.currentPage || 1) < (initialData?.pagination.pageCount || 1) );
+  const [page, setPage] = useState(initialData?.pagination?.currentPage || 1);
+  const [hasMore, setHasMore] = useState( (initialData?.pagination?.currentPage || 1) < (initialData?.pagination?.pageCount || 1) );
   const [isLoading, setIsLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const externalRef = useRef(null);
@@ -326,3 +326,6 @@ export function LegacyDataTable({ initialData, accessToken }: LegacyDataTablePro
     </div>
   );
 }
+
+
+    
