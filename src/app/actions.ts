@@ -695,7 +695,7 @@ export async function getLegacyData(accessToken: string, page = 1, limit = 10, f
     const { data, debugLog } = await fetchFromApi(url, accessToken);
 
     if (data && data.legacies) {
-      return { data: data, log: debugLog };
+      return { data: { legacies: data.legacies, pagination: data.pagination }, log: debugLog };
     }
 
     return { data: { legacies: [], pagination: null }, log: debugLog };
@@ -704,10 +704,11 @@ export async function getLegacyData(accessToken: string, page = 1, limit = 10, f
 export async function getLegacyDataById(token: string, id: string) {
     const url = `/legacy/view?legacy_id=${id}`;
     const { data, debugLog } = await fetchFromApi(url, token);
-    // The API for a single record has a double-nested 'data' property.
+    
     if (data && data.data) {
         return { data: data.data, log: debugLog };
     }
+
     return { data, log: debugLog };
 }
 
@@ -1036,6 +1037,11 @@ export async function getApplications(accessToken: string, page = 1, limit = 10,
         };
     }
     
+    // Fallback for safety
+    if (data && !data.applications) {
+        return { data: { applications: [], pagination: data.pagination || null }, log: debugLog };
+    }
+
     return { data, log: debugLog };
 }
 
